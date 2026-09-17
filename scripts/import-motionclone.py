@@ -10,6 +10,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--source', required=True, type=Path, help='MotionClone project directory')
 args = parser.parse_args()
 target = Path(__file__).resolve().parent.parent
+policy = json.loads((target / 'data' / 'reference-policy.json').read_text(encoding='utf-8'))
 media_root = target / '.local-media'
 thumb_root = target / 'public' / 'references'
 media_root.mkdir(exist_ok=True)
@@ -28,6 +29,9 @@ for directory in sorted((args.source / 'data').iterdir()):
             sources.append((directory.name + '-' + video.stem, video, info.get('title', video.stem)))
 references = []
 for identifier, video, title in sources:
+    if identifier in policy['excluded']:
+        print(f'Skipped {identifier}: excluded by reference policy.', flush=True)
+        continue
     probe = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height:format=duration', '-of', 'json', str(video)], capture_output=True, text=True, check=True)
     details = json.loads(probe.stdout)
     duration = float(details['format']['duration'])
@@ -53,11 +57,11 @@ for identifier, video, title in sources:
         '227b019e7968': 'SaaS · Launch sequence', '5db95a3a7c73': 'Motion study 08',
         '5924a2f28506': 'Interface · Motion study'
     }
-    references.append({'id': identifier, 'name': aliases.get(identifier, name[:85]), 'originalName': str(title)[:200],
+    references.append({'id': identifier, 'name': policy.get('names', {}).get(identifier, aliases.get(identifier, name[:85])), 'originalName': str(title)[:200],
         'duration': round(duration, 3), 'width': details['streams'][0]['width'], 'height': details['streams'][0]['height'],
         'src': f'/media/references/{identifier}.mp4', 'poster': segments[0]['poster'], 'segments': segments})
     print(f'Imported {identifier}: {len(segments)} segments', flush=True)
-preferred = ['09a418cdd005', '09782d1f7c63', 'cf8c4707e634', '4d97811d6dae', '919ebec37a3b', '3227c09daea3']
+preferred = policy['featured']
 references.sort(key=lambda item: preferred.index(item['id']) if item['id'] in preferred else len(preferred))
 (thumb_root / 'catalog.json').write_text(json.dumps({'references': references}, indent=2, ensure_ascii=False), encoding='utf-8')
 print(f'Ready: {len(references)} references, {sum(len(r["segments"]) for r in references)} selectable segments.')

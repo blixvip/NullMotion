@@ -37,4 +37,7 @@ test('public workspace is standalone, read-only, and serves its own previews', a
   }
   assert.equal((await get('/%ZZ')).status, 400);
   assert.equal((await get('/api/v1/unknown')).status, 501);
+  const references = await (await get('/api/references')).json();
+  assert.ok(!references.references.some(reference => reference.id === 'nexa-references-2095595661559574528'));
+  assert.equal((await get('/media/references/nexa-references-2095595661559574528.mp4')).status, 404);
 });

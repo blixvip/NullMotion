@@ -28,7 +28,9 @@ The importer includes saved source videos and the standalone Nexa/Troovy referen
 
 Media, reference titles, and extracted thumbnails stay local and are excluded from Git. The server supports byte ranges so seeking does not read entire videos into memory. A fresh checkout opens with an empty library until references are imported or uploaded. Browser uploads last for the current session.
 
-The current local library contains 21 references and 182 segments. These are reference clips, not claims of commissioned work. Public hosting needs separately supplied media you can distribute.
+The curated local library contains 20 motion-graphics references and 142 segments. The live-action Astra promo is excluded by `data/reference-policy.json`; reimporting does not restore it. These are reference clips, not claims of commissioned work. Public hosting needs separately supplied media you can distribute.
+
+The preview displays source footage full-frame at its original proportions, with optional brand overlays, safe-area guides, and presentation mode. Brand layers do not rewrite text already in the footage. Saved custom sequences are retained; excluded references are removed from saved timelines when loaded.
 
 The optional `PORT` environment variable changes the port. `HOST` defaults to `127.0.0.1`; set it to your hosting environment's required bind address when deploying. This repository does not provision a hosted service.
 

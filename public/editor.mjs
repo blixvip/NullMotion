@@ -27,7 +27,7 @@ function toast(message) {
 function persist() {
   if (!state.initialized) return;
   try {
-    localStorage.setItem(STORAGE, JSON.stringify({ clips: state.clips.filter(clip => !refFor(clip.ref)?.uploaded), brand: $('brand-name').value, message: $('brand-message').value, accent: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(), paper: getComputedStyle(document.documentElement).getPropertyValue('--paper').trim(), aspect: $('aspect').value }));
+    localStorage.setItem(STORAGE, JSON.stringify({ clips: state.clips.filter(clip => !refFor(clip.ref)?.uploaded), brand: $('brand-name').value, message: $('brand-message').value, accent: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(), paper: getComputedStyle(document.documentElement).getPropertyValue('--paper').trim(), aspect: $('aspect').value, overlay: $('brand-visible').checked }));
     $('save-state').lastChild.textContent = ' Saved locally';
   } catch { $('save-state').lastChild.textContent = ' Not saved'; }
 }
@@ -45,11 +45,12 @@ function restoreHistory(direction) {
   renderTimeline(); seek(startOf(state.selected)); persist();
 }
 function demoClips() {
-  const picks = [0, 1, 2, 4].filter(index => state.references[index]);
-  return picks.map((referenceIndex, index) => {
-    const reference = state.references[referenceIndex];
-    const segment = reference.segments[Math.min(index % 3, reference.segments.length - 1)];
-    return { ...segment, label: ['The opening', 'The build', 'The reveal', 'The close'][index] };
+  const picks = [['69614b10fa87', 4], ['2896ae0eec89', 2], ['760ad39806d7', 1], ['3227c09daea3', 13]].filter(([id]) => refFor(id));
+  if (!picks.length) return state.references.slice(0, 4).map(reference => ({ ...reference.segments[0] }));
+  return picks.map(([id, part], index) => {
+    const reference = refFor(id);
+    const segment = reference.segments[Math.min(part, reference.segments.length - 1)];
+    return { ...segment, in: index === 0 ? +((segment.in + segment.out) / 2).toFixed(3) : segment.in, label: ['The opening', 'The build', 'The reveal', 'The close'][index] };
   });
 }
 function loadDemo() {
@@ -63,10 +64,7 @@ function brand() {
   document.querySelector('.brand-track-name').textContent = name;
   document.querySelector('.film-monogram').textContent = name[0].toUpperCase();
   const message = $('brand-message').value.trim() || 'Good ideas. Great motion.';
-  const split = message.indexOf('. ');
-  const headline = $('film-headline'); headline.replaceChildren();
-  if (split > -1) headline.append(document.createTextNode(message.slice(0, split + 1)), document.createElement('br'), element('em', '', message.slice(split + 2)));
-  else headline.textContent = message;
+  $('film-headline').textContent = message;
   clearTimeout(savedTimer); savedTimer = setTimeout(persist, 250);
 }
 function palette(accent, paper) {
@@ -133,9 +131,6 @@ function updateScene(index) {
   const clip = state.clips[index]; if (!clip) return;
   $('film-stage').dataset.scene = index % 4;
   $('film-progress').textContent = `${String(index + 1).padStart(2, '0')} / ${String(state.clips.length).padStart(2, '0')}`;
-  $('window-label').textContent = ['a new perspective', 'find your flow', 'made to stand out', 'your next chapter'][index % 4];
-  $('film-kicker').textContent = ['MAKE SOMETHING THAT MOVES.', 'A DIFFERENT KIND OF ENERGY.', 'EVERY DETAIL. YOUR DIRECTION.', 'READY FOR YOUR NEXT CHAPTER.'][index % 4];
-  $('film-subline').textContent = ['Your vision. Every frame.', 'One spark. Endless possibilities.', 'Built around your big idea.', 'This is where it begins.'][index % 4];
   $('preview-description').textContent = `${clip.label || `Moment ${index + 1}`} · ${refFor(clip.ref)?.name || 'Reference'}`;
 }
 function seek(time) {
@@ -145,6 +140,7 @@ function seek(time) {
   state.selected = position.index;
   const reference = refFor(state.clips[position.index].ref);
   if (!reference) return;
+  video.poster = state.clips[position.index].poster || reference.poster || '';
   updateScene(position.index); renderSelection();
   if (video.dataset.reference !== reference.id) {
     $('video-loading').hidden = false; $('video-loading').textContent = 'Loading your reference…';
@@ -157,6 +153,9 @@ function seek(time) {
 function playButtons() {
   $('play').innerHTML = state.playing ? '<span aria-hidden="true">Ⅱ</span>' : '<svg><use href="#i-play"/></svg>';
   $('play').setAttribute('aria-label', state.playing ? 'Pause sequence' : 'Play sequence');
+  $('canvas-play').innerHTML = state.playing ? '<span aria-hidden="true">Ⅱ</span>' : '<svg><use href="#i-play"/></svg>';
+  $('canvas-play').setAttribute('aria-label', state.playing ? 'Pause film' : 'Play film');
+  $('canvas-wrap').classList.toggle('is-playing', state.playing);
   $('play-top').innerHTML = state.playing ? 'Ⅱ &nbsp; Pause concept' : '<svg><use href="#i-play"/></svg>Play concept';
 }
 function tick() {
@@ -301,7 +300,14 @@ $('clips-track').addEventListener('drop', event => {
   else if (state.dragged?.type === 'clip') reorder(state.dragged.index, Math.min(index, state.clips.length - 1));
   state.dragged = null;
 });
-for (const id of ['play', 'play-top']) $(id).addEventListener('click', togglePlay);
+for (const id of ['play', 'play-top', 'canvas-play']) $(id).addEventListener('click', togglePlay);
+$('safe-area').addEventListener('click', () => {
+  const show = $('monitor-guides').hidden;
+  $('monitor-guides').hidden = !show; $('safe-area').setAttribute('aria-pressed', show);
+});
+$('brand-visible').addEventListener('change', () => {
+  $('film-stage').classList.toggle('no-brand', !$('brand-visible').checked); persist();
+});
 $('restart').addEventListener('click', () => { pause(); seek(0); });
 $('scrubber').addEventListener('input', () => { pause(); seek(Number($('scrubber').value)); });
 $('mute').addEventListener('click', () => { video.muted = !video.muted; $('mute').setAttribute('aria-pressed', video.muted); $('mute').setAttribute('aria-label', video.muted ? 'Unmute reference audio' : 'Mute reference audio'); document.querySelector('.mute-slash').hidden = !video.muted; });
@@ -322,7 +328,7 @@ $('rail-brand').addEventListener('click', () => { $('brand-panel').scrollIntoVie
 for (const mode of ['concept', 'reference']) $(`mode-${mode}`).addEventListener('click', () => {
   state.mode = mode; $('canvas-wrap').classList.toggle('reference-mode', mode === 'reference');
   for (const option of ['concept', 'reference']) { $(`mode-${option}`).classList.toggle('active', option === mode); $(`mode-${option}`).setAttribute('aria-pressed', option === mode); }
-  $('canvas-label').textContent = mode === 'concept' ? 'CONCEPT PREVIEW' : 'ORIGINAL REFERENCE';
+  $('canvas-label').textContent = mode === 'concept' ? 'FILM PREVIEW' : 'ORIGINAL REFERENCE';
 });
 $('close-dialog').addEventListener('click', closeReference);
 $('reference-dialog').addEventListener('close', () => { $('dialog-video').pause(); dialogTrigger?.focus(); });
@@ -365,6 +371,14 @@ async function initialize() {
       if (typeof saved.message === 'string') $('brand-message').value = saved.message.slice(0, 80);
       if (/^#[a-f\d]{6}$/i.test(saved.accent) && /^#[a-f\d]{6}$/i.test(saved.paper)) palette(saved.accent, saved.paper);
       if (['landscape', 'portrait', 'square'].includes(saved.aspect)) $('aspect').value = saved.aspect;
+      if (typeof saved.overlay === 'boolean') $('brand-visible').checked = saved.overlay;
+      $('film-stage').classList.toggle('no-brand', !$('brand-visible').checked);
+      const legacyPicks = [['09a418cdd005', 0], ['09782d1f7c63', 1], ['cf8c4707e634', 2], ['919ebec37a3b', 0]];
+      const untouchedLegacyDemo = state.clips.length === 4 && state.clips.every((clip, index) => {
+        const [id, part] = legacyPicks[index]; const source = refFor(id)?.segments[part];
+        return source && clip.ref === id && clip.in === source.in && clip.out === source.out && clip.label === ['The opening', 'The build', 'The reveal', 'The close'][index];
+      });
+      if (untouchedLegacyDemo) state.clips = demoClips();
     } else state.clips = demoClips();
     state.initialized = true;
     renderLibrary(); brand(); setAspect(); renderTimeline(); seek(0);

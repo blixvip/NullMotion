@@ -3,9 +3,11 @@ import { readFile, realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { streamVideo } from './media.js';
+import { curateReferences } from './public/reference-policy.mjs';
 
 const root = fileURLToPath(new URL('./public/', import.meta.url));
 const catalog = JSON.parse(await readFile(new URL('./data/template-catalog.json', import.meta.url), 'utf8'));
+const referencePolicy = JSON.parse(await readFile(new URL('./data/reference-policy.json', import.meta.url), 'utf8'));
 const templates = catalog.templates.map(template => ({
   ...template,
   ...template.output,
@@ -51,11 +53,17 @@ export function createApp() {
       return json(response, 403, { error: 'Forbidden.' });
     }
     if (pathname === '/api/references') {
-      try { return json(response, 200, JSON.parse(await readFile(new URL('./public/references/catalog.json', import.meta.url), 'utf8'))); }
+      try {
+        const library = JSON.parse(await readFile(new URL('./public/references/catalog.json', import.meta.url), 'utf8'));
+        return json(response, 200, { references: curateReferences(library.references || [], referencePolicy) });
+      }
       catch { return json(response, 200, { references: [] }); }
     }
     const mediaMatch = pathname.match(/^\/media\/references\/([a-z0-9-]+)\.mp4$/);
-    if (mediaMatch) return streamVideo(request, response, fileURLToPath(new URL(`./.local-media/${mediaMatch[1]}.mp4`, import.meta.url)));
+    if (mediaMatch) {
+      if (Object.hasOwn(referencePolicy.excluded, mediaMatch[1])) return json(response, 404, { error: 'Reference removed from this library.' });
+      return streamVideo(request, response, fileURLToPath(new URL(`./.local-media/${mediaMatch[1]}.mp4`, import.meta.url)));
+    }
     if (pathname === '/' || pathname === '/editor') pathname = '/editor.html';
     if (readOnly.has(pathname)) return json(response, 200, readOnly.get(pathname));
     const sourceMatch = pathname.match(/^\/api\/v1\/templates\/([^/]+)\/source$/);
