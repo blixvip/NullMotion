@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Chat Simulation</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1080px; height: 1920px; background: transparent; overflow: hidden;
+    font-family: "Inter", -apple-system, "SF Pro Text", system-ui, Arial, sans-serif;
+  }
+  #chat { position: absolute; left: 64px; right: 64px; top: 560px; display: flex; flex-direction: column; }
+
+  /* user message — grey rounded bubble, right aligned (ChatGPT style) */
+  .user {
+    align-self: flex-end; max-width: 80%;
+    background: #303030; color: #ECECEC;
+    font-size: 40px; font-weight: 400; line-height: 1.35;
+    padding: 30px 40px; border-radius: 30px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    will-change: transform, opacity;
+  }
+
+  /* assistant — no bubble, avatar + flowing text (ChatGPT style) */
+  .ai { display: flex; gap: 26px; margin-top: 64px; }
+  .avatar {
+    flex: 0 0 auto; width: 64px; height: 64px; border-radius: 50%;
+    background: #0d0d0d; border: 1px solid rgba(255,255,255,0.18);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .avatar svg { width: 38px; height: 38px; }
+  .ai-col { flex: 1; padding-top: 4px; }
+  .ai .text { color: #F4F4F4; font-size: 44px; font-weight: 400; line-height: 1.4; letter-spacing: -0.005em; }
+  .cursor { display: inline-block; width: 4px; height: 0.92em; margin-left: 5px; background: #F4F4F4; vertical-align: text-bottom; transform: translateY(5px); }
+
+  .actions { margin-top: 34px; display: flex; gap: 40px; opacity: 0; }
+  .actions svg { width: 40px; height: 40px; stroke: rgba(190,190,196,0.6); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* typing bubble shown before the answer */
+  #typing { display: inline-flex; gap: 16px; padding: 28px 36px; border-radius: 30px; background: #262626; align-items: center; }
+  #typing span { width: 17px; height: 17px; border-radius: 50%; background: rgba(225,225,228,0.85); }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="7" data-track-index="0" data-width="1080" data-height="1920">
+    <div id="chat">
+      <div class="user clip" data-start="0" data-duration="7" data-track-index="0">What do you think of this decision?</div>
+      <div class="ai clip" data-start="0" data-duration="7" data-track-index="1">
+        <div class="avatar">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2 5.5L19.5 10 14 12l-2 5.5L10 12 4.5 10 10 8.5 12 3z" fill="#fff"/></svg>
+        </div>
+        <div class="ai-col">
+          <div id="typing"><span></span><span></span><span></span></div>
+          <div class="text" id="answer"><span id="aiText"></span><span class="cursor" id="cursor"></span></div>
+          <div class="actions" id="actions">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M7 11v9H4v-9zM7 11l4.5-8c1.5 0 2.4 1 2.1 2.4L13 9h5.6c1.3 0 2.2 1.2 1.8 2.5l-2 6.5c-.3 1.2-1.4 2-2.6 2H7"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M17 13V4h3v9zM17 13l-4.5 8c-1.5 0-2.4-1-2.1-2.4L11 15H5.4c-1.3 0-2.2-1.2-1.8-2.5l2-6.5c.3-1.2 1.4-2 2.6-2H17"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const ANSWER = "Yes — that's a great idea. Do it.";
+    const tl = gsap.timeline({ paused: true });
+    const aiText = document.getElementById("aiText");
+    const cursor = document.getElementById("cursor");
+
+    gsap.set("#answer", { display: "none" });
+    gsap.set(".ai", { opacity: 0 });
+    gsap.set("#actions", { opacity: 0 });
+    tl.to(cursor, { opacity: 0, duration: 0.5, repeat: 5, yoyo: true, ease: "steps(1)" }, 1.05);
+
+    // 1. user message pops in
+    tl.from(".user", { y: 46, opacity: 0, scale: 0.96, duration: 0.55, ease: "back.out(1.4)" }, 0.3);
+    // 2. assistant row + typing dots
+    tl.to(".ai", { opacity: 1, duration: 0.25 }, 1.0);
+    tl.from("#typing", { scale: 0.7, opacity: 0, duration: 0.3, ease: "back.out(2)", transformOrigin: "left center" }, 1.1);
+    tl.to("#typing span", { y: -13, duration: 0.4, stagger: 0.13, repeat: 3, yoyo: true, ease: "sine.inOut" }, 1.25);
+    // 3. swap typing -> answer, typewriter reveal
+    tl.set("#typing", { display: "none" }, 2.7);
+    tl.set("#answer", { display: "block" }, 2.7);
+    tl.to({ n: 0 }, { n: ANSWER.length, duration: 1.7, ease: "none",
+      onUpdate() { aiText.textContent = ANSWER.slice(0, Math.round(this.targets()[0].n)); } }, 2.75);
+    // 4. cursor out, actions in
+    tl.to("#cursor", { opacity: 0, duration: 0.2 }, 4.6);
+    tl.to("#actions", { opacity: 1, duration: 0.4 }, 4.7);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(1).play(); }
+  </script>
+</body>
+</html>

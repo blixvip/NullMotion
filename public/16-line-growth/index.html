@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Line Growth</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1920px; height: 1080px; background: transparent;
+    overflow: hidden; font-family: "Inter", -apple-system, "SF Pro Display", system-ui, Arial, sans-serif;
+  }
+  #chart { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 1400px; height: 760px; }
+  svg { width: 100%; height: 100%; overflow: visible; }
+  .axis { stroke: rgba(255,255,255,0.28); stroke-width: 3; stroke-linecap: round; }
+  .grid { stroke: rgba(255,255,255,0.06); stroke-width: 2; }
+  .curve {
+    fill: none; stroke: url(#silver); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round;
+    filter: drop-shadow(0 0 18px rgba(220,220,230,0.45));
+  }
+  .area { fill: url(#fade); opacity: 0; }
+
+  /* obsidian marker tiles that sit on the curve — swap glyph per use */
+  .marker {
+    position: absolute; width: 70px; height: 70px; border-radius: 18px; transform: translate(-50%, -50%);
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #26262b 0%, #0c0c0e 100%);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 0 44px rgba(200,200,210,0.30), 0 14px 28px rgba(0,0,0,0.6);
+    will-change: transform, opacity;
+  }
+  .marker span {
+    font-size: 30px; font-weight: 700;
+    background: linear-gradient(180deg, #ffffff 0%, #b9b9bd 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1920" data-height="1080">
+    <div id="chart" class="clip" data-start="0" data-duration="5" data-track-index="0">
+      <svg viewBox="0 0 1400 760" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="silver" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#8C8C90"/><stop offset="0.5" stop-color="#D8D8DC"/><stop offset="1" stop-color="#F2F2F2"/>
+          </linearGradient>
+          <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="rgba(220,220,230,0.22)"/><stop offset="1" stop-color="rgba(220,220,230,0)"/>
+          </linearGradient>
+        </defs>
+        <!-- gridlines -->
+        <line class="grid" x1="80" y1="180" x2="1360" y2="180"/>
+        <line class="grid" x1="80" y1="380" x2="1360" y2="380"/>
+        <line class="grid" x1="80" y1="580" x2="1360" y2="580"/>
+        <!-- axes -->
+        <line id="axisY" class="axis" x1="80" y1="40" x2="80" y2="700"/>
+        <line id="axisX" class="axis" x1="80" y1="700" x2="1360" y2="700"/>
+        <!-- fill under curve -->
+        <path id="area" class="area" d="M80,640 C420,610 720,470 1000,300 C1180,190 1280,150 1360,120 L1360,700 L80,700 Z"/>
+        <!-- rising curve -->
+        <path id="curve" class="curve" d="M80,640 C420,610 720,470 1000,300 C1180,190 1280,150 1360,120"/>
+      </svg>
+      <!-- markers (left % / top % positioned over the chart box) -->
+      <div class="marker" data-i="0" style="left:21%; top:78%;"><span>?</span></div>
+      <div class="marker" data-i="1" style="left:50%; top:50%;"><span>?</span></div>
+      <div class="marker" data-i="2" style="left:79%; top:23%;"><span>?</span></div>
+    </div>
+  </div>
+
+  <script>
+    const curve = document.querySelector("#curve");
+    const len = curve.getTotalLength();
+    gsap.set(curve, { strokeDasharray: len, strokeDashoffset: len });
+
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+    // axes draw in
+    tl.from("#axisY", { scaleY: 0, transformOrigin: "bottom", duration: 0.5 }, 0);
+    tl.from("#axisX", { scaleX: 0, transformOrigin: "left", duration: 0.6 }, 0.2);
+    tl.from(".grid", { opacity: 0, duration: 0.4, stagger: 0.08 }, 0.3);
+    // curve draws along its length
+    tl.to(curve, { strokeDashoffset: 0, duration: 1.6, ease: "power2.inOut" }, 0.6);
+    tl.to("#area", { opacity: 1, duration: 0.8 }, 1.4);
+    // markers pop on in sync with the line passing them
+    tl.from(".marker", { scale: 0, opacity: 0, duration: 0.5, ease: "back.out(1.8)", stagger: 0.5 }, 0.9);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(0.9).play(); }
+  </script>
+</body>
+</html>

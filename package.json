@@ -1,0 +1,14 @@
+{
+  "name": "null",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A fresh public motion UI based on Null Motion.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test",
+    "check": "node scripts/check.js"
+  },
+  "engines": { "node": ">=22" }
+}

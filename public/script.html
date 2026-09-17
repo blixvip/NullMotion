@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Script to Motion — Null Motion</title>
+<link rel="icon" href="assets/null-logo.png" />
+<style>
+  :root {
+    --bg:#0d0d0f; --panel:#141417; --panel-2:#1b1b1f; --line:#2a2a30; --line-strong:#3b3b43;
+    --text:#ececee; --muted:#8a8a92; --accent:#00e5ff; --success:#4ade80; --warning:#fbbf24;
+    --danger:#fb7185; --silver:linear-gradient(135deg,#f2f2f2 0%,#b8b8bc 52%,#8c8c90 100%);
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { min-height:100vh; margin:0; color:var(--text); background:radial-gradient(1000px 620px at 50% -10%,#1b1b20 0%,var(--bg) 64%); font-family:Inter,-apple-system,"SF Pro Display",system-ui,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
+  button,input,textarea,select { font:inherit; }
+  header { position:sticky; top:0; z-index:30; display:flex; align-items:center; justify-content:space-between; min-height:62px; padding:10px clamp(18px,3vw,42px); border-bottom:1px solid rgba(255,255,255,.075); background:rgba(10,10,12,.9); backdrop-filter:blur(18px) saturate(130%); }
+  .brand { display:flex; align-items:center; gap:11px; color:inherit; font-size:18px; font-weight:620; letter-spacing:-.025em; text-decoration:none; }
+  .brand img { width:30px; height:30px; border-radius:9px; box-shadow:0 4px 14px rgba(0,0,0,.55); }
+  .brand span { color:var(--muted); font-weight:420; }
+  .header-actions { display:flex; align-items:center; gap:8px; }
+  .header-link { min-height:34px; padding:8px 11px; border:1px solid transparent; border-radius:9px; color:var(--muted); background:transparent; font-size:12px; font-weight:560; text-decoration:none; }
+  .header-link:hover { color:var(--text); background:rgba(255,255,255,.045); }
+  .header-link.active { color:var(--text); border-color:var(--line-strong); background:rgba(255,255,255,.055); }
+  .bridge { display:flex; align-items:center; gap:8px; padding:8px 10px; color:var(--muted); font-size:11px; font-weight:600; }
+  .bridge-dot { width:7px; height:7px; border-radius:50%; background:#5a5a62; }
+  .bridge.online { color:#a9dfbb; } .bridge.online .bridge-dot { background:var(--success); box-shadow:0 0 10px rgba(74,222,128,.38); }
+  .bridge.offline { color:#e89aa6; } .bridge.offline .bridge-dot { background:var(--danger); }
+  main { width:min(1460px,100%); margin:0 auto; padding:30px clamp(18px,3vw,44px) 90px; }
+  .intro { display:grid; grid-template-columns:minmax(0,1fr) minmax(360px,.72fr); gap:36px; align-items:end; margin-bottom:22px; }
+  .eyebrow { display:flex; align-items:center; gap:9px; margin-bottom:12px; color:#8befff; font-size:10px; font-weight:780; letter-spacing:.16em; text-transform:uppercase; }
+  .eyebrow::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 15px rgba(0,229,255,.7); }
+  h1 { max-width:820px; margin:0; font-size:clamp(38px,4.2vw,58px); font-weight:610; letter-spacing:-.05em; line-height:1; background:var(--silver); background-clip:text; -webkit-background-clip:text; color:transparent; }
+  .intro p { max-width:720px; margin:18px 0 0; color:#9797a0; font-size:15px; line-height:1.7; }
+  .steps { display:grid; grid-template-columns:repeat(3,1fr); overflow:hidden; border:1px solid var(--line); border-radius:15px; background:rgba(20,20,23,.75); }
+  .step { min-width:0; padding:14px; border-left:1px solid var(--line); } .step:first-child { border-left:0; }
+  .step small { display:block; color:#62626b; font-size:8.5px; font-weight:760; letter-spacing:.13em; text-transform:uppercase; }
+  .step b { display:block; margin-top:5px; color:#a0a0a8; font-size:11px; font-weight:620; }
+  .step.active { background:rgba(0,229,255,.035); } .step.active small { color:#8befff; } .step.active b { color:#e5e5e8; } .step.done small { color:#8fe4ab; }
+  .panel { overflow:hidden; border:1px solid var(--line); border-radius:20px; background:linear-gradient(145deg,rgba(24,24,28,.96),rgba(11,11,14,.98)); box-shadow:0 28px 80px rgba(0,0,0,.28); }
+  .panel + .panel { margin-top:22px; }
+  .panel-head { display:flex; align-items:flex-start; justify-content:space-between; gap:24px; padding:22px 24px; border-bottom:1px solid var(--line); }
+  .panel-title h2 { margin:0; font-size:18px; font-weight:650; letter-spacing:-.02em; } .panel-title p { margin:6px 0 0; color:var(--muted); font-size:12px; line-height:1.5; }
+  .panel-body { padding:24px; }
+  .ingest-grid { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(310px,.55fr); gap:20px; }
+  .script-box { position:relative; }
+  .script-box textarea { width:100%; min-height:340px; padding:18px 18px 52px; resize:vertical; border:1px solid var(--line); border-radius:15px; outline:0; color:var(--text); background:#101013; font:13px/1.68 ui-monospace,"SFMono-Regular",Consolas,monospace; transition:border-color .18s,box-shadow .18s; }
+  .script-box textarea:focus { border-color:rgba(0,229,255,.55); box-shadow:0 0 0 3px rgba(0,229,255,.06); } .script-box textarea::placeholder { color:#55555e; }
+  .script-tools { position:absolute; left:13px; right:13px; bottom:13px; display:flex; align-items:center; justify-content:space-between; gap:12px; color:#696972; font-size:10px; pointer-events:none; }
+  .file-label { display:inline-flex; align-items:center; min-height:28px; padding:6px 9px; border:1px solid var(--line); border-radius:8px; color:#a9a9b0; background:#1b1b1f; font-size:10px; font-weight:650; cursor:pointer; pointer-events:auto; }
+  .file-label:hover { color:#fff; border-color:#474750; } .file-label input { display:none; }
+  .settings { display:flex; min-width:0; flex-direction:column; gap:14px; } .setting-group { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+  .field { display:flex; min-width:0; flex-direction:column; gap:6px; } .field.full { grid-column:1 / -1; }
+  .field label { color:#777780; font-size:9px; font-weight:760; letter-spacing:.1em; text-transform:uppercase; }
+  .field input,.field select,.field textarea { width:100%; min-width:0; padding:10px 11px; border:1px solid var(--line); border-radius:9px; outline:0; color:var(--text); background:var(--panel-2); font-size:12px; }
+  .field textarea { min-height:92px; resize:vertical; line-height:1.5; } .field input:focus,.field select:focus,.field textarea:focus { border-color:rgba(0,229,255,.45); }
+  .setting-note { margin:0; color:#707079; font-size:10.5px; line-height:1.55; }
+  .primary { display:inline-flex; min-height:42px; align-items:center; justify-content:center; padding:11px 17px; border:0; border-radius:11px; color:#0b0b0c; background:var(--silver); box-shadow:inset 0 1px rgba(255,255,255,.75); font-size:12px; font-weight:760; cursor:pointer; }
+  .primary:hover { filter:brightness(1.08); } .primary:disabled { opacity:.52; cursor:default; filter:none; }
+  .primary.busy::before { content:""; width:12px; height:12px; margin-right:8px; border:1.5px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin .7s linear infinite; }
+  .secondary { display:inline-flex; min-height:36px; align-items:center; justify-content:center; padding:8px 12px; border:1px solid var(--line-strong); border-radius:9px; color:#d5d5da; background:var(--panel-2); font-size:11px; font-weight:650; cursor:pointer; text-decoration:none; }
+  .secondary:hover { border-color:#55555f; background:#232328; } .secondary:disabled { opacity:.48; cursor:default; }
+  .status { display:none; margin-top:12px; padding:11px 12px; border:1px solid var(--line); border-radius:9px; color:#aaaab2; background:#111114; font-size:11px; line-height:1.5; }
+  .status.show { display:block; } .status.error { border-color:rgba(251,113,133,.3); color:#f3a5b0; background:rgba(251,113,133,.045); }
+  #planPanel[hidden],#runPanel[hidden] { display:none; }
+  .plan-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+  .summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:18px; }
+  .summary-card { min-width:0; padding:14px; border:1px solid var(--line); border-radius:12px; background:rgba(16,16,19,.82); }
+  .summary-card small { display:block; color:#66666f; font-size:8.5px; font-weight:760; letter-spacing:.1em; text-transform:uppercase; }
+  .summary-card b { display:block; overflow:hidden; margin-top:6px; color:#dedee2; font-size:14px; font-weight:650; text-overflow:ellipsis; white-space:nowrap; }
+  .summary-card.warning { border-color:rgba(251,191,36,.24); background:rgba(251,191,36,.035); } .summary-card.warning b { color:#f5cf70; }
+  .rationale { margin:0 0 18px; padding:14px 15px; border-left:2px solid var(--accent); border-radius:0 10px 10px 0; color:#96969f; background:rgba(0,229,255,.035); font-size:11.5px; line-height:1.6; }
+  .timeline { position:relative; min-height:112px; overflow:hidden; margin-bottom:20px; border:1px solid var(--line); border-radius:13px; background:#0f0f12; }
+  .timeline-ruler { display:grid; grid-template-columns:repeat(6,1fr); height:30px; border-bottom:1px solid var(--line); color:#65656e; font:8.5px/30px ui-monospace,Consolas,monospace; }
+  .timeline-ruler span { padding-left:8px; border-left:1px solid rgba(255,255,255,.035); } .timeline-ruler span:first-child { border-left:0; }
+  .timeline-track { position:relative; height:80px; background-image:linear-gradient(90deg,transparent calc(100% - 1px),rgba(255,255,255,.035) calc(100% - 1px)); background-size:16.666% 100%; }
+  .timeline-block { position:absolute; top:17px; min-width:5px; height:46px; overflow:hidden; padding:6px 7px; border:1px solid rgba(0,229,255,.34); border-radius:8px; color:#c9faff; background:linear-gradient(180deg,rgba(0,229,255,.18),rgba(0,229,255,.07)); font-size:8.5px; line-height:1.25; box-shadow:0 8px 18px rgba(0,0,0,.22); cursor:pointer; }
+  .timeline-block.low { border-color:rgba(255,255,255,.2); color:#c5c5cb; background:rgba(255,255,255,.07); }
+  .timeline-block.off { top:28px; height:24px; border-color:#303038; color:#5d5d65; background:#17171b; opacity:.72; }
+  .timeline-block b { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .timeline-block span { display:block; margin-top:3px; opacity:.7; }
+  .segment-list { display:grid; gap:10px; }
+  .segment { display:grid; grid-template-columns:44px minmax(180px,.8fr) minmax(360px,1.5fr); overflow:hidden; border:1px solid var(--line); border-radius:13px; background:rgba(15,15,18,.84); }
+  .segment-toggle { display:flex; align-items:flex-start; justify-content:center; padding-top:17px; border-right:1px solid var(--line); } .segment-toggle input { width:16px; height:16px; accent-color:var(--accent); }
+  .segment-copy { min-width:0; padding:14px; border-right:1px solid var(--line); }
+  .segment-kicker { display:flex; align-items:center; gap:7px; margin-bottom:8px; color:#6f6f78; font-size:8.5px; font-weight:760; letter-spacing:.1em; text-transform:uppercase; }
+  .criticality { padding:3px 5px; border:1px solid #34343b; border-radius:5px; color:#9999a2; } .criticality.high { border-color:rgba(251,191,36,.25); color:#eac65f; }
+  .spoken { color:#d1d1d6; font-size:11px; line-height:1.55; } .why { margin-top:9px; color:#75757e; font-size:9.5px; line-height:1.48; }
+  .segment-controls { display:grid; grid-template-columns:105px 90px minmax(160px,1fr); gap:10px; align-items:start; padding:13px; }
+  .segment-controls .field label { font-size:8px; } .segment-controls .prompt-field { grid-column:1 / -1; } .segment-controls textarea { min-height:62px; }
+  .segment.is-off { opacity:.55; } .segment.is-off .segment-controls { pointer-events:none; }
+  .run-overview { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:18px; align-items:center; margin-bottom:16px; }
+  .run-copy h3 { margin:0; font-size:15px; } .run-copy p { margin:5px 0 0; color:var(--muted); font-size:11px; }
+  .progress { height:5px; overflow:hidden; margin-top:11px; border-radius:99px; background:#27272d; } .progress span { display:block; width:100%; height:100%; transform:scaleX(0); transform-origin:left; background:linear-gradient(90deg,var(--accent),#a5f3fc); transition:transform .3s; }
+  .run-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+  .run-item { overflow:hidden; border:1px solid var(--line); border-radius:12px; background:#111114; } .run-item.done { border-color:rgba(74,222,128,.2); } .run-item.error { border-color:rgba(251,113,133,.3); }
+  .run-thumb { display:grid; aspect-ratio:16/9; place-items:center; overflow:hidden; border-bottom:1px solid var(--line); color:#5f5f68; background:#0a0a0c; font-size:10px; } .run-thumb img { width:100%; height:100%; object-fit:contain; }
+  .run-item-body { padding:11px; } .run-item-title { display:flex; justify-content:space-between; gap:8px; color:#d4d4d9; font-size:10.5px; font-weight:650; } .run-item-status { margin-top:5px; color:#777780; font-size:9px; }
+  .run-item-actions { display:flex; gap:6px; margin-top:9px; } .run-item-actions a { padding:6px 8px; border:1px solid var(--line); border-radius:7px; color:#cfcfd4; background:#1c1c20; font-size:9px; text-decoration:none; }
+  .empty { grid-column:1 / -1; padding:32px; border:1px dashed var(--line); border-radius:12px; color:#6d6d76; font-size:11px; text-align:center; }
+  .toast { position:fixed; z-index:80; left:50%; bottom:24px; max-width:min(560px,calc(100vw - 32px)); padding:10px 14px; border:1px solid #3a3a42; border-radius:10px; color:#ececef; background:#1b1b20; box-shadow:0 16px 44px rgba(0,0,0,.48); font-size:11px; opacity:0; transform:translate(-50%,10px); pointer-events:none; transition:.2s; }
+  .toast.show { opacity:1; transform:translate(-50%,0); }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @media (max-width:980px) { .intro,.ingest-grid { grid-template-columns:1fr; } .intro { gap:24px; } .summary-grid { grid-template-columns:1fr 1fr; } .segment { grid-template-columns:40px 1fr; } .segment-copy { border-right:0; } .segment-controls { grid-column:2; border-top:1px solid var(--line); } .run-list { grid-template-columns:1fr 1fr; } }
+  @media (max-width:660px) { header { align-items:flex-start; flex-wrap:wrap; } .header-actions { width:100%; flex-wrap:nowrap; overflow-x:auto; justify-content:flex-start; padding-bottom:2px; } .header-actions > * { flex:0 0 auto; } .bridge { display:none; } main { padding-top:28px; } .steps { grid-template-columns:1fr; } .step { border-top:1px solid var(--line); border-left:0; } .step:first-child { border-top:0; } .panel-head { flex-direction:column; } .plan-actions { justify-content:flex-start; } .panel-body { padding:15px; } .script-box textarea { min-height:260px; } .summary-grid,.run-list { grid-template-columns:1fr; } .segment { grid-template-columns:36px 1fr; } .segment-copy { padding:12px; } .segment-controls { grid-template-columns:1fr 1fr; padding:11px; } .segment-controls .template-field,.segment-controls .prompt-field { grid-column:1 / -1; } .run-overview { grid-template-columns:1fr; } }
+  @media (pointer:coarse) { button, select, input, .file-label, .primary { min-height:44px; } }
+</style>
+<link rel="stylesheet" href="site-shell.css" />
+<script src="site-shell.js" defer></script>
+</head>
+<body>
+  <header>
+    <a class="brand" href="./"><img src="assets/null-logo.png" alt="Null" /><b>Null</b> <span>Motion</span></a>
+    <nav class="header-actions" aria-label="Null Motion pages">
+      <a class="header-link" href="./">Templates</a>
+      <a class="header-link" href="create.html">Reference studio</a>
+      <a class="header-link active" href="script.html" aria-current="page">Script to motion</a>
+      <a class="header-link" href="system-map.html">Director pipeline</a>
+      <a class="header-link" href="control-center.html">Control Center</a>
+      <a class="header-link" href="renders.html">Renders</a>
+      <div class="bridge" id="bridge"><span class="bridge-dot"></span><span id="bridgeText">Checking bridge</span></div>
+    </nav>
+  </header>
+  <main>
+    <section class="intro">
+      <div><div class="eyebrow">Script director</div><h1>Turn a script into a motion timeline.</h1><p>Paste a finished script or timecoded transcript. Null finds the moments where graphics improve the edit, builds an editable timeline, then renders each approved overlay independently for your video.</p></div>
+      <div class="steps" aria-label="Workflow">
+        <div class="step active" id="step1"><small>01 · Input</small><b>Paste the script</b></div>
+        <div class="step" id="step2"><small>02 · Review</small><b>Edit the timeline</b></div>
+        <div class="step" id="step3"><small>03 · Render</small><b>Generate overlays</b></div>
+      </div>
+    </section>
+    <section class="panel" id="inputPanel">
+      <div class="panel-head"><div class="panel-title"><h2>Video script</h2><p>Plain scripts, timestamped lines, SRT, and VTT are supported.</p></div></div>
+      <div class="panel-body"><div class="ingest-grid">
+        <div class="script-box">
+          <textarea id="scriptInput" spellcheck="true" placeholder="Paste your script here…
+
+Optional timecode format:
+[00:00] Your opening line
+[00:08] The next idea
+[00:17] A key statistic or product moment"></textarea>
+          <div class="script-tools"><label class="file-label">Import .txt / .srt / .vtt<input id="scriptFile" type="file" accept=".txt,.md,.srt,.vtt,text/plain,text/vtt,application/x-subrip" /></label><span id="scriptStats">0 words</span></div>
+        </div>
+        <div class="settings">
+          <div class="setting-group">
+            <div class="field full"><label for="videoDuration">Video duration</label><input id="videoDuration" placeholder="Auto, 01:30, or 90 seconds" /></div>
+            <div class="field"><label for="videoFormat">Video format</label><select id="videoFormat"><option value="1920x1080">16:9 · 1920×1080</option><option value="1080x1920">9:16 · 1080×1920</option><option value="1080x1080">1:1 · 1080×1080</option><option value="3840x2160">4K · 3840×2160</option></select></div>
+            <div class="field"><label for="videoFps">Frame rate</label><select id="videoFps"><option>23.976</option><option>25</option><option>29.97</option><option selected>30</option><option>50</option><option>59.94</option></select></div>
+            <div class="field"><label for="provider">Director</label><select id="provider"><option value="codex" selected>ChatGPT / Codex</option><option value="claude">Claude Code</option><option value="anthropic">Anthropic API</option></select></div>
+            <div class="field"><label for="density">Coverage</label><select id="density"><option value="strategic" selected>Strategic highlights</option><option value="continuous">Continuous coverage</option></select></div>
+            <div class="field"><label for="assetMode">Real assets</label><select id="assetMode"><option value="strict" selected>Strict</option><option value="relaxed">Relaxed</option><option value="none">Off</option></select></div>
+            <div class="field"><label for="renderMode">Render quality</label><select id="renderMode"><option value="preview">Preview · Fast</option><option value="production" selected>Production</option><option value="high-end">High-end</option></select></div>
+            <div class="field full"><label for="guidance">Direction (optional)</label><textarea id="guidance" placeholder="Audience, tone, brand rules, moments to emphasize, or anything the director should know."></textarea></div>
+          </div>
+          <p class="setting-note">Untimed scripts are paced from their word count. Add a video duration when the final cut has pauses, interviews, or large sections without narration.</p>
+          <button class="primary" id="analyzeButton" type="button">Build motion timeline</button>
+          <div class="status" id="inputStatus" role="status" aria-live="polite"></div>
+        </div>
+      </div></div>
+    </section>
+    <section class="panel" id="planPanel" hidden>
+      <div class="panel-head">
+        <div class="panel-title"><h2>Motion timeline</h2><p>Only checked beats will become Null Motion graphics. Timing is relative to the start of the video.</p></div>
+        <div class="plan-actions"><button class="secondary" id="copyTimeline" type="button">Copy timeline script</button><button class="secondary" id="downloadTimeline" type="button">Download JSON</button><button class="primary" id="generateButton" type="button">Generate selected graphics</button></div>
+      </div>
+      <div class="panel-body">
+        <div class="summary-grid" id="summaryGrid"></div><p class="rationale" id="rationale"></p>
+        <div class="timeline" id="timeline"><div class="timeline-ruler" id="timelineRuler"></div><div class="timeline-track" id="timelineTrack"></div></div>
+        <div class="segment-list" id="segmentList"></div><div class="status" id="planStatus" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+    <section class="panel" id="runPanel" hidden>
+      <div class="panel-head">
+        <div class="panel-title"><h2>Sequence render</h2><p>Each overlay is rendered independently, so completed graphics survive partial failures.</p></div>
+        <div class="plan-actions"><button class="secondary" id="cancelButton" type="button">Cancel remaining</button><button class="secondary" id="retryButton" type="button" hidden>Retry failures</button></div>
+      </div>
+      <div class="panel-body">
+        <div class="run-overview"><div class="run-copy"><h3 id="runTitle">Preparing sequence</h3><p id="runStatus">Waiting for the companion</p><div class="progress"><span id="runProgress"></span></div></div></div>
+        <div class="run-list" id="runList"><div class="empty">Sequence jobs will appear here.</div></div>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="script-workspace.js"></script>
+</body>
+</html>

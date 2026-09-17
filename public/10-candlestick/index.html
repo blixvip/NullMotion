@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stock Candlesticks</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1920px; height: 1080px; overflow: hidden;
+    font-family: "Inter", system-ui, Arial, sans-serif;
+    background: radial-gradient(1300px 800px at 50% 35%, #14171c 0%, #0a0c10 70%, #070809 100%);
+  }
+  #title {
+    position: absolute; top: 88px; left: 0; right: 0; text-align: center;
+    font-size: 58px; font-weight: 700; letter-spacing: 0.06em; color: #EDEDEF;
+  }
+  #sub { position: absolute; top: 168px; left: 0; right: 0; text-align: center; font-size: 26px; font-weight: 600; letter-spacing: 0.02em; color: #34e07a; }
+  #plot { position: absolute; left: 160px; right: 160px; top: 260px; bottom: 130px; }
+  .gridline { position: absolute; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.06); transform-origin: left center; }
+  .gridline span { position: absolute; right: 100%; margin-right: 18px; top: -13px; font-size: 18px; color: rgba(160,160,170,0.5); }
+  .trend { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; }
+  .trend path { fill: none; stroke: rgba(80,220,140,0.55); stroke-width: 3; filter: drop-shadow(0 0 8px rgba(60,220,130,0.5)); }
+  .candle { position: absolute; transform-origin: bottom center; will-change: transform, opacity; }
+  .wick { position: absolute; left: 50%; transform: translateX(-50%); width: 4px; border-radius: 2px; top: 0; bottom: 0; }
+  .body { position: absolute; left: 0; width: 100%; border-radius: 4px; }
+  .up   .wick, .up   .body { background: linear-gradient(180deg,#3ff08a,#16a352); box-shadow: 0 0 16px rgba(40,220,120,0.45); }
+  .down .wick, .down .body { background: linear-gradient(180deg,#ff6a6a,#cc2c2c); box-shadow: 0 0 16px rgba(255,80,80,0.4); }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1920" data-height="1080">
+    <div id="title" class="clip" data-start="0" data-duration="5" data-track-index="0">STOCK MARKET</div>
+    <div id="sub" class="clip" data-start="0" data-duration="5" data-track-index="1">▲ +24.6%</div>
+    <div id="plot" class="clip" data-start="0" data-duration="5" data-track-index="2">
+      <svg class="trend" id="trend" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+  <script>
+    // plot dimensions (px, within #plot which is 1600 x 690)
+    const PW = 1600, PH = 690, N = 22;
+    const plot = document.getElementById("plot");
+
+    // ---- generate a deterministic upward-biased OHLC walk ----
+    let seed = 0x10cafe;
+    const random = () => {
+      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+      return seed / 4294967296;
+    };
+    let price = 30; const data = [];
+    for (let i = 0; i < N; i++) {
+      const open = price;
+      price = Math.max(8, Math.min(96, price + (random() - 0.40) * 12));
+      const close = price;
+      const hi = Math.max(open, close) + random() * 5 + 1;
+      const lo = Math.min(open, close) - random() * 5 - 1;
+      data.push({ open, close, hi, lo });
+    }
+    const lows = Math.min(...data.map(d => d.lo)) - 4;
+    const highs = Math.max(...data.map(d => d.hi)) + 4;
+    const Y = v => PH - ((v - lows) / (highs - lows)) * PH;   // price -> pixel y
+
+    // gridlines
+    for (let g = 0; g <= 4; g++) {
+      const v = lows + (highs - lows) * g / 4;
+      const line = document.createElement("div");
+      line.className = "gridline"; line.style.top = Y(v) + "px";
+      line.innerHTML = `<span>${Math.round(v)}</span>`;
+      plot.appendChild(line);
+    }
+
+    const step = PW / N, cw = step * 0.58;
+    const candles = [];
+    data.forEach((d, i) => {
+      const x = i * step + (step - cw) / 2;
+      const yHi = Y(d.hi), yLo = Y(d.lo);
+      const up = d.close >= d.open;
+      const c = document.createElement("div");
+      c.className = "candle " + (up ? "up" : "down");
+      c.style.left = x + "px"; c.style.width = cw + "px";
+      c.style.top = yHi + "px"; c.style.height = (yLo - yHi) + "px";
+      const bodyTop = Y(Math.max(d.open, d.close)) - yHi;
+      const bodyH = Math.max(4, Math.abs(Y(d.open) - Y(d.close)));
+      c.innerHTML = `<div class="wick"></div><div class="body" style="top:${bodyTop}px;height:${bodyH}px"></div>`;
+      plot.appendChild(c); candles.push(c);
+    });
+
+    // trend line through closes
+    const trend = document.getElementById("trend");
+    trend.setAttribute("viewBox", `0 0 ${PW} ${PH}`);
+    const pts = data.map((d, i) => `${i * step + step / 2},${Y(d.close)}`).join(" L ");
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", "M " + pts);
+    trend.appendChild(path);
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = len; path.style.strokeDashoffset = len;
+
+    const tl = gsap.timeline({ paused: true });
+    tl.from("#title", { y: -40, opacity: 0, duration: 0.7, ease: "expo.out" }, 0.1);
+    tl.from("#sub", { y: -20, opacity: 0, duration: 0.6, ease: "expo.out" }, 0.3);
+    tl.from(".gridline", { scaleX: 0, opacity: 0, duration: 0.7, stagger: 0.06, ease: "power2.out" }, 0.4);
+    tl.from(candles, { scaleY: 0, opacity: 0, duration: 0.45, stagger: 0.06, ease: "back.out(1.5)" }, 0.7);
+    tl.to(path, { strokeDashoffset: 0, duration: 1.6, ease: "power1.inOut" }, 1.0);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(1.2).play(); }
+  </script>
+</body>
+</html>

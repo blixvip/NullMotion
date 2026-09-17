@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Morphing Button to Panel</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+
+  #root {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    background: transparent;
+    overflow: hidden;
+    font-family: "Inter", -apple-system, system-ui, Arial, sans-serif;
+  }
+
+  #stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+
+  /* the morphing surface: starts as a compact button, expands to a panel */
+  #morph {
+    position: relative;
+    width: 220px;
+    height: 84px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #2c2c30 0%, #161618 55%, #0c0c0d 100%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow:
+      inset 0 2px 1px rgba(255,255,255,0.20),
+      inset 0 -3px 6px rgba(0,0,0,0.8),
+      0 30px 60px rgba(0,0,0,0.5);
+    overflow: hidden;
+    will-change: width, height, border-radius;
+  }
+
+  #btnLabel {
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 600; letter-spacing: 0.06em;
+    color: #E5E5E5;
+    will-change: opacity, transform;
+  }
+
+  #panelContent {
+    position: absolute;
+    inset: 0;
+    padding: 56px 64px;
+    box-sizing: border-box;
+    opacity: 0;
+    display: flex; flex-direction: column;
+    will-change: opacity;
+  }
+  #panelContent h2 {
+    margin: 0;
+    font-size: 46px; font-weight: 600; letter-spacing: -0.03em;
+    color: #ECECEE;
+  }
+  #panelContent .row {
+    margin-top: 28px; height: 18px; border-radius: 99px;
+    background: linear-gradient(90deg, rgba(212,212,216,0.85), rgba(90,90,96,0.25));
+  }
+  #panelContent .row.short { width: 55%; }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="6" data-track-index="0" data-width="1920" data-height="1080">
+
+    <div id="stage">
+      <div id="morph" class="clip" data-start="0" data-duration="6" data-track-index="0">
+        <div id="btnLabel">Open</div>
+        <div id="panelContent">
+          <h2>Everything, expanded.</h2>
+          <div class="row"></div>
+          <div class="row"></div>
+          <div class="row short"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // entrance: button rises in
+    tl.from("#morph", { y: 60, opacity: 0, scale: 0.9, duration: 0.8, ease: "expo.out" }, 0.2);
+
+    // morph: button -> panel at 1.5s
+    tl.to("#btnLabel", { opacity: 0, scale: 0.85, duration: 0.4, ease: "power2.in" }, 1.5);
+    tl.to("#morph", {
+      width: 1200, height: 600, borderRadius: 24,
+      duration: 1.4, ease: "power4.inOut"
+    }, 1.5);
+    // content fades in as the structure settles
+    tl.to("#panelContent", { opacity: 1, duration: 0.6, ease: "power2.out" }, 2.6);
+    tl.from("#panelContent h2", { y: 24, opacity: 0, duration: 0.7, ease: "power3.out" }, 2.7);
+    tl.from("#panelContent .row", { x: -40, opacity: 0, stagger: 0.12, duration: 0.6, ease: "power3.out" }, 2.9);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(0.8).play(); }
+  </script>
+</body>
+</html>

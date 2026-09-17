@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Renders · Null Motion</title>
+  <link rel="icon" href="assets/null-logo.png" />
+  <style>
+    :root { --bg:#09090b; --panel:#131316; --panel-2:#19191d; --line:#2b2b31; --line-strong:#46464f; --text:#f4f4f5; --muted:#98989f; --success:#63d58a; --danger:#ef7070; }
+    * { box-sizing:border-box; }
+    html { color-scheme:dark; }
+    body { min-height:100vh; margin:0; color:var(--text); background:radial-gradient(950px 520px at 50% -12%,#202027 0%,var(--bg) 66%); font-family:Inter,-apple-system,"SF Pro Display",system-ui,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
+    button { font:inherit; }
+    header { position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; min-height:62px; padding:10px clamp(18px,3vw,42px); border-bottom:1px solid rgba(255,255,255,.075); background:rgba(9,9,11,.9); backdrop-filter:blur(18px) saturate(130%); }
+    .brand { display:flex; align-items:center; gap:11px; color:inherit; font-size:18px; font-weight:640; letter-spacing:-.025em; text-decoration:none; }
+    .brand img { width:30px; height:30px; border-radius:9px; box-shadow:0 4px 14px rgba(0,0,0,.55); }
+    .brand span { color:var(--muted); font-weight:420; }
+    .nav { display:flex; align-items:center; gap:7px; }
+    .nav-link,.pair-button { min-height:34px; padding:8px 11px; border:1px solid transparent; border-radius:9px; color:var(--muted); background:transparent; font-size:12px; font-weight:570; text-decoration:none; white-space:nowrap; }
+    .nav-link:hover,.pair-button:hover { color:var(--text); background:rgba(255,255,255,.045); }
+    .nav-link.active { color:var(--text); border-color:var(--line-strong); background:rgba(255,255,255,.055); }
+    .pair-button { cursor:pointer; border-color:var(--line); }
+    .bridge { display:flex; align-items:center; gap:7px; padding:8px 8px 8px 12px; color:var(--muted); font-size:11px; font-weight:600; white-space:nowrap; }
+    .bridge-dot { width:7px; height:7px; border-radius:50%; background:#5b5b63; }
+    .bridge.online { color:#a9dfbb; } .bridge.online .bridge-dot { background:var(--success); box-shadow:0 0 10px rgba(99,213,138,.4); }
+    main { width:min(1180px,calc(100% - 36px)); margin:0 auto; padding:64px 0 90px; }
+    .hero { display:flex; align-items:end; justify-content:space-between; gap:24px; margin-bottom:28px; }
+    .eyebrow { margin-bottom:12px; color:#b4b4bb; font-size:11px; font-weight:760; letter-spacing:.15em; text-transform:uppercase; }
+    h1 { margin:0; font-size:clamp(42px,7vw,78px); line-height:.94; letter-spacing:-.07em; }
+    .intro { max-width:620px; margin:18px 0 0; color:var(--muted); font-size:15px; line-height:1.65; }
+    .refresh { min-height:42px; padding:10px 16px; border:1px solid var(--line-strong); border-radius:10px; color:var(--text); background:linear-gradient(180deg,#25252a,#17171a); cursor:pointer; font-weight:650; }
+    .refresh:disabled { cursor:wait; opacity:.6; }
+    .summary { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px; color:var(--muted); font-size:12px; }
+    .summary-tools { display:flex; align-items:center; gap:10px; }
+    .history-toggle { padding:6px 9px; border:1px solid var(--line); border-radius:8px; color:var(--muted); background:#151519; cursor:pointer; font:inherit; font-size:11px; }
+    .history-toggle:hover { color:var(--text); border-color:var(--line-strong); }
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:15px; }
+    .card { overflow:hidden; border:1px solid var(--line); border-radius:16px; background:linear-gradient(160deg,var(--panel-2),var(--panel)); box-shadow:0 18px 45px rgba(0,0,0,.2); }
+    .thumb { position:relative; display:grid; place-items:center; aspect-ratio:16/9; overflow:hidden; color:#707078; background:radial-gradient(circle at 50% 28%,#303038,#111114 68%); font-size:12px; }
+    .thumb img { width:100%; height:100%; object-fit:cover; }
+    .status { position:absolute; top:10px; left:10px; padding:6px 9px; border:1px solid rgba(255,255,255,.12); border-radius:99px; color:#dddde2; background:rgba(10,10,12,.78); backdrop-filter:blur(10px); font-size:10px; font-weight:740; letter-spacing:.06em; text-transform:uppercase; }
+    .status.done { color:#b7edc7; border-color:rgba(99,213,138,.28); background:rgba(22,61,36,.74); }
+    .status.error { color:#ffc1c1; border-color:rgba(239,112,112,.3); background:rgba(72,27,27,.72); }
+    .card-body { padding:15px; }
+    .card h2 { overflow:hidden; margin:0; font-size:15px; letter-spacing:-.02em; text-overflow:ellipsis; white-space:nowrap; }
+    .meta { margin:7px 0 14px; color:var(--muted); font-size:11px; }
+    .actions { display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:8px; }
+    .actions a,.actions button { display:flex; align-items:center; justify-content:center; min-height:38px; padding:9px 10px; border:1px solid var(--line); border-radius:9px; color:var(--text); background:#1b1b1f; font:inherit; font-size:12px; font-weight:650; text-decoration:none; cursor:pointer; }
+    .actions a:hover,.actions button:hover { border-color:var(--line-strong); background:#222227; }
+    .actions .download { color:#0b0b0c; border-color:#e7e7e9; background:#f1f1f2; }
+    .actions .download:hover { border-color:white; background:white; }
+    .actions.single { grid-template-columns:1fr; }
+    .empty { grid-column:1/-1; padding:68px 24px; border:1px dashed var(--line-strong); border-radius:16px; color:var(--muted); text-align:center; background:rgba(19,19,22,.65); }
+    .empty strong { display:block; margin-bottom:8px; color:var(--text); font-size:18px; }
+    .empty-links { display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-top:20px; }
+    .empty-links a { padding:9px 12px; border:1px solid var(--line); border-radius:9px; color:var(--text); text-decoration:none; }
+    .toast { position:fixed; left:50%; bottom:24px; z-index:50; transform:translate(-50%,15px); padding:11px 15px; border:1px solid var(--line-strong); border-radius:10px; color:var(--text); background:#1c1c20; opacity:0; pointer-events:none; transition:.2s; box-shadow:0 16px 40px rgba(0,0,0,.45); font-size:12px; }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    .prompt-modal { position:fixed; inset:0; z-index:60; display:none; place-items:center; padding:20px; background:rgba(4,4,6,.8); backdrop-filter:blur(12px); }
+    .prompt-modal.show { display:grid; }
+    .prompt-dialog { display:flex; width:min(760px,calc(100vw - 32px)); max-height:calc(100vh - 40px); flex-direction:column; overflow:hidden; border:1px solid var(--line-strong); border-radius:16px; background:#121216; box-shadow:0 34px 100px rgba(0,0,0,.72); }
+    .prompt-head { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:15px 17px; border-bottom:1px solid var(--line); }
+    .prompt-head small { display:block; margin-bottom:4px; color:var(--muted); font-size:9px; font-weight:750; letter-spacing:.12em; text-transform:uppercase; }
+    .prompt-head h2 { margin:0; font-size:16px; }
+    .prompt-close { width:30px; height:30px; border:1px solid var(--line); border-radius:50%; background:#1b1b1f; color:var(--text); cursor:pointer; }
+    .prompt-text { min-height:220px; margin:0; padding:20px; overflow:auto; color:#dedee2; background:#0b0b0e; font:13px/1.7 ui-monospace,"SFMono-Regular",Consolas,monospace; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .prompt-actions { display:flex; justify-content:flex-end; padding:12px 15px; border-top:1px solid var(--line); }
+    .prompt-actions button { min-height:34px; padding:7px 12px; border:1px solid #eeeef0; border-radius:8px; color:#111114; background:#e8e8eb; font:inherit; font-size:11px; font-weight:650; cursor:pointer; }
+    @media (max-width:900px) { .grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media (max-width:680px) { header { align-items:flex-start; flex-wrap:wrap; padding:10px 14px; } .nav { width:100%; overflow-x:auto; padding-bottom:2px; } .nav > * { flex:0 0 auto; } .bridge { display:none; } main { width:min(100% - 28px,1180px); padding-top:40px; } .hero { align-items:flex-start; flex-direction:column; } h1 { font-size:52px; } .grid { grid-template-columns:1fr; } .refresh { width:100%; } }
+  </style>
+  <link rel="stylesheet" href="site-shell.css" />
+  <script src="site-shell.js" defer></script>
+</head>
+<body>
+  <header>
+    <a class="brand" href="./"><img src="assets/null-logo.png" alt="Null" /><b>Null</b> <span>Motion</span></a>
+    <nav class="nav" aria-label="Null Motion pages">
+      <a class="nav-link" href="./">Templates</a>
+      <a class="nav-link" href="create.html">Reference studio</a>
+      <a class="nav-link" href="script.html">Script to motion</a>
+      <a class="nav-link" href="system-map.html">Director pipeline</a>
+      <a class="nav-link" href="control-center.html">Control Center</a>
+      <a class="nav-link active" href="renders.html" aria-current="page">Renders</a>
+      <div class="bridge" id="bridge"><span class="bridge-dot"></span><span id="bridgeText">Checking companion</span></div>
+      <button class="pair-button" id="pairButton" type="button" hidden>Pair</button>
+    </nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Output library</div>
+        <h1>Your renders.</h1>
+        <p class="intro">Every finished Null Motion video lives here. Preview it in the browser or use Download MOV to save the actual file to your browser's Downloads folder.</p>
+      </div>
+      <button class="refresh" id="refreshButton" type="button">Refresh renders</button>
+    </section>
+    <div class="summary"><span id="summaryText">Loading renders…</span><span class="summary-tools"><button class="history-toggle" id="historyToggle" type="button" hidden>Show failed attempts</button><span id="updatedText"></span></span></div>
+    <section class="grid" id="renderGrid" aria-live="polite"></section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="prompt-modal" id="promptModal" aria-hidden="true">
+    <section class="prompt-dialog" role="dialog" aria-modal="true" aria-labelledby="promptTitle">
+      <header class="prompt-head"><div><small>Final generation prompt</small><h2 id="promptTitle">Motion prompt</h2></div><button class="prompt-close" id="promptClose" type="button" aria-label="Close prompt">&times;</button></header>
+      <pre class="prompt-text" id="promptText"></pre>
+      <footer class="prompt-actions"><button id="promptCopy" type="button">Copy prompt</button></footer>
+    </section>
+  </div>
+  <script>
+    const API = window.location.origin;
+    const TOKEN_KEY = "null-motion-bridge-token";
+    const LEGACY_TOKEN_KEYS = ["nullBridgeToken", "nullMotionBridgeToken", "null-motion-browser-token"];
+    const grid = document.getElementById("renderGrid");
+    const refreshButton = document.getElementById("refreshButton");
+    const historyToggle = document.getElementById("historyToggle");
+    let showFailedAttempts = false;
+    let latestJobs = [];
+
+    function safeUrl(value) {
+      if (!value) return "";
+      try { const url = new URL(String(value), API); return /^https?:$/.test(url.protocol) ? url.href : ""; } catch (_) { return ""; }
+    }
+
+    function jobId(job) { return String(job && (job.id || job.jobId) || ""); }
+
+    function jobPrompt(job) { return String(job && (job.optimizedPrompt || job.prompt || job.originalPrompt) || "").trim(); }
+
+    function bridgeToken() {
+      try {
+        let token = localStorage.getItem(TOKEN_KEY) || "";
+        if (token) return token;
+        for (const key of LEGACY_TOKEN_KEYS) {
+          token = localStorage.getItem(key) || "";
+          if (!token) continue;
+          localStorage.setItem(TOKEN_KEY, token);
+          LEGACY_TOKEN_KEYS.forEach(legacyKey => localStorage.removeItem(legacyKey));
+          return token;
+        }
+      } catch (_) {}
+      return "";
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message; toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(function () { toast.classList.remove("show"); }, 2200);
+    }
+
+    function openPrompt(job) {
+      const prompt = jobPrompt(job);
+      if (!prompt) { showToast("No prompt was saved for this render"); return; }
+      document.getElementById("promptTitle").textContent = displayName(job);
+      document.getElementById("promptText").textContent = prompt;
+      document.getElementById("promptModal").classList.add("show");
+      document.getElementById("promptModal").setAttribute("aria-hidden", "false");
+      document.getElementById("promptClose").focus();
+    }
+
+    function closePrompt() {
+      document.getElementById("promptModal").classList.remove("show");
+      document.getElementById("promptModal").setAttribute("aria-hidden", "true");
+    }
+
+    function downloadUrl(job) {
+      const explicit = safeUrl(job && job.downloadUrl);
+      if (explicit) return explicit;
+      const id = jobId(job);
+      if (/^\d+$/.test(id) || /^[0-9a-f-]{36}$/i.test(id)) return API + "/api/v1/jobs/" + encodeURIComponent(id) + "/download";
+      return safeUrl(job && job.renderUrl);
+    }
+
+    function statusOf(job) {
+      const status = String(job && job.status || "pending").toLowerCase();
+      if (status === "completed") return "done";
+      if (status === "failed" || status === "cancelled" || status === "canceled" || status === "interrupted") return "error";
+      return status;
+    }
+
+    function displayName(job) {
+      return job.templateName || job.preset || job.mp4Name || (job.prompt ? String(job.prompt).slice(0, 70) : "Null Motion render");
+    }
+
+    function formatDate(value) {
+      const date = new Date(Number(value) || value);
+      return Number.isNaN(date.getTime()) ? "" : date.toLocaleString([], { dateStyle:"medium", timeStyle:"short" });
+    }
+
+    async function api(path, options) {
+      const headers = Object.assign({}, options && options.headers || {});
+      const token = bridgeToken();
+      if (token) headers["X-Null-Bridge-Token"] = token;
+      const response = await fetch(API + path, Object.assign({}, options || {}, { headers }));
+      const data = await response.json().catch(function () { return {}; });
+      if (!response.ok) throw new Error(data.error || "Null companion failed (" + response.status + ")");
+      return data;
+    }
+
+    async function retryJob(job, button) {
+      button.disabled = true;
+      button.textContent = "Retrying…";
+      try {
+        const prompt = String(job.originalPrompt || job.prompt || "").trim();
+        if (!prompt) throw new Error("This attempt has no reusable prompt.");
+        await api("/generate", {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify({
+            prompt:prompt,
+            preset:job.preset || "Custom",
+            generator:job.generator || "codex",
+            duration:job.duration || 5,
+            fps:job.fps || 30,
+            width:job.deliveryWidth || job.width || 1920,
+            height:job.deliveryHeight || job.height || 1080,
+            speedProfile:job.speedProfile || "instant",
+            pipelineMode:job.pipelineMode || "fast-hq",
+            renderMode:"production",
+            qualityReview:"strict",
+            cacheMode:"refresh",
+            priority:"high",
+            assetResolutionMode:job.assetResolutionMode || "relaxed",
+            assetQueries:Array.isArray(job.assetQueries) ? job.assetQueries : [],
+            sourceUrls:Array.isArray(job.sourceUrls) ? job.sourceUrls : [],
+            templateId:job.templateLocked ? job.templateId : null,
+            designOptions:job.designOptions || null,
+            autoResearch:true,
+            origin:"website-retry"
+          })
+        });
+        showToast("Recovery render queued");
+        showFailedAttempts = false;
+        window.setTimeout(refresh, 300);
+      } catch (error) {
+        showToast(error.message);
+        button.disabled = false;
+        button.textContent = "Retry";
+      }
+    }
+
+    function link(label, href, className) {
+      const anchor = document.createElement("a");
+      anchor.textContent = label;
+      anchor.href = href;
+      if (className) anchor.className = className;
+      return anchor;
+    }
+
+    function renderCard(job) {
+      const status = statusOf(job);
+      const card = document.createElement("article"); card.className = "card";
+      const thumb = document.createElement("div"); thumb.className = "thumb";
+      const imageUrl = safeUrl(job.thumbUrl);
+      if (imageUrl) { const image = document.createElement("img"); image.src = imageUrl; image.alt = displayName(job) + " preview"; image.loading = "lazy"; thumb.appendChild(image); }
+      else thumb.appendChild(document.createTextNode(status === "done" ? "Render ready" : (job.step || status)));
+      const badge = document.createElement("span"); badge.className = "status " + status; badge.textContent = status === "done" ? "Ready" : status === "error" ? "Previous attempt" : status; thumb.appendChild(badge);
+      const body = document.createElement("div"); body.className = "card-body";
+      const title = document.createElement("h2"); title.textContent = displayName(job); title.title = displayName(job);
+      const meta = document.createElement("div"); meta.className = "meta"; meta.textContent = [job.width && job.height ? job.width + "×" + job.height : "", job.duration ? Number(job.duration).toFixed(1) + "s" : "", formatDate(job.finishedAt || job.startedAt)].filter(Boolean).join(" · ");
+      const actions = document.createElement("div"); actions.className = "actions";
+      if (status === "done") {
+        const preview = safeUrl(job.playerUrl || job.previewUrl);
+        if (preview) { const previewLink = link("Preview", preview); previewLink.target = "_blank"; previewLink.rel = "noopener"; actions.appendChild(previewLink); }
+        const file = downloadUrl(job);
+        if (file) { const download = link("Download MOV", file, "download"); download.download = job.mp4Name || "null-motion.mov"; actions.appendChild(download); }
+        if (jobPrompt(job)) { const prompt = document.createElement("button"); prompt.type = "button"; prompt.textContent = "Prompt"; prompt.onclick = function () { openPrompt(job); }; actions.appendChild(prompt); }
+        if (actions.children.length === 1) actions.classList.add("single");
+      } else if (status === "error") {
+        const detail = document.createElement("span"); detail.style.cssText = "grid-column:1/-1;color:var(--muted);font-size:12px"; detail.textContent = job.error || "This attempt did not finish."; actions.appendChild(detail);
+        const retry = document.createElement("button"); retry.type = "button"; retry.textContent = "Retry"; retry.onclick = function () { retryJob(job, retry); }; actions.appendChild(retry);
+        if (jobPrompt(job)) { const prompt = document.createElement("button"); prompt.type = "button"; prompt.textContent = "Prompt"; prompt.onclick = function () { openPrompt(job); }; actions.appendChild(prompt); }
+      } else {
+        actions.classList.add("single");
+        const detail = document.createElement("span"); detail.style.cssText = "color:var(--muted);font-size:12px"; detail.textContent = "Automatic recovery is running: " + (job.step || status) + "."; actions.appendChild(detail);
+      }
+      body.append(title, meta, actions); card.append(thumb, body); return card;
+    }
+
+    function emptyState(message) {
+      const empty = document.createElement("div"); empty.className = "empty";
+      const title = document.createElement("strong"); title.textContent = "No finished videos yet";
+      const copy = document.createElement("span"); copy.textContent = message || "Choose a starting point and your completed renders will appear here.";
+      const links = document.createElement("div"); links.className = "empty-links";
+      links.append(link("Browse templates", "./"), link("Create from reference", "create.html"), link("Direct a script", "script.html"));
+      empty.append(title, copy, links); return empty;
+    }
+
+    function paintJobs() {
+      const failed = latestJobs.filter(function (job) { return statusOf(job) === "error"; });
+      const visible = showFailedAttempts ? latestJobs : latestJobs.filter(function (job) { return statusOf(job) !== "error"; });
+      grid.replaceChildren();
+      if (!visible.length) grid.appendChild(emptyState());
+      else visible.forEach(function (job) { grid.appendChild(renderCard(job)); });
+      const ready = latestJobs.filter(function (job) { return statusOf(job) === "done"; }).length;
+      const active = latestJobs.length - ready - failed.length;
+      document.getElementById("summaryText").textContent = ready + " downloadable " + (ready === 1 ? "render" : "renders") + (active ? " · " + active + " recovering" : "") + (failed.length ? " · " + failed.length + " previous attempts " + (showFailedAttempts ? "shown" : "hidden") : "");
+      historyToggle.hidden = failed.length === 0;
+      historyToggle.textContent = showFailedAttempts ? "Hide failed attempts" : "Show failed attempts";
+    }
+
+    async function refresh() {
+      refreshButton.disabled = true; refreshButton.textContent = "Refreshing…";
+      try {
+        const payload = await api("/api/v1/jobs");
+        const jobs = Array.isArray(payload) ? payload : (payload.jobs || []);
+        latestJobs = jobs;
+        paintJobs();
+        document.getElementById("updatedText").textContent = "Updated " + new Date().toLocaleTimeString([], { hour:"numeric", minute:"2-digit" });
+        setBridge(true);
+      } catch (error) {
+        grid.replaceChildren(emptyState(/401|403|pair|token|unauthorized/i.test(error.message) ? "Pair the local companion to see your renders." : "Start the local Null companion to load your render library."));
+        document.getElementById("summaryText").textContent = error.message;
+        setBridge(false, /401|403|pair|token|unauthorized/i.test(error.message));
+      } finally { refreshButton.disabled = false; refreshButton.textContent = "Refresh renders"; }
+    }
+
+    historyToggle.addEventListener("click", function () { showFailedAttempts = !showFailedAttempts; paintJobs(); });
+
+    function setBridge(online, pairRequired) {
+      document.getElementById("bridge").classList.toggle("online", online);
+      document.getElementById("bridgeText").textContent = online ? "Companion online" : (pairRequired ? "Pair required" : "Companion offline");
+      document.getElementById("pairButton").hidden = !pairRequired;
+    }
+
+    async function pair() {
+      const code = window.prompt("Enter the pairing code shown by the local Null companion:");
+      if (!code) return;
+      try {
+        const response = await fetch(API + "/api/v1/pair", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ code:code.trim() }) });
+        const data = await response.json().catch(function () { return {}; });
+        if (!response.ok || !data.token) throw new Error(data.error || "Pairing failed");
+        localStorage.setItem(TOKEN_KEY, data.token); refresh();
+      } catch (error) { document.getElementById("summaryText").textContent = error.message; }
+    }
+
+    refreshButton.onclick = refresh;
+    document.getElementById("pairButton").onclick = pair;
+    document.getElementById("promptClose").onclick = closePrompt;
+    document.getElementById("promptModal").onclick = function (event) { if (event.target.id === "promptModal") closePrompt(); };
+    document.getElementById("promptCopy").onclick = function () {
+      navigator.clipboard.writeText(document.getElementById("promptText").textContent).then(function () { showToast("Production prompt copied"); });
+    };
+    window.addEventListener("keydown", function (event) { if (event.key === "Escape") closePrompt(); });
+    refresh();
+    window.setInterval(refresh, 12000);
+  </script>
+</body>
+</html>

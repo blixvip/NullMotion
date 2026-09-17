@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prompt Bar Typing</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1080px; height: 1920px; background: transparent;
+    overflow: hidden; font-family: "Inter", -apple-system, system-ui, Arial, sans-serif;
+  }
+  #bar {
+    position: absolute; left: 60px; right: 60px; top: 50%; transform: translateY(-50%);
+    display: flex; align-items: center; gap: 26px;
+    padding: 30px 30px 30px 38px; border-radius: 999px;
+    background: linear-gradient(180deg, rgba(48,48,52,0.95), rgba(30,30,34,0.95));
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 34px 70px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10);
+    -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+    will-change: transform, opacity;
+  }
+  .plus { width: 56px; height: 56px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; }
+  .plus svg { width: 40px; height: 40px; stroke: #d8d8de; stroke-width: 2; }
+  #txt { flex: 1; font-size: 42px; font-weight: 400; color: #f0f0f3; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; }
+  .cursor { display: inline-block; width: 3px; height: 0.95em; margin-left: 2px; background: #f0f0f3; vertical-align: middle; }
+  .send { width: 84px; height: 84px; flex: 0 0 auto; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; will-change: transform; }
+  .send svg { width: 44px; height: 44px; stroke: #111; stroke-width: 2.4; }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1080" data-height="1920">
+    <div id="bar" class="clip" data-start="0" data-duration="5" data-track-index="0">
+      <div class="plus"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14"/></svg></div>
+      <div id="txt"><span id="typed"></span><span class="cursor" id="cursor"></span></div>
+      <div class="send" id="send"><svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7"/></svg></div>
+    </div>
+  </div>
+  <script>
+    const PHRASE = "Tell me about your business";
+    const tl = gsap.timeline({ paused: true });
+    const typed = document.getElementById("typed");
+    const cursor = document.getElementById("cursor");
+
+    tl.to(cursor, { opacity: 0, duration: 0.5, repeat: 4, yoyo: true, ease: "steps(1)" }, 0.9);
+
+    tl.from("#bar", { y: 60, opacity: 0, scale: 0.97, duration: 0.7, ease: "expo.out" }, 0.2);
+    // typewriter
+    tl.to({ n: 0 }, {
+      n: PHRASE.length, duration: 1.9, ease: "none",
+      onUpdate() { typed.textContent = PHRASE.slice(0, Math.round(this.targets()[0].n)); }
+    }, 1.0);
+    // send button press at the end
+    tl.to("#cursor", { opacity: 0, duration: 0.2 }, 3.1);
+    tl.to("#send", { scale: 0.86, duration: 0.12, ease: "power2.in" }, 3.3);
+    tl.to("#send", { scale: 1, duration: 0.5, ease: "back.out(2.2)" }, 3.42);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(0.9).play(); }
+  </script>
+</body>
+</html>

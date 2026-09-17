@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Model Leaderboard</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1920px; height: 1080px; background: transparent;
+    overflow: hidden; font-family: "Inter", -apple-system, "SF Pro Display", system-ui, Arial, sans-serif;
+  }
+
+  #list {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    display: flex; flex-direction: column; gap: 26px; width: 860px;
+  }
+  .row {
+    display: flex; align-items: center; gap: 30px;
+    padding: 22px 32px; border-radius: 22px;
+    background: linear-gradient(180deg, #1b1b1f 0%, #131316 100%);
+    border: 1px solid rgba(255,255,255,0.07);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 22px 50px rgba(0,0,0,0.5);
+    will-change: transform, opacity;
+  }
+  .rank {
+    width: 40px; flex: none; text-align: center; font-size: 30px; font-weight: 700; letter-spacing: -0.02em;
+    background: linear-gradient(180deg, #ffffff 0%, #b9b9bd 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  /* rounded app-icon tile — swap the glyph/glow per brand */
+  .icon {
+    width: 84px; height: 84px; flex: none; border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #232327 0%, #0d0d0f 100%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 0 50px rgba(190,190,200,0.22), 0 14px 30px rgba(0,0,0,0.55);
+  }
+  .icon svg { width: 44px; height: 44px; }
+  .name {
+    flex: 1; font-size: 34px; font-weight: 600; letter-spacing: -0.02em; color: #ECECEE;
+  }
+  .score {
+    font-size: 26px; font-weight: 600; letter-spacing: -0.01em;
+    background: linear-gradient(180deg, #F2F2F2 0%, #9a9a9e 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1920" data-height="1080">
+    <div id="list">
+      <div class="row clip" data-start="0" data-duration="5" data-track-index="0">
+        <div class="rank">1</div>
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="6.5" stroke="#cfe0ff" stroke-width="1.8"/><circle cx="12" cy="12" r="2.4" fill="#cfe0ff"/></svg></div>
+        <div class="name">Veo 3.1</div><div class="score">98</div>
+      </div>
+      <div class="row clip" data-start="0" data-duration="5" data-track-index="1">
+        <div class="rank">2</div>
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12c3-5 11-5 14 0-3 5-11 5-14 0z" stroke="#e6e6ea" stroke-width="1.6"/><circle cx="12" cy="12" r="2.2" fill="#e6e6ea"/></svg></div>
+        <div class="name">Kling</div><div class="score">94</div>
+      </div>
+      <div class="row clip" data-start="0" data-duration="5" data-track-index="2">
+        <div class="rank">3</div>
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="#dcdce2" stroke-width="1.8"/><circle cx="12" cy="12" r="4.4" stroke="#dcdce2" stroke-width="1.4"/></svg></div>
+        <div class="name">Grok Imagine</div><div class="score">90</div>
+      </div>
+      <div class="row clip" data-start="0" data-duration="5" data-track-index="3">
+        <div class="rank">4</div>
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M7 14c0-3 2-5 5-5s5 2 5 5-2 4-5 4-5-1-5-4z" stroke="#cfd6ff" stroke-width="1.5"/><circle cx="10.5" cy="13" r="0.9" fill="#cfd6ff"/><circle cx="13.5" cy="13" r="0.9" fill="#cfd6ff"/></svg></div>
+        <div class="name">Sora</div><div class="score">88</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
+    const rows = gsap.utils.toArray(".row");
+    rows.forEach((r, i) => {
+      tl.from(r, { x: -70, opacity: 0, duration: 0.7 }, 0.15 + i * 0.16);
+      tl.from(r.querySelector(".score"), { opacity: 0, x: 16, duration: 0.5 }, 0.45 + i * 0.16);
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(0.9).play(); }
+  </script>
+</body>
+</html>

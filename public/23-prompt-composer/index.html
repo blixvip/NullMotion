@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prompt Composer</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1920px; height: 1080px; background: transparent;
+    overflow: hidden; font-family: "Inter", -apple-system, "SF Pro Display", system-ui, Arial, sans-serif;
+  }
+  /* glassy obsidian composer card */
+  #card {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 1080px;
+    padding: 40px 40px 26px; border-radius: 30px;
+    background: linear-gradient(180deg, #1b1b1f 0%, #131316 100%); border: 1px solid rgba(255,255,255,0.09);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 40px 90px rgba(0,0,0,0.55); will-change: transform, opacity;
+  }
+  #text { font-size: 40px; line-height: 1.45; color: #d7d7dc; min-height: 116px; }
+  #text b { color: #fff; font-weight: 600; }
+  #text .hl { background: linear-gradient(180deg,#F2F2F2,#A9A9AE); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 600; }
+  .caret { display: inline-block; width: 3px; height: 40px; background: #cfcfd4; margin-left: 3px; vertical-align: -7px; }
+  #bottom { display: flex; align-items: center; gap: 16px; margin-top: 30px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: 14px; font-size: 22px; color: #ECECEE;
+    background: linear-gradient(180deg, #26262b, #16161a); border: 1px solid rgba(255,255,255,0.10); will-change: transform, opacity;
+  }
+  .chip .dot { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(160deg,#3a3a40,#0d0d0f); border: 1px solid rgba(255,255,255,0.12); }
+  .spacer { flex: 1; }
+  .pillbtn { padding: 12px 20px; border-radius: 999px; font-size: 21px; color: #b9b9bd; background: #161618; border: 1px solid rgba(255,255,255,0.08); }
+  #send {
+    width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex: none;
+    background: linear-gradient(180deg, #F2F2F2 0%, #B8B8BC 100%); box-shadow: inset 0 1px 1px rgba(255,255,255,0.8), 0 12px 26px rgba(0,0,0,0.5);
+    will-change: transform;
+  }
+  #send svg { width: 26px; height: 26px; }
+  /* cursor */
+  #cur { position: absolute; left: 0; top: 0; width: 44px; height: 44px; transform: translate(1180px, 760px); z-index: 6; will-change: transform; }
+  #cur svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)); }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1920" data-height="1080">
+    <div id="card" class="clip" data-start="0" data-duration="5" data-track-index="0">
+      <div id="text"><span id="typed"></span><span class="caret" id="caret"></span></div>
+      <div id="bottom">
+        <div class="chip" id="chip"><span class="dot"></span> board.fig</div>
+        <div class="spacer"></div>
+        <div class="pillbtn">Chat</div>
+        <div id="send"><svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5M12 5l-6 6M12 5l6 6" stroke="#0c0c0d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </div>
+    <div id="cur" class="clip" data-start="0" data-duration="5" data-track-index="1">
+      <svg viewBox="0 0 24 24"><path d="M4 2 4 20 9 15 12.5 22 15 21 11.5 14 18 14 Z" fill="#fff" stroke="#0a0a0a" stroke-width="0.7" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+  <script>
+    // segments: [text, className] — className "" plain, "b" bold, "hl" silver highlight
+    const SEG = [
+      ["Build an app that can help me ", ""], ["find companies", "b"], [" to sell to. Here is a board with wireframes ", ""], ["how it should look", "hl"], [".", ""]
+    ];
+    const FULL = SEG.map(s => s[0]).join("");
+    const typed = document.getElementById("typed");
+    function render(n) {
+      let used = 0, html = "";
+      for (const [t, c] of SEG) {
+        if (used >= n) break;
+        const take = Math.min(t.length, n - used);
+        const part = t.slice(0, take).replace(/</g,"&lt;");
+        html += c ? `<span class="${c}">${part}</span>` : part;
+        used += t.length;
+      }
+      typed.innerHTML = html;
+    }
+
+    const tl = gsap.timeline({ paused: true });
+    tl.from("#card", { y: 50, opacity: 0, scale: 0.97, duration: 0.7, ease: "expo.out" }, 0.1);
+    tl.to({ n: 0 }, { n: FULL.length, duration: 2.2, ease: "none", onUpdate() { render(Math.round(this.targets()[0].n)); } }, 0.7);
+    tl.from("#chip", { y: 16, opacity: 0, scale: 0.9, duration: 0.5, ease: "back.out(1.7)" }, 1.4);
+    // cursor to send button, then press
+    tl.to("#cur", { x: 1300, y: 690, duration: 0.8, ease: "power3.inOut" }, 3.0);
+    tl.to("#send", { scale: 0.88, duration: 0.12 }, 3.7);
+    tl.to("#send", { scale: 1, duration: 0.3, ease: "back.out(2.4)" }, 3.82);
+    tl.to("#caret", { opacity: 0, duration: 0.5, repeat: 4, yoyo: true, ease: "steps(1)" }, 0.65);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(0.9).play(); }
+  </script>
+</body>
+</html>

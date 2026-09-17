@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="hyperframes" content="duration:5,fps:30,width:1080,height:1920,transparent:true" />
+<title>Icon Stack Rise</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  #root {
+    --audio-energy: 0; position: relative; width: 1080px; height: 1920px; overflow: hidden;
+    background: transparent; perspective: 1800px; font-family: Inter, system-ui, sans-serif;
+  }
+  #stack {
+    position: absolute; left: 50%; top: 50%; width: 760px; height: 560px;
+    margin: -280px 0 0 -380px; transform-style: preserve-3d; will-change: transform;
+  }
+  .icon-card {
+    position: absolute; left: 50%; top: 50%; width: 240px; height: 240px;
+    margin: -120px 0 0 -120px; border-radius: 54px; transform-style: preserve-3d;
+    will-change: transform, opacity;
+  }
+  .icon-card img { display: block; width: 100%; height: 100%; object-fit: contain; border-radius: 54px; }
+  .master { z-index: 4; }
+  .master-face {
+    position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden;
+    border-radius: 54px; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  }
+  .master-front {
+    background: linear-gradient(145deg, #fff 0%, #f2f2f5 62%, #dcdce3 100%);
+    border: 1px solid rgba(255,255,255,.92);
+  }
+  .master-front::after {
+    content: ""; position: absolute; inset: 1px; border-radius: 53px;
+    background: linear-gradient(132deg, rgba(255,255,255,.72), transparent 38%); pointer-events: none;
+  }
+  .master-front img { width: 166px; height: 94px; border-radius: 0; }
+  .master-back { transform: none; }
+  .rear { z-index: 2; }
+  #after-card { z-index: 1; }
+  #photoshop-card { z-index: 2; }
+  #contact-shadow {
+    position: absolute; left: 50%; top: calc(50% + 166px); width: 590px; height: 64px;
+    margin-left: -295px; border-radius: 50%; opacity: 0;
+    background: rgba(0,0,0,.44); filter: blur(27px); transform-origin: 50% 50%;
+  }
+  #guide-line {
+    position: absolute; left: 50%; top: calc(50% + 2px); width: 760px; height: 3px;
+    margin-left: -380px; opacity: 0; border-radius: 999px; transform-origin: 50% 50%;
+    background: linear-gradient(90deg, transparent, rgba(49,168,255,.24) 18%, rgba(255,255,255,.82) 50%, rgba(153,153,255,.24) 82%, transparent);
+  }
+  #depth-glint {
+    position: absolute; left: 50%; top: 50%; width: 310px; height: 310px;
+    margin: -155px 0 0 -155px; border-radius: 50%; opacity: 0; pointer-events: none;
+    background: radial-gradient(circle, rgba(255,255,255,.12), rgba(78,112,255,.055) 38%, transparent 72%);
+    filter: blur(7px); transform-origin: 50% 50%;
+  }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1080" data-height="1920">
+    <div id="guide-line" aria-hidden="true"></div>
+    <div id="depth-glint" aria-hidden="true"></div>
+    <div id="contact-shadow" aria-hidden="true"></div>
+    <div id="stack" data-layout-allow-overflow="true">
+      <div class="icon-card master" id="master-card" data-layout-allow-overflow="true">
+        <div class="master-face master-front" id="master-front"><img data-null-asset-slot="brand" src="./assets/adobe.svg" alt="Adobe" /></div>
+        <div class="master-face master-back" id="master-back"><img data-null-asset-slot="brand" src="./assets/premiere-pro.svg" alt="Adobe Premiere Pro" /></div>
+      </div>
+      <div class="icon-card rear" id="after-card" data-layout-allow-overflow="true"><img data-null-asset-slot="brand" src="./assets/after-effects.svg" alt="Adobe After Effects" /></div>
+      <div class="icon-card rear" id="photoshop-card" data-layout-allow-overflow="true"><img data-null-asset-slot="brand" src="./assets/photoshop.svg" alt="Adobe Photoshop" /></div>
+    </div>
+  </div>
+  <script>
+    const controls = window.__nullMotionTemplateControls || { finalLayout: "fan" };
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
+    const stack = document.getElementById("stack");
+    const master = document.getElementById("master-card");
+    const masterFront = document.getElementById("master-front");
+    const masterBack = document.getElementById("master-back");
+    const after = document.getElementById("after-card");
+    const photoshop = document.getElementById("photoshop-card");
+    const shadow = document.getElementById("contact-shadow");
+    const line = document.getElementById("guide-line");
+    const glint = document.getElementById("depth-glint");
+    const cascade = controls.finalLayout === "cascade";
+    const finalPhotoshop = cascade ? { x: -220, y: 96, rotationZ: -3 } : { x: -274, y: 12, rotationZ: -2 };
+    const finalAfter = cascade ? { x: 220, y: -96, rotationZ: 3 } : { x: 274, y: 12, rotationZ: 2 };
+
+    gsap.set(stack, { y: 1120, rotationX: 7, transformPerspective: 1800 });
+    gsap.set(master, { x: 0, y: 0, z: 30, scale: 1, rotationY: 0, rotationZ: -2 });
+    gsap.set(masterFront, { opacity: 1 });
+    gsap.set(masterBack, { opacity: 0 });
+    gsap.set(photoshop, { x: 0, y: 38, z: -30, scale: .94, rotationY: -5, rotationZ: -4 });
+    gsap.set(after, { x: 0, y: 76, z: -70, scale: .88, rotationY: 6, rotationZ: 4 });
+    gsap.set([master, photoshop, after], { opacity: 0 });
+    gsap.set(line, { opacity: 0, scaleX: .06 });
+    gsap.set(shadow, { opacity: 0, scaleX: .36, scaleY: .66 });
+    gsap.set(glint, { opacity: 0, scale: .72 });
+    tl.to([master, photoshop, after], { opacity: 1, duration: .08, stagger: .035, ease: "power2.out" }, .14)
+      .to(stack, { y: -28, rotationX: -1.5, duration: 1.02, ease: "power4.out" }, .14)
+      .to(stack, { y: 0, rotationX: 0, duration: .239, ease: "back.out(1.28)" }, 1.161)
+      .to(shadow, { opacity: .34, scaleX: .58, scaleY: 1, duration: .96 }, .2)
+      .to(master, { y: 18, scaleX: 1.035, scaleY: .975, duration: .13, ease: "power2.out" }, 1.4)
+      .to(line, { opacity: .78, scaleX: 1, duration: .34 }, 1.48)
+      .to(glint, { opacity: .58, scale: 1.08, duration: .42 }, 1.48)
+      .to(master, { y: -12, scaleX: 1, scaleY: 1, rotationY: 88, rotationZ: 0, duration: .339, ease: "power3.in" }, 1.55)
+      .set(masterFront, { opacity: 0 }, 1.89)
+      .set(masterBack, { opacity: 1 }, 1.89)
+      .set(master, { rotationY: -88 }, 1.89)
+      .to(master, { rotationY: 0, duration: .359, ease: "power3.out" }, 1.891)
+      .to(photoshop, { ...finalPhotoshop, z: 0, scale: 1.075, rotationY: 0, duration: .72, ease: "back.out(1.38)" }, 1.74)
+      .to(after, { ...finalAfter, z: 0, scale: 1.075, rotationY: 0, duration: .72, ease: "back.out(1.38)" }, 1.84)
+      .to(master, { y: 0, scale: 1.075, duration: .309, ease: "back.out(1.24)" }, 2.251)
+      .to([master, photoshop, after], { scale: 1, duration: .26, stagger: .035, ease: "power2.out" }, 2.53)
+      .to(line, { opacity: .16, scaleX: .9, duration: .32, ease: "power2.out" }, 2.48)
+      .to(glint, { opacity: .12, scale: 1.18, duration: .42, ease: "power2.out" }, 2.43)
+      .to(shadow, { opacity: .28, scaleX: 1, duration: .5, ease: "power3.out" }, 2.18)
+      .to([photoshop, master, after], { y: index => [finalPhotoshop.y - 7, -7, finalAfter.y - 7][index], duration: .38, stagger: .045, ease: "sine.inOut" }, 3.35)
+      .to([photoshop, master, after], { y: index => [finalPhotoshop.y, 0, finalAfter.y][index], duration: .38, stagger: .045, ease: "sine.inOut" }, 3.73)
+      .to(line, { opacity: 0, scaleX: .68, duration: .3, ease: "power2.in" }, 4.02)
+      .to(glint, { opacity: 0, scale: .88, duration: .28, ease: "power2.in" }, 4.02)
+      .to([after, master, photoshop], { y: -980, opacity: 0, rotationX: -9, scale: .9, duration: .62, stagger: .05, ease: "power3.in" }, 4.08)
+      .to(shadow, { opacity: 0, scaleX: .46, duration: .52, ease: "power3.in" }, 4.1);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines.root = tl;
+    window.startRender = function startRender() { return window.__timelines.root; };
+    window.reactToAudio = function reactToAudio(amplitude, frequency) {
+      const a = Math.max(0, Math.min(1, Number(amplitude) || 0));
+      const f = Math.max(0, Math.min(1, Number(frequency) || 0));
+      document.documentElement.style.setProperty("--audio-energy", ((a + f) * .5).toFixed(4));
+    };
+    if (location.hash === "#play") tl.play();
+  </script>
+</body>
+</html>

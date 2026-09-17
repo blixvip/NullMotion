@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Search Typing</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1920px; height: 1080px; background: transparent;
+    overflow: hidden; font-family: "Inter", -apple-system, "SF Pro Display", system-ui, Arial, sans-serif;
+  }
+  #col { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
+  #mark {
+    font-size: 96px; font-weight: 700; letter-spacing: -0.05em; margin-bottom: 50px;
+    background: linear-gradient(135deg, #F2F2F2 0%, #B8B8BC 50%, #8C8C90 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent; will-change: transform, opacity;
+  }
+  /* glossy obsidian search pill */
+  #bar {
+    display: flex; align-items: center; gap: 18px; width: 860px; padding: 22px 30px; border-radius: 999px;
+    background: linear-gradient(180deg, #1b1b1f 0%, #131316 100%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 26px 55px rgba(0,0,0,0.5); will-change: transform, opacity;
+  }
+  #bar svg { width: 34px; height: 34px; flex: none; }
+  #q { flex: 1; font-size: 34px; color: #ECECEE; white-space: nowrap; }
+  #q .cursor { display: inline-block; width: 3px; height: 36px; background: #cfcfd4; margin-left: 2px; vertical-align: -6px; }
+  #btns { display: flex; gap: 18px; margin-top: 44px; }
+  .sbtn {
+    padding: 16px 30px; border-radius: 12px; font-size: 19px; color: #d7d7dc;
+    background: linear-gradient(180deg, #1f1f23, #161618); border: 1px solid rgba(255,255,255,0.08); will-change: transform, opacity;
+  }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1920" data-height="1080">
+    <div id="col">
+      <div id="mark" class="clip" data-start="0" data-duration="5" data-track-index="0">Search</div>
+      <div id="bar" class="clip" data-start="0" data-duration="5" data-track-index="1">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke="#9a9a9e" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="#9a9a9e" stroke-width="2" stroke-linecap="round"/></svg>
+        <div id="q"><span id="typed"></span><span class="cursor" id="cur"></span></div>
+      </div>
+      <div id="btns" class="clip" data-start="0" data-duration="5" data-track-index="2">
+        <div class="sbtn">Search</div>
+        <div class="sbtn">I’m Feeling Lucky</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const PHRASE = "rank #1 on launch day";
+    const typed = document.getElementById("typed");
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+
+    tl.from("#mark", { y: 30, opacity: 0, duration: 0.7 }, 0.1);
+    tl.from("#bar", { y: 26, opacity: 0, duration: 0.7 }, 0.35);
+    // type the phrase character by character
+    tl.to({ n: 0 }, { n: PHRASE.length, duration: 1.7, ease: "none",
+      onUpdate() { typed.textContent = PHRASE.slice(0, Math.round(this.targets()[0].n)); } }, 0.9);
+    tl.from("#btns", { y: 20, opacity: 0, duration: 0.6 }, 2.5);
+    // blinking caret
+    tl.to("#cur", { opacity: 0, duration: 0.5, repeat: 4, yoyo: true, ease: "steps(1)" }, 0.85);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(1.0).play(); }
+  </script>
+</body>
+</html>

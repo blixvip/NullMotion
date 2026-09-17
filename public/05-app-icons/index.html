@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="hyperframes" content="duration:5,fps:30,width:1080,height:1920,transparent:true" />
+<title>App Icon Float</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1080px; height: 1920px; background: transparent;
+    overflow: hidden; font-family: "Inter", system-ui, Arial, sans-serif;
+  }
+  #row {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    display: flex; gap: 48px; align-items: center; justify-content: center;
+    perspective: 1120px; transform-style: preserve-3d;
+  }
+  .tile {
+    width: 200px; height: 200px; border-radius: 46px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(145deg, #fafafd 0%, #ececf2 58%, #d8d8e1 100%);
+    border: 1px solid rgba(255,255,255,0.82);
+    box-shadow: inset 0 2px 2px rgba(255,255,255,.9), inset 0 -3px 8px rgba(45,45,58,.12), 0 24px 60px rgba(0,0,0,0.42);
+    position: relative; overflow: hidden; transform-style: preserve-3d;
+    will-change: transform, opacity;
+  }
+  .tile::before { content: ""; position: absolute; inset: 10px; z-index: 0; border: 1px solid rgba(35,35,48,.1); border-radius: 36px; pointer-events: none; }
+  .tile::after { content: ""; position: absolute; left: -38%; top: -20%; z-index: 2; width: 26%; height: 140%; transform: rotate(14deg); background: linear-gradient(90deg, transparent, rgba(255,255,255,.68), transparent); opacity: .52; pointer-events: none; }
+  #row.single .tile {
+    width: 380px; height: 380px; border-radius: 86px;
+    background: linear-gradient(145deg, #fbfbfd 0%, #ececf2 56%, #d6d6e0 100%);
+    border: 1px solid rgba(255,255,255,.9);
+    box-shadow: inset 0 2px 3px rgba(255,255,255,.95), inset 0 -4px 12px rgba(35,35,50,.13), 0 36px 90px rgba(0,0,0,.46);
+    overflow: hidden;
+  }
+  #row.single .tile::before { inset: 12px; border-radius: 74px; }
+  .mark-shell {
+    position: relative; z-index: 1; width: 104px; height: 104px;
+    transform-style: preserve-3d; pointer-events: none;
+  }
+  .mark-shell img {
+    position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain;
+    border-radius: inherit; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    pointer-events: none; user-select: none;
+  }
+  .mark-shell img.mark-back { transform: rotateY(180deg); }
+  #row.single .mark-shell { width: 228px; height: 228px; }
+  #row.single.direct-artwork .tile {
+    width: 540px; height: 540px; border: 0; border-radius: 0; overflow: visible;
+    background: transparent; box-shadow: none;
+  }
+  #row.single.direct-artwork .tile::before,
+  #row.single.direct-artwork .tile::after { display: none; }
+  #row.single.direct-artwork .mark-shell { width: 460px; height: 460px; border-radius: 0; }
+  #row.single.direct-artwork .mark-shell img {
+    border-radius: 0;
+    filter: drop-shadow(0 28px 30px rgba(0,0,0,.38));
+  }
+  #row.split {
+    width: 1080px; height: 520px; display: block;
+    perspective: 1600px; transform-style: preserve-3d;
+  }
+  #row.split .tile {
+    position: absolute; left: 50%; top: 50%; width: 220px; height: 220px;
+    margin: -110px 0 0 -110px; border-radius: 52px; overflow: visible;
+  }
+  #row.split .tile.split-hero {
+    width: 360px; height: 260px; margin: -130px 0 0 -180px; border-radius: 64px;
+    background: linear-gradient(145deg, #fff 0%, #f1f1f4 62%, #dcdce3 100%);
+    border: 1px solid rgba(255,255,255,.95); box-shadow: none;
+  }
+  #row.split .split-hero::before,
+  #row.split .split-hero::after { display: none; }
+  #row.split .split-hero .mark-shell { width: 250px; height: 140px; }
+  #row.split .tile.product-artwork {
+    background: transparent; border: 0; box-shadow: 0 30px 72px rgba(0,0,0,.48);
+  }
+  #row.split .tile.product-artwork::before,
+  #row.split .tile.product-artwork::after { display: none; }
+  #row.split .product-artwork .mark-shell { width: 220px; height: 220px; border-radius: 50px; }
+  #row.split .product-artwork .mark-shell img { border-radius: 50px; }
+  .depth-layer {
+    position: absolute; inset: 2px; border-radius: 102px;
+    background: linear-gradient(90deg, #090909, #343434 48%, #090909);
+    border: 1px solid rgba(255,255,255,.16); pointer-events: none;
+    backface-visibility: visible; -webkit-backface-visibility: visible;
+  }
+  .depth-side {
+    position: absolute; z-index: 3; display: block; pointer-events: none;
+    background: linear-gradient(90deg, #090909 0%, #4a4a4a 48%, #111 100%);
+    border: 1px solid rgba(255,255,255,.2); backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+  }
+  .depth-side.left, .depth-side.right { top: 11%; width: 24px; height: 78%; }
+  .depth-side.left { left: -12px; transform: rotateY(90deg); }
+  .depth-side.right { right: -12px; transform: rotateY(90deg); }
+  .depth-side.top, .depth-side.bottom { left: 11%; width: 78%; height: 24px; }
+  .depth-side.top { top: -12px; transform: rotateX(90deg); }
+  .depth-side.bottom { bottom: -12px; transform: rotateX(90deg); }
+  #contact-shadow { position: absolute; left: 50%; top: calc(50% + 248px); width: 340px; height: 58px; margin-left: -170px; border-radius: 50%; background: rgba(0,0,0,.42); filter: blur(24px); transform-origin: 50% 50%; opacity: 0; will-change: transform, opacity; }
+  #root.split-mode #contact-shadow { top: calc(50% + 154px); width: 760px; height: 52px; margin-left: -380px; filter: blur(28px); }
+  #split-energy {
+    position: absolute; left: 50%; top: 50%; width: 720px; height: 4px; margin: -2px 0 0 -360px;
+    border-radius: 999px; opacity: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(153,153,255,.32) 18%, rgba(255,255,255,.9) 50%, rgba(49,168,255,.32) 82%, transparent 100%);
+    transform-origin: 50% 50%; will-change: transform, opacity;
+  }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1080" data-height="1920">
+    <div id="contact-shadow" aria-hidden="true"></div>
+    <div id="split-energy" aria-hidden="true"></div>
+    <div id="row">
+      <div class="tile t1">
+        <img data-null-asset-slot="brand" src="./assets/adobe.svg" alt="Adobe" />
+      </div>
+      <div class="tile t2">
+        <img data-null-asset-slot="brand" src="./assets/premiere-pro.svg" alt="Adobe Premiere Pro" />
+      </div>
+      <div class="tile t3">
+        <img data-null-asset-slot="brand" src="./assets/after-effects.svg" alt="Adobe After Effects" />
+      </div>
+      <div class="tile t4">
+        <img data-null-asset-slot="brand" src="./assets/photoshop.svg" alt="Adobe Photoshop" />
+      </div>
+    </div>
+  </div>
+  <script>
+    const viewAngleControls = {
+      front: { rotationAxis: "none", rotationDegrees: 0, settledYAngle: 0 },
+      "three-quarter-left": { rotationAxis: "none", rotationDegrees: 0, settledYAngle: -32 },
+      "three-quarter-right": { rotationAxis: "none", rotationDegrees: 0, settledYAngle: 32 },
+      "half-turn": { rotationAxis: "y", rotationDegrees: 180, settledYAngle: 180 },
+      "full-turn": { rotationAxis: "y", rotationDegrees: 360, settledYAngle: 360 }
+    };
+    const defaultControls = { visibleCount: 3, entrance: "up", viewAngle: "front", rotationAxis: "none", rotationDegrees: 0, settledYAngle: 0, splitFromHero: false };
+    const injectedControls = window.__nullMotionTemplateControls;
+    let controls = injectedControls && typeof injectedControls === "object" ? injectedControls : defaultControls;
+    if (!injectedControls) {
+      const preview = new URLSearchParams(location.search);
+      const visibleCount = Number(preview.get("visibleCount"));
+      const entrance = preview.get("entrance");
+      const viewAngle = preview.get("viewAngle");
+      const splitFromHero = preview.get("splitFromHero");
+      controls = { ...defaultControls };
+      if (Number.isInteger(visibleCount) && visibleCount >= 1 && visibleCount <= 4) controls.visibleCount = visibleCount;
+      if (["up", "down", "left", "right"].includes(entrance)) controls.entrance = entrance;
+      if (viewAngleControls[viewAngle]) Object.assign(controls, { viewAngle, ...viewAngleControls[viewAngle] });
+      if (["1", "on", "true"].includes(String(splitFromHero || "").toLowerCase())) controls.splitFromHero = true;
+    }
+    const settledYAngle = Number.isFinite(Number(controls.settledYAngle))
+      ? Number(controls.settledYAngle)
+      : Number(viewAngleControls[controls.viewAngle]?.settledYAngle) || 0;
+    const tl = gsap.timeline({ paused: true });
+    const tiles = gsap.utils.toArray(".tile");
+    const visibleTiles = tiles.slice(0, Math.max(1, Math.min(tiles.length, Number(controls.visibleCount) || tiles.length)));
+    // Remove unused authored slots from the render tree. HyperFrames controls
+    // clip visibility while sampling, so display:none alone is not a safe way
+    // to guarantee a singular-brand composition.
+    tiles.slice(visibleTiles.length).forEach(tile => { tile.remove(); });
+    const row = document.getElementById("row");
+    row.classList.toggle("single", visibleTiles.length === 1);
+    const splitMode = Boolean(controls.splitFromHero && visibleTiles.length >= 4);
+    row.classList.toggle("split", splitMode);
+    document.getElementById("root").classList.toggle("split-mode", splitMode);
+    row.classList.toggle("direct-artwork", visibleTiles.length === 1);
+    visibleTiles.forEach(tile => {
+      const front = tile.querySelector("img");
+      if (!front || front.closest(".mark-shell")) return;
+      const identity = `${front.getAttribute("alt") || ""} ${front.getAttribute("src") || ""}`.toLowerCase();
+      tile.classList.toggle("product-artwork", /premiere|after[ -]?effects|photoshop/.test(identity));
+      const shell = document.createElement("div");
+      shell.className = "mark-shell";
+      front.before(shell);
+      shell.appendChild(front);
+      if (row.classList.contains("raster-artwork")) {
+        for (let depth = -10; depth <= 10; depth += 2) {
+          const layer = document.createElement("span");
+          layer.className = "depth-layer";
+          layer.style.transform = `translateZ(${depth}px)`;
+          shell.insertBefore(layer, front);
+        }
+        for (const sideName of ["left", "right", "top", "bottom"]) {
+          const side = document.createElement("span");
+          side.className = `depth-side ${sideName}`;
+          shell.insertBefore(side, front);
+        }
+      }
+      const back = front.cloneNode(true);
+      back.classList.add("mark-back");
+      back.removeAttribute("data-null-asset-slot");
+      back.alt = "";
+      back.setAttribute("aria-hidden", "true");
+      shell.appendChild(back);
+    });
+    const entrances = {
+      up: { x: 0, y: 1120 }, down: { x: 0, y: -1120 },
+      left: { x: -720, y: 0 }, right: { x: 720, y: 0 }
+    };
+    const entrance = entrances[controls.entrance] || entrances.up;
+    const contactShadow = document.getElementById("contact-shadow");
+    const splitEnergy = document.getElementById("split-energy");
+    const firstBeat = 0.16;
+    tl.set(contactShadow, { opacity: 0, scaleX: 0.45, scaleY: 0.7 }, 0);
+    if (splitMode) {
+      const hero = visibleTiles[0];
+      const finals = visibleTiles.slice(1, 4);
+      hero.classList.add("split-hero");
+      gsap.set(hero, {
+        ...entrance, opacity: 0, scaleX: .86, scaleY: .7,
+        rotationX: 11, rotationY: 0, rotationZ: -4,
+        transformOrigin: "50% 80%", transformPerspective: 1600
+      });
+      gsap.set(finals, { x: 0, y: 0, opacity: 0, scale: .38, rotationY: -74, transformPerspective: 1600 });
+      gsap.set(splitEnergy, { opacity: 0, scaleX: .05 });
+      tl.to(hero, { opacity: 1, duration: .08, ease: "power2.out" }, .16)
+        .to(hero, { x: 0, y: -22, scaleX: .98, scaleY: 1.035, rotationX: -2, rotationZ: 1, duration: .86, ease: "power4.out" }, .16)
+        .to(hero, { y: 0, scaleX: 1, scaleY: 1, rotationX: 0, rotationZ: 0, duration: .28, ease: "power2.out" }, 1.02)
+        .to(contactShadow, { opacity: .3, scaleX: .48, scaleY: 1, duration: .88, ease: "power4.out" }, .16)
+        .to(hero, { rotationY: 84, y: -12, duration: .28, ease: "power3.inOut" }, 1.3)
+        .to(hero, { rotationY: 180, y: -16, duration: .28, ease: "sine.inOut" }, 1.58)
+        .to(hero, { rotationY: 276, y: -12, duration: .28, ease: "sine.inOut" }, 1.86)
+        .to(hero, { rotationY: 360, y: -4, duration: .28, ease: "power3.inOut" }, 2.14)
+        .to(splitEnergy, { opacity: .8, scaleX: 1, duration: .24, ease: "power4.out" }, 2.26)
+        .to(hero, { opacity: 0, scale: .5, rotationY: 378, duration: .22, ease: "power3.in", overwrite: "auto" }, 2.32)
+        .to(contactShadow, { opacity: .2, scaleX: 1, duration: .48, ease: "power3.out" }, 2.28);
+      const destinations = [-255, 0, 255];
+      finals.forEach((tile, index) => {
+        const at = 2.52 + index * .08;
+        tl.to(tile, {
+          x: destinations[index], y: index === 1 ? -14 : 8,
+          opacity: 1, scale: 1.06, rotationY: settledYAngle,
+          duration: .64, ease: "back.out(1.3)"
+        }, at)
+          .to(tile, { scale: 1, y: 0, duration: .25, ease: "power2.out" }, at + .62)
+          .to(tile, { y: -7, duration: .38, ease: "sine.inOut" }, 3.56 + index * .05)
+          .to(tile, { y: 0, duration: .38, ease: "sine.inOut" }, 3.94 + index * .05)
+          .to(tile, { y: -300, opacity: 0, scale: .88, rotationX: -10, duration: .62, ease: "power3.in" }, 4.3 + index * .04);
+      });
+      tl.to(splitEnergy, { opacity: .14, scaleX: .88, duration: .3, ease: "power2.out" }, 2.5)
+        .to(splitEnergy, { opacity: 0, scaleX: .65, duration: .4, ease: "power2.in" }, 3.12)
+        .to(contactShadow, { opacity: 0, scaleX: .55, duration: .58, ease: "power3.in", overwrite: "auto" }, 4.28);
+    } else visibleTiles.forEach((tile, index) => {
+      const at = firstBeat + index * 0.13;
+      const mark = tile.querySelector(".mark-shell");
+      tl.set(tile, {
+        ...entrance, opacity: 0, scaleX: 0.9, scaleY: 0.72,
+        rotationX: 12, rotationY: controls.rotationAxis === "y" ? 0 : settledYAngle * .35, rotationZ: controls.rotationAxis === "z" ? -9 : -4,
+        transformOrigin: "50% 82%", transformPerspective: 1500
+      }, 0)
+        .set(mark, { scale: 0.94, transformOrigin: "50% 50%" }, 0)
+        .to(tile, { opacity: 1, duration: 0.08, ease: "power2.out" }, at)
+        .to(tile, {
+          x: 0, y: -24, scaleX: 0.98, scaleY: 1.045, rotationX: -2.5,
+          rotationY: controls.rotationAxis === "y" ? 0 : settledYAngle, rotationZ: 1.2,
+          duration: 0.9, ease: "power4.out"
+        }, at)
+        .to(mark, { scale: 1.015, duration: 0.9, ease: "power3.out" }, at)
+        .to(tile, {
+          y: 0, scaleX: 1, scaleY: 1, rotationX: 0,
+          rotationY: controls.rotationAxis === "y" ? 0 : settledYAngle, rotationZ: 0,
+          duration: 0.34, ease: "power2.out"
+        }, at + 0.88)
+        .to(mark, { scale: 1, duration: 0.28, ease: "power2.out" }, at + 0.92);
+      if (index === 0) {
+        tl.to(contactShadow, { opacity: 0.3, scaleX: 1, scaleY: 1, duration: 0.9, ease: "power4.out" }, at)
+          .to(contactShadow, { opacity: 0.36, scaleX: 0.92, duration: 0.34, ease: "power2.out" }, at + 0.88);
+      }
+      if (Number(controls.rotationDegrees) && ["x", "y", "z"].includes(controls.rotationAxis)) {
+        const property = `rotation${controls.rotationAxis.toUpperCase()}`;
+        const degrees = Number(controls.rotationDegrees);
+        const rotationTarget = controls.rotationAxis === "y" ? (settledYAngle || degrees) : degrees;
+        const spinAt = 1.52 + index * 0.1;
+        // Explicit near-quarter stops make the revolution readable in sampled
+        // review frames. A thin app icon held at exactly 90/270 degrees becomes
+        // an unhelpful one-pixel line, so Y turns stop six degrees shy of edge-on
+        // while still completing the authored 360-degree revolution. A brief
+        // dwell tween at each near-edge stop keeps the foreshortened silhouette
+        // on screen for multiple frames instead of a single-frame flicker.
+        const turnStops = controls.rotationAxis === "y" ? [0.233333, 0.5, 0.766667, 1] : [0.25, 0.5, 0.75, 1];
+        tl.to(tile, { y: -12, z: 44, scale: visibleTiles.length === 1 ? 1.045 : 1.025, rotationX: -4, duration: 0.18, ease: "power2.out", force3D: true }, spinAt)
+          .to(tile, { [property]: rotationTarget * turnStops[0], y: -18, z: 72, rotationX: -6, duration: 0.42, ease: "sine.in", transformPerspective: 1120, force3D: true }, spinAt + 0.18)
+          .to(tile, { y: -20, z: 80, duration: 0.1, ease: "none", force3D: true }, spinAt + 0.6)
+          .to(tile, { [property]: rotationTarget * turnStops[1], y: -22, z: 88, rotationX: -3, duration: 0.42, ease: "sine.out", force3D: true }, spinAt + 0.7)
+          .to(tile, { [property]: rotationTarget * turnStops[2], y: -18, z: 72, rotationX: -6, duration: 0.42, ease: "sine.in", force3D: true }, spinAt + 1.12)
+          .to(tile, { y: -20, z: 80, duration: 0.1, ease: "none", force3D: true }, spinAt + 1.54)
+          .to(tile, { [property]: rotationTarget * turnStops[3], y: -10, z: 36, rotationX: -1, duration: 0.42, ease: "sine.out", force3D: true }, spinAt + 1.64)
+          .to(tile, { y: 0, z: 0, rotationX: 0, scale: 1, duration: 0.32, ease: "back.out(1.25)", force3D: true }, spinAt + 2.06);
+        if (index === 0) {
+          tl.to(contactShadow, { opacity: 0.18, scaleX: 0.5, duration: 0.42, ease: "sine.inOut" }, spinAt + 0.18)
+            .to(contactShadow, { opacity: 0.28, scaleX: 0.78, duration: 0.84, ease: "sine.inOut" }, spinAt + 0.6)
+            .to(contactShadow, { opacity: 0.36, scaleX: 0.92, duration: 0.32, ease: "power2.out" }, spinAt + 2.06);
+        }
+      } else {
+        tl.to(tile, { y: -13, rotationZ: -0.8, duration: 0.62, ease: "sine.inOut" }, 1.34 + index * 0.12)
+          .to(tile, { y: 0, rotationZ: 0, duration: 0.62, ease: "sine.inOut" }, 1.96 + index * 0.12);
+      }
+      // The exit must clear the top of a 1920px-tall canvas from a centered
+      // rest position before it disappears; opacity is deliberately decoupled
+      // from the travel and lags behind it so the icon reads as flying off
+      // frame rather than dissolving in place mid-canvas.
+      const exitDistance = 1550;
+      const exitY = controls.entrance === "down" ? exitDistance : -exitDistance;
+      const exitAt = 4.06 + index * 0.04;
+      tl.to(tile, { y: 10, scaleX: 1.03, scaleY: 0.97, duration: 0.12, ease: "power2.out" }, exitAt)
+        .to(tile, { y: exitY, scaleX: 0.92, scaleY: 1.06, rotationX: -6, duration: 0.6, ease: "power2.in" }, exitAt + 0.12)
+        .to(tile, { opacity: 0, duration: 0.16, ease: "power1.in" }, exitAt + 0.5);
+      if (index === 0) tl.to(contactShadow, { opacity: 0, scaleX: 0.3, scaleY: 0.4, duration: 0.34, ease: "power2.in" }, exitAt + 0.06);
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    window.startRender = function() { return window.__timelines["root"]; };
+    window.reactToAudio = function(amplitude, frequency) {
+      const amp = Math.max(0, Math.min(1, Number(amplitude) || 0));
+      const freq = Math.max(0, Math.min(1, Number(frequency) || 0));
+      document.getElementById("root").style.setProperty("--audio-response", String((amp + freq) * 0.5));
+    };
+    if (location.hash === "#play") { tl.play(); }
+  </script>
+</body>
+</html>

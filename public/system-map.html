@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Null Motion — Director Pipeline</title>
+  <link rel="icon" href="assets/null-logo.png" />
+  <link rel="stylesheet" href="pipeline-workspace.css" />
+  <link rel="stylesheet" href="site-shell.css" />
+  <script src="site-shell.js" defer></script>
+</head>
+<body>
+  <header class="fallback-header">
+    <a href="./">Null Motion</a>
+    <nav><a href="./">Templates</a><a href="create.html">Reference studio</a><a href="script.html">Script to motion</a><a href="system-map.html" aria-current="page">Director pipeline</a><a href="control-center.html">Control Center</a><a href="renders.html">Renders</a></nav>
+  </header>
+
+  <main class="pipeline-page">
+    <section class="pipeline-hero" aria-labelledby="pageTitle">
+      <div class="hero-copy">
+        <p class="hero-kicker">Website first. Premiere second.</p>
+        <h1 id="pageTitle">From idea to timeline.</h1>
+        <p>Follow two real paths through Null Motion. Select any step to see what it does, where it runs, and what it is allowed to change.</p>
+        <nav class="hero-actions" aria-label="Pipeline page sections">
+          <a class="button primary" href="#websiteFlowSection">Website flow</a>
+          <a class="button" href="#cepFlowSection">CEP flow</a>
+          <a class="button" href="#workspaceTitle">Edit director rules</a>
+        </nav>
+      </div>
+      <aside class="hero-status" aria-label="System boundary">
+        <div class="status-head"><span class="live-dot" id="bridgeDot"></span><b id="bridgeText">Checking local companion</b></div>
+        <dl class="boundary-list">
+          <div><dt>Website</dt><dd>Choose, plan, monitor, and download.</dd></div>
+          <div><dt>Companion</dt><dd>Research, generate, render, review, and persist.</dd></div>
+          <div><dt>CEP</dt><dd>Read Premiere and place approved media.</dd></div>
+        </dl>
+        <p>Select a step below. The highlighted detail explains the handoff and its safety boundary.</p>
+      </aside>
+    </section>
+
+    <section class="flow-section" id="websiteFlowSection" aria-labelledby="websiteFlowTitle">
+      <div class="section-heading compact">
+        <div><h2 id="websiteFlowTitle">How the website works</h2><p class="section-intro">The browser is the workspace. It sends controlled requests to the local companion, then shows durable results.</p></div>
+        <span class="flow-hint">Select a step for details</span>
+      </div>
+      <article class="flow-explorer" data-flow="website">
+        <header class="flow-explorer-head">
+          <span class="flow-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"></rect><path d="M8 21h8M12 18v3M3 8h18"></path></svg></span>
+          <div><h3>Browser path</h3><p>Prompt, reference, or script to a reviewed transparent render.</p></div>
+          <span class="flow-badge">No timeline access</span>
+        </header>
+        <div class="flow-track" id="websiteFlow" aria-label="Website pipeline steps"></div>
+        <div class="flow-detail" id="websiteFlowDetail" aria-live="polite"></div>
+      </article>
+    </section>
+
+    <section class="flow-section cep-flow-section" id="cepFlowSection" aria-labelledby="cepFlowTitle">
+      <div class="section-heading compact">
+        <div><h2 id="cepFlowTitle">How the CEP extension works</h2><p class="section-intro">The panel coordinates the job. ExtendScript is the narrow seam that reads and writes the Premiere project.</p></div>
+        <span class="flow-hint">Auto path shown</span>
+      </div>
+      <article class="flow-explorer cep-explorer" data-flow="cep">
+        <header class="flow-explorer-head">
+          <span class="flow-mark cep" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><path d="M8 16V8h3.2a2.6 2.6 0 0 1 0 5.2H8M15 16V9.5h2.2a2.3 2.3 0 0 1 0 4.6H15"></path></svg></span>
+          <div><h3>Premiere Auto path</h3><p>Corrected transcript to independent overlays at exact sequence times.</p></div>
+          <span class="flow-badge native">Only host.jsx writes</span>
+        </header>
+        <div class="flow-track" id="cepFlow" aria-label="CEP extension pipeline steps"></div>
+        <div class="flow-detail" id="cepFlowDetail" aria-live="polite"></div>
+        <div class="panel-tabs-guide" aria-label="Other CEP panel tabs">
+          <strong>Other panel tools</strong>
+          <span><b>Manual</b> one directed graphic</span>
+          <span><b>Library</b> shared authored templates</span>
+          <span><b>Batch</b> several independent prompts</span>
+          <span><b>Presets</b> starting recipes for Manual</span>
+          <span><b>History</b> recovery, inbox, retry, and rollback</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="client-sync-section" aria-labelledby="clientSyncTitle">
+      <div class="section-heading compact">
+        <div><h2 id="clientSyncTitle">One companion, two clients</h2><p class="section-intro">Website and CEP share versioned behavior without sharing the same layout or host permissions.</p></div>
+      </div>
+      <div class="contract-panel">
+        <div class="contract-panel-head"><div><small>Client parity contract</small><b id="clientContractStatus">Loading live contract…</b></div><span id="clientContractVersion">Bundled fallback</span></div>
+        <div class="client-contract-grid" id="clientContractGrid"><div class="contract-loading">Checking shared capabilities against the companion…</div></div>
+        <div class="sync-policy"><b>Live versus bundled</b><span>Catalogs, jobs, themes, storyboards, and render contracts come from the running companion. CEP fallback catalogs and previews are generated by <code>npm run sync:cep</code>. Website layout never gains Premiere permissions through synchronization.</span></div>
+      </div>
+    </section>
+
+    <section class="workspace-section" aria-labelledby="workspaceTitle">
+      <div class="section-heading compact">
+        <div><h2 id="workspaceTitle">Edit the director rules</h2><p class="section-intro">These seven stages control this page’s Planning Lab. Changes stay in this browser; they do not replace server defaults.</p></div>
+        <div class="workspace-actions"><span class="save-state" id="saveState">Saved locally</span><button class="text-button" id="copyPipeline" type="button">Copy rules</button><button class="text-button" id="exportPipeline" type="button">Export JSON</button><button class="text-button" id="openImport" type="button">Import</button><button class="text-button" id="resetPipeline" type="button">Restore defaults</button></div>
+      </div>
+
+      <div class="pipeline-workspace">
+        <aside class="stage-sidebar" aria-label="Pipeline stages">
+          <div class="stage-sidebar-head"><span>Pipeline</span><small>Choose a stage to edit</small></div>
+          <div class="stage-list" id="pipeline"></div>
+        </aside>
+
+        <article class="stage-editor" id="stageEditor" aria-live="polite"></article>
+
+        <aside class="stage-readable" aria-label="Readable stage summary">
+          <div class="readable-head"><div><small>Readable view</small><b>Current stage</b></div><button class="icon-button" id="copyStage" type="button" title="Copy this stage" aria-label="Copy this stage">Copy</button></div>
+          <div id="stagePreview"></div>
+          <div class="handoff-card"><small>Pipeline handoff</small><p>Your edits are saved in this browser and applied when you run this page’s Planning Lab. They do not replace global server defaults.</p><button class="button full" id="copyJson" type="button">Copy pipeline JSON</button></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="lab-section" aria-labelledby="labTitle">
+      <div class="section-heading">
+        <div><h2 id="labTitle">Test the plan without rendering</h2></div>
+        <p>Uses the real analysis or optimization endpoint. It builds a reviewable plan without starting a render or touching Premiere.</p>
+      </div>
+      <div class="lab">
+        <div class="lab-input">
+          <div class="lab-topline"><div><h3>Source material</h3><p>Paste a complete transcript or describe one motion graphic.</p></div><span class="api-pill">Real API</span></div>
+          <div class="mode-tabs" role="tablist"><button class="mode-tab active" id="scriptMode" type="button" role="tab" aria-selected="true">Script / transcript</button><button class="mode-tab" id="promptMode" type="button" role="tab" aria-selected="false">Single prompt</button></div>
+          <div class="source-toolbar"><label id="sourceLabel" for="sourceInput">Timestamped transcript</label><div><button id="pasteSource" type="button">Paste</button><button id="exampleButton" type="button">Example</button><button id="clearSource" type="button">Clear</button></div></div>
+          <textarea id="sourceInput" spellcheck="true" placeholder="Paste a transcript, SRT, VTT, or finished script…"></textarea>
+          <div class="source-meta"><span id="sourceCount">0 words</span><span>Ctrl/⌘ + Enter to build</span></div>
+          <div class="settings">
+            <label><span>Director</span><select id="provider"><option value="codex" selected>ChatGPT / Codex</option><option value="claude">Claude Code</option><option value="anthropic">Anthropic API</option></select></label>
+            <label><span>Video duration</span><input id="duration" placeholder="Auto, 01:30, or 90" /></label>
+            <label><span>Campaign theme</span><select id="themeMode"><option value="auto">Generate from source</option><option value="active">Use saved theme</option></select></label>
+            <label><span>Graphic cadence</span><select id="pacing"><option value="strategic" selected>Strategic · selected moments</option><option value="continuous">Continuous · every useful beat</option></select></label>
+          </div>
+          <button class="run-button" id="runButton" type="button"><span>Build director plan</span><span aria-hidden="true">→</span></button>
+          <p class="lab-note">Weak moments can remain footage-only. Strict asset mode stops before rendering when a required authentic asset cannot be resolved.</p>
+        </div>
+        <div class="lab-output" id="labOutput"><div class="output-empty"><div class="output-orbit">7</div><strong>Your reviewable plan appears here</strong><span>Narrative read, timing windows, authentic asset queries, campaign theme, template choices, and the production handoff.</span></div></div>
+      </div>
+    </section>
+
+    <section class="guardrails" aria-labelledby="guardrailTitle">
+      <div class="section-heading"><div><h2 id="guardrailTitle">What the system may change</h2></div><p>Templates supply the motion concept. The source video supplies identity, evidence, and editorial purpose.</p></div>
+      <div class="guardrail-grid">
+        <article><span class="guardrail-icon green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20h4l10.5-10.5a2.8 2.8 0 0 0-4-4L4 16v4zM13 7l4 4"></path></svg></span><h3>Adapt</h3><p>Approved copy, authentic assets, campaign tokens, timing, emphasis, and bounded authored controls.</p></article>
+        <article><span class="guardrail-icon cyan" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4zM8 12l2.5 2.5L16 9"></path></svg></span><h3>Preserve</h3><p>Hierarchy, geometry, masks, reveal order, easing relationships, transparency, and recognizable choreography.</p></article>
+        <article><span class="guardrail-icon yellow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9zM9 9l6 6M15 9l-6 6"></path></svg></span><h3>Stop cleanly</h3><p>When a template does not fit, choose another, leave the footage clean, or author a reusable template.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="import-dialog" id="importDialog">
+    <form method="dialog">
+      <div class="dialog-head"><div><small>Pipeline import</small><h2>Paste a pipeline JSON file</h2></div><button class="dialog-close" value="cancel" aria-label="Close">×</button></div>
+      <p>Import replaces the seven editable stage drafts in this browser. Invalid or incomplete stages are safely filled from the defaults.</p>
+      <textarea id="importInput" spellcheck="false" placeholder='{"version":1,"stages":[…]}'></textarea>
+      <div class="dialog-actions"><button class="button" value="cancel">Cancel</button><button class="button primary" id="importPipeline" value="default" type="button">Import pipeline</button></div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="director-workspace.js"></script>
+</body>
+</html>

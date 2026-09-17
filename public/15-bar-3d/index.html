@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="hyperframes" content="duration:5,fps:30,width:1920,height:1080,transparent:true" />
+<title>3D Bar Hero</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1920px; height: 1080px; background: transparent;
+    overflow: hidden; font-family: "Inter", -apple-system, "SF Pro Display", system-ui, Arial, sans-serif;
+  }
+
+  /* perspective stage so the bars read as 3D */
+  #stage {
+    position: absolute; left: 250px; bottom: 158px;
+    display: flex; align-items: flex-end; gap: 44px;
+    perspective: 1400px;
+  }
+  #floor {
+    position: absolute; left: 210px; bottom: 118px; width: 720px; height: 72px;
+    border-radius: 50%; background: rgba(0,0,0,.32); filter: blur(24px);
+    opacity: 0; transform: scaleX(.45); transform-origin: 50% 50%; will-change: transform, opacity;
+  }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 26px; }
+  .bar3d {
+    position: relative; width: 138px; border-radius: 12px 12px 2px 2px; transform-origin: bottom;
+    transform: rotateX(8deg); transform-style: preserve-3d; will-change: transform;
+    border: 1px solid rgba(255,255,255,.48);
+    box-shadow: inset 0 2px 1px rgba(255,255,255,.5), 0 20px 40px rgba(0,0,0,.24);
+  }
+  /* extruded right side face */
+  .bar3d::after {
+    content: ""; position: absolute; top: 8px; right: -18px; width: 18px; height: calc(100% - 8px);
+    background: linear-gradient(180deg, rgba(75,75,83,.72), rgba(28,28,33,.88));
+    transform: skewY(-34deg); transform-origin: top; border-radius: 0 6px 0 0;
+  }
+  .side { height: 300px; background: linear-gradient(180deg, #d8d8dc 0%, #9a9a9e 100%);
+          }
+  /* tall silver hero bar with a luminous bloom */
+  #hero { height: 560px; background: linear-gradient(180deg, #F6F6F8 0%, #C8C8CE 45%, #8E8E94 100%);
+          box-shadow: inset 0 2px 1px rgba(255,255,255,.72), 0 24px 48px rgba(0,0,0,.3), 0 0 54px rgba(225,225,235,.18); }
+
+  /* floating icon tile (on the bar top) + headline (in open space to the right) */
+  #cap { position: absolute; left: 1080px; top: 360px; width: 650px; display: flex; align-items: center; gap: 30px; z-index: 5; }
+  #tile {
+    width: 100px; height: 100px; border-radius: 26px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #2a2a2f 0%, #0c0c0e 100%);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 18px 40px rgba(0,0,0,.42);
+    will-change: transform, opacity;
+  }
+  #tile svg { width: 52px; height: 52px; }
+  #headline { will-change: transform, opacity; }
+  #headline .l1 {
+    font-size: 64px; font-weight: 720; letter-spacing: -0.04em; line-height: .98;
+    color: #f1f1f3; white-space: nowrap;
+  }
+  #headline .l2 { font-size: 30px; font-weight: 520; letter-spacing: -0.01em; color: #9898a1; margin-top: 14px; white-space: nowrap; }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1920" data-height="1080">
+    <div id="floor" aria-hidden="true"></div>
+    <div id="stage">
+      <div class="col"><div class="bar3d side" data-i="0"></div></div>
+      <div class="col">
+        <div class="bar3d" id="hero" data-i="1"></div>
+      </div>
+      <div class="col"><div class="bar3d side" data-i="2"></div></div>
+    </div>
+
+    <!-- Caption occupies a dedicated right-hand column and never crosses the chart silhouette. -->
+    <div id="cap">
+      <div id="tile"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" fill="#eaeaef"/></svg></div>
+      <div id="headline"><div class="l1">Worth your</div><div class="l2">time and money</div></div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
+    tl.from(".side", { scaleY: 0, opacity: 0, duration: .76, stagger: .12 }, .12);
+    tl.to("#floor", { opacity: .7, scaleX: 1, duration: .72 }, .18);
+    tl.from("#hero", { scaleY: 0, opacity: 0, duration: .94 }, .42);
+    tl.from("#tile", { y: 46, opacity: 0, scale: .74, duration: .66, ease: "back.out(1.45)" }, 1.02);
+    tl.from("#headline .l1", { x: 38, opacity: 0, duration: .62 }, 1.2);
+    tl.from("#headline .l2", { x: 26, opacity: 0, duration: .56 }, 1.36);
+    tl.to("#tile", { y: -8, duration: .5, ease: "sine.inOut" }, 2.35)
+      .to("#tile", { y: 0, duration: .5, ease: "sine.inOut" }, 2.85);
+    tl.to("#cap", { y: -22, opacity: 0, duration: .58, ease: "power3.in" }, 4.15);
+    tl.to("#stage", { y: 46, opacity: 0, duration: .62, ease: "power3.in" }, 4.24);
+    tl.to("#floor", { opacity: 0, scaleX: .62, duration: .5, ease: "power2.in" }, 4.32);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    window.startRender = function() { return window.__timelines["root"]; };
+    window.reactToAudio = function(amplitude, frequency) {
+      const amp = Math.max(0, Math.min(1, Number(amplitude) || 0));
+      document.getElementById("root").style.setProperty("--audio-response", String(amp));
+    };
+    if (location.hash === "#play") { tl.play(); }
+  </script>
+</body>
+</html>

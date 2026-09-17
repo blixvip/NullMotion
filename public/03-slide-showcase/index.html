@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Slide-In Showcase</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1920px; height: 1080px; background: transparent; overflow: hidden;
+    font-family: "Inter", -apple-system, system-ui, Arial, sans-serif;
+  }
+  #wrap { position: absolute; left: 200px; top: 50%; transform: translateY(-50%); width: 1300px; }
+
+  .eyebrow-mask, .line-mask, .sub-mask { overflow: hidden; }
+  #eyebrow {
+    display: inline-flex; align-items: center; gap: 18px;
+    font-size: 24px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase;
+    color: rgba(190,190,198,0.85); will-change: transform;
+  }
+  #eyebrow .dot { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg,#fff,#9a9a9e); box-shadow: 0 0 14px rgba(255,255,255,0.6); }
+
+  .line-mask { margin-top: 8px; }
+  .headline {
+    font-size: 150px; line-height: 1.0; font-weight: 700; letter-spacing: -0.05em;
+    background: linear-gradient(120deg, #FFFFFF 0%, #C9C9CD 48%, #828288 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    will-change: transform;
+  }
+
+  #underline { height: 4px; width: 0; margin-top: 38px; border-radius: 4px;
+    background: linear-gradient(90deg, #f4f4f6, rgba(244,244,246,0)); }
+
+  .sub-mask { margin-top: 34px; }
+  #sub { font-size: 30px; font-weight: 300; line-height: 1.5; color: rgba(206,206,212,0.8); max-width: 900px; will-change: transform; }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1920" data-height="1080">
+    <div id="wrap">
+      <div class="eyebrow-mask clip" data-start="0" data-duration="5" data-track-index="0"><span id="eyebrow"><span class="dot"></span> Introducing Null Motion</span></div>
+      <div class="line-mask clip" data-start="0" data-duration="5" data-track-index="1"><div class="headline" id="h1">Motion that</div></div>
+      <div class="line-mask clip" data-start="0" data-duration="5" data-track-index="2"><div class="headline" id="h2">sells.</div></div>
+      <div id="underline" class="clip" data-start="0" data-duration="5" data-track-index="3"></div>
+      <div class="sub-mask clip" data-start="0" data-duration="5" data-track-index="4"><div id="sub">After Effects–level graphics, generated from a single line of text.</div></div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+    tl.from("#eyebrow", { yPercent: 130, opacity: 0, duration: 0.9 }, 0.1);
+    tl.from("#h1", { yPercent: 115, duration: 1.1 }, 0.35);
+    tl.from("#h2", { yPercent: 115, duration: 1.1 }, 0.5);
+    tl.to("#underline", { width: 560, duration: 1.0, ease: "power4.inOut" }, 0.95);
+    tl.from("#sub", { yPercent: 120, opacity: 0, duration: 0.9 }, 1.05);
+    // slow settle drift
+    tl.to("#wrap", { x: 18, duration: 3.2, ease: "sine.inOut" }, 1.8);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(0.8).play(); }
+  </script>
+</body>
+</html>

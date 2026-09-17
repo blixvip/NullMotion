@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chrome CTA Pill</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+
+  #root {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    background: transparent;
+    overflow: hidden;
+    font-family: "Inter", -apple-system, "SF Pro Display", system-ui, Arial, sans-serif;
+  }
+
+  /* Lower-third anchor: centered, lower 20% of frame */
+  #cta-wrap {
+    position: absolute;
+    left: 50%;
+    bottom: 140px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+  }
+
+  /* Glossy obsidian pill — matches the reference render */
+  #pill {
+    position: relative;
+    padding: 30px 78px;
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, #2b2b2e 0%, #161618 46%, #0a0a0b 100%);
+    box-shadow:
+      inset 0 2px 1px rgba(255,255,255,0.22),
+      inset 0 -3px 6px rgba(0,0,0,0.85),
+      inset 0 22px 26px rgba(255,255,255,0.05),
+      0 30px 55px rgba(0,0,0,0.55),
+      0 2px 0 rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    overflow: hidden;
+    will-change: transform, opacity;
+  }
+  /* top specular highlight cap */
+  #pill::before {
+    content: "";
+    position: absolute;
+    inset: 2px 2px 52% 2px;
+    border-radius: 999px 999px 60% 60% / 999px 999px 80% 80%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.0));
+    pointer-events: none;
+  }
+  /* moving glint */
+  #pill::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -60%;
+    width: 45%; height: 100%;
+    background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.0) 35%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0.0) 65%, transparent 100%);
+    transform: skewX(-18deg);
+    pointer-events: none;
+  }
+  #label {
+    position: relative;
+    font-size: 40px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    background: linear-gradient(180deg, #ffffff 0%, #cfcfcf 45%, #9a9a9a 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-transform: uppercase;
+  }
+  #subcopy {
+    font-size: 21px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: rgba(214,214,218,0.72);
+    will-change: transform, opacity;
+  }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="4" data-track-index="0" data-width="1920" data-height="1080">
+
+    <div id="cta-wrap">
+      <div id="pill" class="clip" data-start="0" data-duration="4" data-track-index="0">
+        <span id="label">Subscribe</span>
+      </div>
+      <div id="subcopy" class="clip" data-start="0" data-duration="4" data-track-index="1">New videos every week</div>
+    </div>
+
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+
+    const pill = document.querySelector("#pill");
+    gsap.set(pill, { "--x": "-60%" });
+
+    // pill mask-rise
+    tl.from("#pill", { y: 90, opacity: 0, scale: 0.96, duration: 0.85 }, 0.1);
+    // label settle
+    tl.from("#label", { y: 14, opacity: 0, duration: 0.6 }, 0.45);
+    // subcopy
+    tl.from("#subcopy", { y: 18, opacity: 0, duration: 0.6 }, 0.65);
+
+    // metallic glint sweeps across the pill face near the tail
+    tl.to({ p: 0 }, {
+      p: 1, duration: 0.9, ease: "power2.inOut",
+      onUpdate() { pill.style.setProperty("--x", (-60 + this.targets()[0].p * 220) + "%"); }
+    }, 2.3);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+
+    // --- Live preview only (ignored by the headless renderer, which seeks the paused timeline) ---
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(0.6).play(); }
+  </script>
+  <style>
+    /* drive the glint pseudo via the --x var set in JS */
+    #pill::after { left: var(--x, -60%); }
+  </style>
+</body>
+</html>

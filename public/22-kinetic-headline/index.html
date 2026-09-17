@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="hyperframes" content="duration:4,fps:30,width:1920,height:1080,transparent:true">
+  <meta name="duration" content="4000">
+  <meta name="fps" content="30">
+  <meta name="width" content="1920">
+  <meta name="height" content="1080">
+  <title>Kinetic Headline</title>
+  <script src="../_vendor/gsap.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --audio-energy: 0; --audio-tone: 0; --silver: #f4f4f6; --amber: #e8b768; }
+    html, body { width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
+    body { color: var(--silver); font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: transparent; perspective: 1400px; }
+    .plane { position: absolute; pointer-events: none; }
+    .atmosphere { left: 395px; top: 238px; width: 1130px; height: 610px; opacity: .82; background: radial-gradient(ellipse at 51% 52%, rgba(232,183,104,.13) 0%, rgba(92,123,128,.07) 32%, rgba(4,8,10,0) 72%); filter: blur(10px); transform: translateZ(-160px) scale(.84); }
+    .orbit { left: 529px; top: 302px; width: 862px; height: 462px; border: 1px solid rgba(244,244,246,.09); border-radius: 50%; transform: rotate(-6deg) translateZ(-90px); }
+    .orbit::after { content: ""; position: absolute; inset: 39px 75px; border: 1px solid rgba(232,183,104,.12); border-radius: 50%; }
+    .guide { left: 224px; top: 539px; width: 1472px; height: 1px; background: linear-gradient(90deg, transparent, rgba(244,244,246,.14) 16%, rgba(232,183,104,.32) 50%, rgba(244,244,246,.14) 84%, transparent); transform-origin: center; }
+    .headline { position: absolute; inset: 0; display: grid; place-items: center; transform-style: preserve-3d; }
+    .line { display: flex; align-items: center; justify-content: center; gap: 34px; white-space: nowrap; }
+    .word-mask { overflow: hidden; padding: 18px 2px 24px; }
+    .word { display: block; font-size: 132px; font-weight: 780; line-height: .88; letter-spacing: -.055em; background: linear-gradient(180deg, #fff 0%, #dedee2 44%, #999aa2 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 12px 25px rgba(0,0,0,.2)); will-change: transform, opacity, filter; }
+    .pill-wrap { position: relative; padding: 36px 0; transform-style: preserve-3d; }
+    .contact-shadow { position: absolute; left: 10%; right: 10%; bottom: 12px; height: 28px; border-radius: 50%; background: rgba(0,0,0,.48); filter: blur(18px); transform: translateZ(-25px); }
+    .pill { position: relative; min-width: 490px; padding: 34px 62px 38px; overflow: hidden; border-radius: 999px; background: linear-gradient(180deg, rgba(42,42,47,.98) 0%, rgba(17,17,20,.99) 58%, rgba(7,7,9,.99) 100%); border: 1px solid rgba(255,255,255,.18); box-shadow: inset 0 2px rgba(255,255,255,.2), inset 0 -1px rgba(232,183,104,.16), 0 0 48px rgba(232,183,104,.12), 0 24px 48px rgba(0,0,0,.34); transform-style: preserve-3d; will-change: transform, opacity, filter; }
+    .pill::before { content: ""; position: absolute; inset: 1px 28px auto; height: 45%; border-radius: 999px; background: linear-gradient(180deg, rgba(255,255,255,.09), transparent); }
+    .pill .word { position: relative; z-index: 2; text-align: center; font-size: 102px; letter-spacing: -.045em; }
+    .sheen { position: absolute; z-index: 3; top: -20%; left: -38%; width: 26%; height: 140%; opacity: 0; background: linear-gradient(105deg, transparent, rgba(255,255,255,.72), rgba(232,183,104,.28), transparent); filter: blur(1px); transform: skewX(-16deg); }
+    .index { position: absolute; left: 50%; top: calc(50% - 154px); display: flex; align-items: center; gap: 12px; transform: translateX(-50%); color: rgba(244,244,246,.52); font: 560 13px/1 "SFMono-Regular", Consolas, monospace; letter-spacing: .19em; }
+    .index i { width: 18px; height: 1px; background: var(--amber); box-shadow: 0 0 16px rgba(232,183,104,.48); }
+    .microcopy { position: absolute; left: 50%; top: calc(50% + 145px); transform: translateX(-50%); color: rgba(244,244,246,.42); font: 500 13px/1 "SFMono-Regular", Consolas, monospace; letter-spacing: .2em; }
+    .spark { position: absolute; z-index: 5; left: 50%; top: 50%; width: calc(8px + var(--audio-energy) * 4px); height: calc(8px + var(--audio-energy) * 4px); margin: -4px; border-radius: 50%; opacity: 0; background: #fff6df; box-shadow: 0 0 12px rgba(255,246,223,.9), 0 0 calc(32px + var(--audio-energy) * 18px) rgba(232,183,104,.65), 0 0 78px rgba(232,183,104,.24); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="4" data-track-index="0" data-width="1920" data-height="1080">
+    <div class="plane atmosphere clip" id="atmosphere" data-start="0" data-duration="4" data-track-index="0"></div>
+    <div class="plane orbit clip" id="orbit" data-start="0" data-duration="4" data-track-index="1"></div>
+    <div class="plane guide clip" id="guide" data-start="0" data-duration="4" data-track-index="2"></div>
+    <section class="headline clip" id="headline" data-start="0" data-duration="4" data-track-index="3" aria-label="You Launch Want">
+      <div class="index"><i></i><span>01 / EMPHASIS</span></div>
+      <div class="line">
+        <div class="word-mask"><span class="word" id="word-left">YOU</span></div>
+        <div class="pill-wrap">
+          <div class="contact-shadow" id="contact-shadow"></div>
+          <div class="pill" id="pill"><span class="word">LAUNCH</span><span class="sheen" id="sheen"></span></div>
+          <span class="spark" id="spark"></span>
+        </div>
+        <div class="word-mask"><span class="word" id="word-right">WANT</span></div>
+      </div>
+      <p class="microcopy">CLARITY / STRUCTURE / IMPACT</p>
+    </section>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    window.startRender = function startRender() {
+      if (window.__timelines.root) return window.__timelines.root;
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
+      tl.from("#atmosphere", { opacity: 0, scale: .72, filter: "blur(22px)", duration: .72, ease: "power3.out" }, 0)
+        .from("#orbit", { opacity: 0, scale: .9, rotation: -9, duration: .82, ease: "power3.inOut" }, .04)
+        .from("#guide", { scaleX: 0, duration: .68, ease: "power3.inOut" }, .08)
+        .from(".index", { opacity: 0, y: 10, duration: .4, ease: "power2.out" }, .16)
+        .from("#word-left", { x: -112, y: 18, rotation: -1.2, opacity: 0, filter: "blur(8px)", duration: .72, ease: "power4.out" }, .2)
+        .from("#word-right", { x: 112, y: -18, rotation: 1.2, opacity: 0, filter: "blur(8px)", duration: .72, ease: "power4.out" }, .29)
+        .fromTo("#pill", { scaleX: .93, scaleY: 1.06, y: 12, opacity: 0, filter: "blur(6px)" }, { scaleX: 1.08, scaleY: .95, y: -4, opacity: 1, filter: "blur(0px)", duration: .43, ease: "power3.out" }, .45)
+        .to("#pill", { scaleX: 1, scaleY: 1, y: 0, duration: .34, ease: "back.out(1.55)" }, .82)
+        .from("#contact-shadow", { opacity: 0, scaleX: .55, y: -8, duration: .62, ease: "power3.out" }, .48)
+        .from(".microcopy", { opacity: 0, y: 9, duration: .42, ease: "power2.out" }, .76)
+        .to("#spark", { opacity: 1, x: -205, duration: .01 }, 1.22)
+        .to("#spark", { x: 210, y: -6, duration: .68, ease: "power3.inOut" }, 1.23)
+        .to("#spark", { opacity: 0, duration: .2, ease: "sine.out" }, 1.72)
+        .to("#sheen", { opacity: .82, left: "118%", duration: .76, ease: "power3.inOut" }, 1.22)
+        .to("#sheen", { opacity: 0, duration: .18, ease: "sine.out" }, 1.8)
+        .to("#orbit", { rotation: -4.7, x: -9, duration: 1.8, ease: "sine.inOut" }, 1.35)
+        .to("#atmosphere", { x: 11, scale: .86, duration: 1.8, ease: "sine.inOut" }, 1.35)
+        .to({}, { duration: .85 });
+      window.__timelines.root = tl;
+      return tl;
+    };
+    window.reactToAudio = function reactToAudio(amplitude = 0, frequency = 0) {
+      const a = Math.max(0, Math.min(1, Number(amplitude) || 0));
+      const f = Math.max(0, Math.min(1, Number(frequency) || 0));
+      document.documentElement.style.setProperty("--audio-energy", a.toFixed(4));
+      document.documentElement.style.setProperty("--audio-tone", f.toFixed(4));
+    };
+    const timeline = window.startRender();
+    if (location.hash === "#play") timeline.play(0);
+  </script>
+</body>
+</html>

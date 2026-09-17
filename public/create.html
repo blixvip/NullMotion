@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Create from reference — Null Motion</title>
+<link rel="icon" href="assets/null-logo.png" />
+<style>
+  :root {
+    --bg: #0d0d0f; --panel: #141417; --panel-2: #1b1b1f; --line: #2a2a30;
+    --text: #ececee; --muted: #8a8a92; --quiet: #5e5e66;
+    --cyan: #00e5ff; --violet: #8b5cf6; --success: #4ade80; --danger: #fb7185;
+    --silver: linear-gradient(135deg, #f2f2f2 0%, #b8b8bc 50%, #8c8c90 100%);
+  }
+  * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--text); background:
+      radial-gradient(900px 520px at 18% -10%, rgba(139,92,246,.09), transparent 62%),
+      radial-gradient(760px 480px at 94% 12%, rgba(0,229,255,.07), transparent 62%), var(--bg);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, textarea, select { font: inherit; }
+  button, a { -webkit-tap-highlight-color: transparent; }
+  header {
+    position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between;
+    min-height: 66px; padding: 13px clamp(18px,3vw,44px); border-bottom: 1px solid var(--line);
+    background: rgba(10,10,12,.84); backdrop-filter: blur(20px) saturate(130%);
+  }
+  .brand { display: inline-flex; align-items: center; gap: 11px; color: inherit; font-size: 18px; text-decoration: none; }
+  .brand img { width: 31px; height: 31px; border-radius: 9px; box-shadow: 0 5px 15px rgba(0,0,0,.5); }
+  .brand b { font-weight: 650; } .brand span { color: var(--muted); }
+  .head-actions { display: flex; align-items: center; gap: 9px; }
+  .nav-link, .pair-btn, .status {
+    min-height: 36px; padding: 8px 13px; border: 1px solid var(--line); border-radius: 99px;
+    background: var(--panel); color: var(--muted); font-size: 12px; text-decoration: none;
+  }
+  .nav-link:hover, .pair-btn:hover { color: var(--text); border-color: #42424a; }
+  .nav-link.active { color: var(--text); border-color: #4b4b54; background: #242429; }
+  .pair-btn { cursor: pointer; }
+  .status { display: inline-flex; align-items: center; gap: 8px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #5a5a62; }
+  .status.online { color: #c8fbd9; border-color: rgba(74,222,128,.24); }
+  .status.online .status-dot { background: var(--success); box-shadow: 0 0 13px rgba(74,222,128,.5); }
+  .status.offline { color: #fda4af; border-color: rgba(251,113,133,.24); }
+  .status.offline .status-dot { background: var(--danger); }
+
+  main { width: min(1420px,100%); margin: 0 auto; padding: clamp(26px,3.5vw,48px) clamp(16px,4vw,54px) 74px; }
+  .intro { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 28px; align-items: end; margin-bottom: 24px; }
+  .eyebrow { display: flex; align-items: center; gap: 9px; margin-bottom: 13px; color: #8befff; font-size: 10px; font-weight: 750; letter-spacing: .17em; text-transform: uppercase; }
+  .eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 15px rgba(0,229,255,.72); }
+  h1 { max-width: 820px; margin: 0; font-size: clamp(38px,4.5vw,62px); font-weight: 610; letter-spacing: -.055em; line-height: 1; background: var(--silver); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .intro p { max-width: 700px; margin: 18px 0 0; color: #9a9aa3; font-size: clamp(15px,1.4vw,18px); line-height: 1.62; }
+  .step-map { display: flex; align-items: center; gap: 8px; padding-bottom: 4px; }
+  .step-pill { display: flex; align-items: center; gap: 8px; color: var(--quiet); font-size: 11px; white-space: nowrap; }
+  .step-pill b { display: grid; width: 24px; height: 24px; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: var(--panel); color: var(--muted); font-size: 10px; }
+  .step-pill.active { color: var(--text); } .step-pill.active b { border-color: rgba(0,229,255,.42); color: #baf7ff; background: rgba(0,229,255,.08); }
+  .step-line { width: 28px; height: 1px; background: var(--line); }
+
+  .workspace { display: grid; grid-template-columns: minmax(0,1.02fr) minmax(430px,.98fr); gap: 18px; align-items: start; }
+  .panel { overflow: hidden; border: 1px solid var(--line); border-radius: 22px; background: linear-gradient(145deg, rgba(24,24,28,.96), rgba(12,12,15,.97)); box-shadow: 0 28px 80px rgba(0,0,0,.25); }
+  .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 22px 23px 18px; border-bottom: 1px solid var(--line); }
+  .panel-title small { display: block; margin-bottom: 6px; color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+  .panel-title h2 { margin: 0; font-size: 20px; font-weight: 620; letter-spacing: -.025em; }
+  .panel-number { display: grid; width: 31px; height: 31px; place-items: center; border: 1px solid var(--line); border-radius: 10px; color: var(--muted); font: 650 11px/1 ui-monospace, Consolas, monospace; }
+  .panel-body { padding: 22px 23px 24px; }
+
+  .dropzone {
+    position: relative; min-height: 230px; display: grid; place-items: center; padding: 22px; overflow: hidden;
+    border: 1px dashed #393941; border-radius: 17px; background:
+      linear-gradient(145deg, rgba(255,255,255,.018), transparent),
+      repeating-linear-gradient(45deg, rgba(255,255,255,.012) 0 1px, transparent 1px 11px);
+    cursor: pointer; transition: .2s ease;
+  }
+  .dropzone:hover, .dropzone.dragging { border-color: rgba(0,229,255,.58); background-color: rgba(0,229,255,.025); box-shadow: inset 0 0 50px rgba(0,229,255,.035); }
+  .drop-empty { max-width: 350px; text-align: center; }
+  .drop-icon { position: relative; width: 58px; height: 58px; margin: 0 auto 16px; border: 1px solid #3b3b44; border-radius: 17px; background: linear-gradient(145deg,#26262d,#151518); box-shadow: 0 14px 28px rgba(0,0,0,.35), inset 0 1px rgba(255,255,255,.07); }
+  .drop-icon::before, .drop-icon::after { content: ""; position: absolute; background: #bfc0c5; border-radius: 2px; }
+  .drop-icon::before { width: 20px; height: 2px; left: 18px; top: 27px; }
+  .drop-icon::after { width: 2px; height: 20px; left: 27px; top: 18px; }
+  .drop-empty strong { display: block; font-size: 15px; font-weight: 620; }
+  .drop-empty span { display: block; margin-top: 7px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+  .drop-empty em { color: #b9f6ff; font-style: normal; }
+  .image-grid { display: none; width: 100%; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; align-self: stretch; }
+  .dropzone.has-images { display: block; padding: 13px; }
+  .dropzone.has-images .drop-empty { display: none; }
+  .dropzone.has-images .image-grid { display: grid; }
+  .reference { position: relative; min-height: 122px; aspect-ratio: 1 / 1; overflow: hidden; border: 1px solid #34343c; border-radius: 12px; background: #0b0b0d; }
+  .reference img { width: 100%; height: 100%; display: block; object-fit: cover; }
+  .reference-order { position: absolute; left: 7px; top: 7px; display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid rgba(255,255,255,.18); border-radius: 7px; background: rgba(8,8,10,.78); backdrop-filter: blur(8px); font-size: 9px; font-weight: 750; }
+  .reference-remove { position: absolute; right: 7px; top: 7px; width: 24px; height: 24px; padding: 0; border: 1px solid rgba(255,255,255,.16); border-radius: 7px; background: rgba(8,8,10,.78); color: #d7d7dc; cursor: pointer; }
+  .reference-add { min-height: 122px; aspect-ratio: 1 / 1; border: 1px dashed #3b3b44; border-radius: 12px; background: rgba(255,255,255,.018); color: var(--muted); cursor: pointer; }
+  .reference-add:hover { border-color: rgba(0,229,255,.45); color: var(--text); }
+  .drop-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 10px; color: var(--quiet); font-size: 10px; }
+  .drop-foot span:last-child { text-align: right; }
+
+  .field { margin-top: 18px; }
+  .field:first-child { margin-top: 0; }
+  .field label, .control label { display: block; margin-bottom: 8px; color: #adadb5; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .field textarea, .field input, .control select, .control input {
+    width: 100%; border: 1px solid var(--line); border-radius: 12px; outline: 0; background: var(--panel-2); color: var(--text); padding: 12px 13px; font-size: 13px; transition: border-color .2s, box-shadow .2s;
+  }
+  .field textarea { min-height: 95px; resize: vertical; line-height: 1.55; }
+  .field textarea:focus, .field input:focus, .control select:focus, .control input:focus { border-color: rgba(0,229,255,.48); box-shadow: 0 0 0 3px rgba(0,229,255,.055); }
+  .field-note { margin-top: 7px; color: var(--quiet); font-size: 10px; line-height: 1.5; }
+  .controls { display: grid; grid-template-columns: 1.25fr .75fr 1fr; gap: 10px; margin-top: 18px; }
+  .control { min-width: 0; }
+  .control select, .control input { height: 43px; padding: 9px 11px; }
+  .action-row { display: flex; align-items: center; gap: 11px; margin-top: 20px; }
+  .primary, .secondary, .result-actions a, .result-actions button {
+    display: inline-flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 12px; padding: 11px 16px; font-weight: 650; font-size: 13px; text-decoration: none; cursor: pointer;
+  }
+  .primary { flex: 1; border: 0; color: #0b0b0d; background: var(--silver); box-shadow: inset 0 1px rgba(255,255,255,.78), 0 12px 28px rgba(0,0,0,.3); }
+  .secondary { border: 1px solid var(--line); color: var(--muted); background: var(--panel-2); }
+  .primary:disabled, .secondary:disabled { opacity: .48; cursor: default; }
+  .busy::before { content: ""; width: 12px; height: 12px; margin-right: 8px; border: 1.5px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+
+  .blueprint-empty { min-height: 430px; display: grid; place-items: center; padding: 34px; text-align: center; }
+  .blueprint-empty-mark { width: 66px; height: 66px; display: grid; place-items: center; margin: 0 auto 18px; border: 1px solid var(--line); border-radius: 20px; background: radial-gradient(circle at 50% 25%, #292933, #151518 66%); color: #787883; font: 600 18px/1 ui-monospace,Consolas,monospace; box-shadow: inset 0 1px rgba(255,255,255,.06); }
+  .blueprint-empty h3 { margin: 0; font-size: 17px; font-weight: 600; }
+  .blueprint-empty p { max-width: 360px; margin: 9px auto 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+  .blueprint { display: none; }
+  .blueprint.show { display: block; }
+  .blueprint.show + .blueprint-empty { display: none; }
+  .analysis-strip { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; margin-bottom: 17px; }
+  .analysis-card { min-width: 0; padding: 11px; border: 1px solid var(--line); border-radius: 11px; background: rgba(8,8,10,.34); }
+  .analysis-card small { display: block; color: var(--quiet); font-size: 8px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+  .analysis-card span { display: -webkit-box; overflow: hidden; margin-top: 6px; color: #b5b5bc; font-size: 10.5px; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+  .prompt-editor { width: 100%; min-height: 248px; resize: vertical; border: 1px solid var(--line); border-radius: 13px; outline: 0; background: #101013; color: #d8d8dd; padding: 15px; font: 11.5px/1.65 ui-monospace, "SFMono-Regular", Consolas, monospace; }
+  .prompt-editor:focus { border-color: rgba(139,92,246,.5); box-shadow: 0 0 0 3px rgba(139,92,246,.055); }
+  .prompt-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 9px 0 0; color: var(--quiet); font-size: 9.5px; }
+  .prompt-meta .fallback { color: #f7d58a; }
+  .checklist { margin-top: 17px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .checklist-title { color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+  .checklist-items { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+  .check { padding: 6px 8px; border: 1px solid #303038; border-radius: 8px; color: #9999a2; background: rgba(255,255,255,.018); font-size: 9.5px; }
+  .generate-row { margin-top: 19px; }
+  .generate-row .primary { width: 100%; }
+  .generate-note { margin: 9px 2px 0; color: var(--quiet); font-size: 9.5px; line-height: 1.5; text-align: center; }
+
+  .job-panel { display: none; grid-column: 1 / -1; }
+  .job-panel.show { display: block; }
+  .job-layout { display: grid; grid-template-columns: minmax(0,1.25fr) minmax(360px,.75fr); min-height: 470px; }
+  .preview-shell { position: relative; display: grid; place-items: center; min-height: 470px; overflow: hidden; border-right: 1px solid var(--line); background: radial-gradient(100% 100% at 50% 35%,#303037 0,#1b1b20 47%,#0d0d10 100%); }
+  .preview-shell::before { content: ""; position: absolute; inset: 0; opacity: .15; background-image: linear-gradient(45deg,#aaa 25%,transparent 25%),linear-gradient(-45deg,#aaa 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#aaa 75%),linear-gradient(-45deg,transparent 75%,#aaa 75%); background-size: 24px 24px; background-position: 0 0,0 12px,12px -12px,-12px 0; }
+  .preview-placeholder { position: relative; z-index: 1; text-align: center; color: var(--muted); }
+  .preview-placeholder .loader { width: 37px; height: 37px; margin: 0 auto 15px; border: 2px solid rgba(255,255,255,.12); border-top-color: var(--cyan); border-radius: 50%; animation: spin 1s linear infinite; }
+  .preview-placeholder strong { display: block; color: #d4d4d9; font-size: 13px; }
+  .preview-placeholder span { display: block; margin-top: 6px; font-size: 11px; }
+  .preview-frame { position: absolute; z-index: 2; inset: 0; width: 100%; height: 100%; border: 0; background: transparent; }
+  .job-detail { padding: 25px; }
+  .job-badge { display: inline-flex; align-items: center; gap: 8px; padding: 7px 9px; border: 1px solid rgba(0,229,255,.23); border-radius: 99px; color: #9ff5ff; background: rgba(0,229,255,.06); font-size: 9px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+  .job-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 11px rgba(0,229,255,.7); }
+  .job-badge.done { color: #bdf7d0; border-color: rgba(74,222,128,.25); background: rgba(74,222,128,.06); }
+  .job-badge.done::before { background: var(--success); box-shadow: 0 0 11px rgba(74,222,128,.62); }
+  .job-detail h2 { margin: 19px 0 0; font-size: 27px; font-weight: 610; letter-spacing: -.04em; }
+  .job-status-copy { min-height: 42px; margin-top: 10px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+  .progress { height: 5px; margin-top: 15px; overflow: hidden; border-radius: 5px; background: #28282e; }
+  .progress span { display: block; width: 100%; height: 100%; transform: scaleX(0); transform-origin: left; border-radius: inherit; background: linear-gradient(90deg,var(--violet),var(--cyan)); transition: transform .35s ease; }
+  .job-spec { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 20px; }
+  .spec { padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: rgba(8,8,10,.32); }
+  .spec small { display: block; color: var(--quiet); font-size: 8px; text-transform: uppercase; letter-spacing: .1em; }
+  .spec b { display: block; margin-top: 5px; color: #c9c9cf; font-size: 11px; font-weight: 600; }
+  .result-actions { display: none; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+  .result-actions.show { display: flex; }
+  .result-actions a, .result-actions button { flex: 1 1 135px; min-height: 39px; padding: 9px 11px; border: 1px solid var(--line); color: var(--text); background: var(--panel-2); font-size: 11px; }
+  .result-actions .featured { border: 0; color: #0b0b0d; background: var(--silver); }
+  .job-error { display: none; margin-top: 16px; padding: 11px; border: 1px solid rgba(251,113,133,.22); border-radius: 10px; background: rgba(251,113,133,.05); color: #fda4af; font-size: 11px; line-height: 1.5; }
+  .job-error.show { display: block; }
+
+  .toast { position: fixed; z-index: 100; left: 50%; bottom: 25px; transform: translate(-50%,20px); padding: 11px 15px; border: 1px solid #3a3a42; border-radius: 11px; background: rgba(25,25,29,.96); color: var(--text); box-shadow: 0 18px 50px rgba(0,0,0,.45); font-size: 12px; opacity: 0; pointer-events: none; transition: .2s; }
+  .toast.show { opacity: 1; transform: translate(-50%,0); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 900px) {
+    .intro { grid-template-columns: 1fr; } .step-map { display: none; }
+    .workspace { grid-template-columns: 1fr; } .job-panel { grid-column: auto; }
+    .job-layout { grid-template-columns: 1fr; } .preview-shell { min-height: 430px; border-right: 0; border-bottom: 1px solid var(--line); }
+  }
+  @media (max-width: 680px) {
+    header { align-items: flex-start; flex-wrap: wrap; padding: 11px 14px; }
+    .head-actions { width: 100%; overflow-x: auto; padding-bottom: 2px; }
+    .head-actions > * { flex: 0 0 auto; }
+    .status { display: none; }
+    main { padding-top: 34px; } .intro { margin-bottom: 24px; } h1 { font-size: 43px; }
+    .panel-head, .panel-body { padding-left: 16px; padding-right: 16px; }
+    .dropzone { min-height: 210px; } .image-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .controls { grid-template-columns: 1fr 1fr; } .controls .control:first-child { grid-column: 1 / -1; }
+    .analysis-strip { grid-template-columns: 1fr; } .analysis-card span { -webkit-line-clamp: 2; }
+    .job-layout { min-height: 0; } .preview-shell { min-height: 360px; } .job-detail { padding: 19px 17px 22px; }
+  }
+  @media (pointer: coarse) { button, select, input, .file-label { min-height: 44px; } }
+</style>
+<link rel="stylesheet" href="site-shell.css" />
+<script src="site-shell.js" defer></script>
+</head>
+<body>
+  <header>
+    <a class="brand" href="./"><img src="assets/null-logo.png" alt="Null" /><b>Null</b><span>Motion</span></a>
+    <nav class="head-actions" aria-label="Null Motion pages">
+      <a class="nav-link" href="./">Templates</a>
+      <a class="nav-link active" href="create.html" aria-current="page">Reference studio</a>
+      <a class="nav-link" href="script.html">Script to motion</a>
+      <a class="nav-link" href="system-map.html">Director pipeline</a>
+      <a class="nav-link" href="control-center.html">Control Center</a>
+      <a class="nav-link" href="renders.html">Renders</a>
+      <div class="status" id="bridgeStatus"><span class="status-dot"></span><span id="bridgeStatusText">Checking companion</span></div>
+      <button class="pair-btn" id="pairButton" type="button">Pair companion</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div>
+        <div class="eyebrow">Reference studio</div>
+        <h1>Turn what inspires you into motion.</h1>
+        <p>Paste screenshots from a motion graphic you like. Null reads the composition, materials, type, and implied timing, writes a production blueprint, then builds a working transparent template you can preview and reuse.</p>
+      </div>
+      <div class="step-map" aria-label="Creation steps">
+        <span class="step-pill active"><b>01</b> References</span><i class="step-line"></i>
+        <span class="step-pill" id="mapAnalyze"><b>02</b> Blueprint</span><i class="step-line"></i>
+        <span class="step-pill" id="mapBuild"><b>03</b> Build</span>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <article class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><small>Give Null something to study</small><h2>Reference frames</h2></div>
+          <span class="panel-number">01</span>
+        </div>
+        <div class="panel-body">
+          <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Paste or upload reference images">
+            <div class="drop-empty">
+              <div class="drop-icon" aria-hidden="true"></div>
+              <strong>Paste a screenshot anywhere</strong>
+              <span>or <em>choose images</em> / drag them here. Add multiple frames in playback order when you have them.</span>
+            </div>
+            <div class="image-grid" id="imageGrid"></div>
+          </div>
+          <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" multiple hidden />
+          <div class="drop-foot"><span id="imageCount">No references attached</span><span>PNG, JPG, WEBP · up to 6</span></div>
+
+          <div class="field">
+            <label for="briefInput">What should this become?</label>
+            <textarea id="briefInput" placeholder="Optional — e.g. Keep the same pacing and card choreography, but use my product photos and make the final beat say “Ship faster.”"></textarea>
+            <div class="field-note">The screenshots define the visual language. Your note tells Null what to preserve, replace, or reinterpret.</div>
+          </div>
+
+          <div class="field">
+            <label for="sourceInput">Official asset source</label>
+            <input id="sourceInput" type="url" placeholder="https://your-brand.com (optional)" />
+          </div>
+
+          <div class="controls">
+            <div class="control"><label for="formatSelect">Format</label><select id="formatSelect">
+              <option value="vertical">Vertical · 1080 × 1920</option>
+              <option value="landscape">Landscape · 1920 × 1080</option>
+              <option value="square">Square · 1080 × 1080</option>
+            </select></div>
+            <div class="control"><label for="durationInput">Seconds</label><input id="durationInput" type="number" min="2" max="12" step="0.5" value="6" /></div>
+            <div class="control"><label for="providerSelect">AI provider</label><select id="providerSelect">
+              <option value="codex">Codex</option><option value="claude">Claude</option><option value="anthropic">Anthropic API</option>
+            </select></div>
+          </div>
+
+          <div class="action-row">
+            <button class="primary" id="analyzeButton" type="button">Analyze references</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><small>Review before spending render time</small><h2>Motion blueprint</h2></div>
+          <span class="panel-number">02</span>
+        </div>
+        <div class="panel-body">
+          <div class="blueprint" id="blueprint">
+            <div class="analysis-strip" id="analysisStrip"></div>
+            <label for="promptEditor" class="checklist-title">Production prompt</label>
+            <textarea class="prompt-editor" id="promptEditor" spellcheck="false"></textarea>
+            <div class="prompt-meta"><span id="promptLength">0 characters</span><span id="analysisMode">AI reverse-engineered</span></div>
+            <div class="checklist">
+              <div class="checklist-title">Build checks</div>
+              <div class="checklist-items" id="checklistItems"></div>
+            </div>
+            <div class="generate-row"><button class="primary" id="generateButton" type="button">Generate example template</button></div>
+            <div class="generate-note">Builds editable HyperFrames source plus a transparent ProRes 4444 preview. It does not publish to the shared gallery automatically.</div>
+          </div>
+          <div class="blueprint-empty">
+            <div><div class="blueprint-empty-mark">N→</div><h3>Your blueprint will appear here</h3><p>Null will turn the reference frames into an editable prompt with exact layout, palette, materials, asset rules, and ordered animation beats.</p></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel job-panel" id="jobPanel">
+        <div class="job-layout">
+          <div class="preview-shell" id="previewShell">
+            <div class="preview-placeholder" id="previewPlaceholder"><div class="loader"></div><strong>Building your example</strong><span id="previewStatus">Preparing the composition</span></div>
+          </div>
+          <div class="job-detail">
+            <span class="job-badge" id="jobBadge">In production</span>
+            <h2 id="jobTitle">Creating Null Motion</h2>
+            <div class="job-status-copy" id="jobStatus">Turning the approved blueprint into deterministic motion.</div>
+            <div class="progress"><span id="jobProgress"></span></div>
+            <div class="job-spec">
+              <div class="spec"><small>Canvas</small><b id="specCanvas">1080 × 1920</b></div>
+              <div class="spec"><small>Duration</small><b id="specDuration">6 seconds</b></div>
+              <div class="spec"><small>Provider</small><b id="specProvider">Codex</b></div>
+            </div>
+            <div class="job-error" id="jobError"></div>
+            <div class="result-actions" id="resultActions">
+              <a class="featured" id="previewLink" target="_blank" rel="noopener">Open preview</a>
+              <a id="movieLink">Download MOV</a>
+              <a id="sourceLink">Download HTML</a>
+              <button id="copyPromptButton" type="button">Copy blueprint</button>
+              <button id="startOverButton" type="button">Create another</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const API = window.location.origin;
+  const TOKEN_KEY = "null-motion-bridge-token";
+  const MAX_IMAGES = 6;
+  const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+  const formats = {
+    vertical: { width: 1080, height: 1920, label: "Vertical" },
+    landscape: { width: 1920, height: 1080, label: "Landscape" },
+    square: { width: 1080, height: 1080, label: "Square" }
+  };
+  const stepLabels = {
+    researching: "Reading official references", sourcing: "Resolving authentic assets", optimizing: "Refining the direction",
+    expanding: "Writing the composition", building: "Building HyperFrames source", linting: "Checking the template contract",
+    queued: "Waiting for the render queue", rendering: "Rendering transparent frames", finalizing: "Preparing the preview",
+    reviewing: "Reviewing key frames", repairing: "Repairing visual issues", rerendering: "Rendering the repaired motion",
+    cancelling: "Cancelling"
+  };
+
+  let attachedImages = [];
+  let latestAnalysis = null;
+  let currentJobId = null;
+  let toastTimer = null;
+  let watchGeneration = 0;
+
+  const $ = id => document.getElementById(id);
+  const dropzone = $("dropzone");
+  const fileInput = $("fileInput");
+  const analyzeButton = $("analyzeButton");
+  const generateButton = $("generateButton");
+
+  function showToast(message) {
+    const toast = $("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
+  }
+
+  async function api(path, options = {}) {
+    const token = localStorage.getItem(TOKEN_KEY) || "";
+    const requestOptions = { ...options, headers: { ...(options.headers || {}) } };
+    if (token) requestOptions.headers["X-Null-Bridge-Token"] = token;
+    let response;
+    try { response = await fetch(`${API}${path}`, requestOptions); }
+    catch (_) { throw new Error("Null companion is offline. Start it, then try again."); }
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || `Null companion failed (${response.status})`);
+    return data;
+  }
+
+  function isPairingError(error) { return /401|403|pair|token|unauthorized/i.test(String(error?.message || error)); }
+
+  async function refreshBridgeStatus() {
+    const status = $("bridgeStatus");
+    try {
+      const health = await api("/health");
+      status.className = "status online";
+      $("bridgeStatusText").textContent = "UI ready · generation not connected";
+    } catch (error) {
+      status.className = "status offline";
+      $("bridgeStatusText").textContent = isPairingError(error) ? "Pair companion" : "Companion offline";
+    }
+  }
+
+  async function pairCompanion() {
+    const code = window.prompt("Enter the pairing code shown by the local Null companion:");
+    if (!code) return;
+    try {
+      const response = await fetch(`${API}/api/v1/pair`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: code.trim() }) });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.token) throw new Error(data.error || "Pairing failed");
+      localStorage.setItem(TOKEN_KEY, data.token);
+      showToast("Null companion paired");
+      refreshBridgeStatus();
+    } catch (error) { showToast(error.message || "Could not pair the companion"); }
+  }
+
+  function getSpec() {
+    const format = formats[$("formatSelect").value] || formats.vertical;
+    const duration = Math.min(12, Math.max(2, Number($("durationInput").value) || 6));
+    $("durationInput").value = duration;
+    return { ...format, duration, fps: 30 };
+  }
+
+  function referenceBrief() {
+    const note = $("briefInput").value.trim();
+    const frameLanguage = attachedImages.length > 1
+      ? `The ${attachedImages.length} attached images are ordered reference frames from one motion idea. Infer the transitions and causal motion between frame 1 and frame ${attachedImages.length}.`
+      : "The attached image is a visual reference for one motion-graphics idea. Infer a tasteful establish, reveal, readable hold, and resolve.";
+    return `${frameLanguage}\n\n${note || "Recreate the visual system as an original Null Motion example while preserving the reference's hierarchy, material language, and pacing. Do not copy trademarks or copyrighted copy; use supplied imagery only as an authorized reference asset."}`;
+  }
+
+  function readImage(file) {
+    return new Promise((resolve, reject) => {
+      if (!file || !/^image\/(png|jpeg|webp)$/i.test(file.type)) return reject(new Error("Use a PNG, JPG, or WEBP image."));
+      if (file.size > MAX_IMAGE_BYTES) return reject(new Error(`${file.name || "That image"} is larger than 8 MB.`));
+      const reader = new FileReader();
+      reader.onload = () => resolve({ dataUrl: String(reader.result || ""), name: file.name || "Pasted reference" });
+      reader.onerror = () => reject(new Error(`Could not read ${file.name || "that image"}.`));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function addFiles(files) {
+    const available = MAX_IMAGES - attachedImages.length;
+    if (available <= 0) return showToast(`Up to ${MAX_IMAGES} reference frames are supported`);
+    const selected = [...files].slice(0, available);
+    for (const file of selected) {
+      try { attachedImages.push(await readImage(file)); }
+      catch (error) { showToast(error.message); }
+    }
+    renderImages();
+    if (files.length > selected.length) showToast(`Only the first ${MAX_IMAGES} reference frames were added`);
+  }
+
+  function renderImages() {
+    const grid = $("imageGrid");
+    grid.innerHTML = "";
+    attachedImages.forEach((item, index) => {
+      const card = document.createElement("div");
+      card.className = "reference";
+      const image = document.createElement("img"); image.src = item.dataUrl; image.alt = `Reference frame ${index + 1}`;
+      const order = document.createElement("span"); order.className = "reference-order"; order.textContent = String(index + 1).padStart(2,"0");
+      const remove = document.createElement("button"); remove.className = "reference-remove"; remove.type = "button"; remove.textContent = "×"; remove.setAttribute("aria-label", `Remove reference ${index + 1}`);
+      remove.onclick = event => { event.stopPropagation(); attachedImages.splice(index,1); renderImages(); };
+      card.append(image,order,remove); grid.appendChild(card);
+    });
+    if (attachedImages.length < MAX_IMAGES && attachedImages.length) {
+      const add = document.createElement("button"); add.className = "reference-add"; add.type = "button"; add.textContent = "+ Add frame";
+      add.onclick = event => { event.stopPropagation(); fileInput.click(); }; grid.appendChild(add);
+    }
+    dropzone.classList.toggle("has-images", attachedImages.length > 0);
+    $("imageCount").textContent = attachedImages.length ? `${attachedImages.length} reference${attachedImages.length === 1 ? "" : "s"} · playback order` : "No references attached";
+  }
+
+  function analysisCards(analysis = {}) {
+    const cards = [
+      ["Composition", analysis.layout || "Hierarchy and spatial rhythm extracted"],
+      ["Material", analysis.materialsLighting || "Surface, depth, and lighting extracted"],
+      ["Motion", analysis.motion || "Ordered animation beats inferred"]
+    ];
+    const strip = $("analysisStrip"); strip.innerHTML = "";
+    cards.forEach(([label,value]) => {
+      const card = document.createElement("div"); card.className = "analysis-card";
+      const small = document.createElement("small"); small.textContent = label;
+      const span = document.createElement("span"); span.textContent = String(value);
+      card.append(small,span); strip.appendChild(card);
+    });
+  }
+
+  function renderChecklist(items) {
+    const wrap = $("checklistItems"); wrap.innerHTML = "";
+    (items.length ? items : ["Transparent full-frame background","Deterministic timeline","Supplied imagery preserved"]).slice(0,8).forEach(item => {
+      const chip = document.createElement("span"); chip.className = "check"; chip.textContent = `✓ ${item}`; wrap.appendChild(chip);
+    });
+  }
+
+  async function analyzeReferences() {
+    if (!attachedImages.length) { dropzone.focus(); showToast("Paste or upload at least one reference image"); return; }
+    const spec = getSpec();
+    const source = $("sourceInput").value.trim();
+    if (source && !/^https?:\/\//i.test(source)) { $("sourceInput").focus(); showToast("Use a complete http or https URL"); return; }
+    analyzeButton.disabled = true; analyzeButton.classList.add("busy"); analyzeButton.textContent = "Reverse-engineering";
+    try {
+      const data = await api("/api/prompts/optimize", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: referenceBrief(), images: attachedImages.map(item => item.dataUrl), sourceUrls: source ? [source] : [],
+          engine: "hyperframes", generator: $("providerSelect").value,
+          outputSpec: { width: spec.width, height: spec.height, duration: spec.duration, fps: spec.fps, transparent: true }
+        })
+      });
+      latestAnalysis = data;
+      $("promptEditor").value = data.optimizedPrompt || "";
+      $("promptLength").textContent = `${$("promptEditor").value.length.toLocaleString()} characters`;
+      $("analysisMode").textContent = data.fallback ? "Deterministic fallback blueprint" : "AI reverse-engineered";
+      $("analysisMode").className = data.fallback ? "fallback" : "";
+      analysisCards(data.analysis || {}); renderChecklist(data.qualityChecklist || []);
+      $("blueprint").classList.add("show"); $("mapAnalyze").classList.add("active");
+      if (data.warning) showToast("Blueprint created with the local fallback");
+      if (window.innerWidth < 1040) $("blueprint").scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (error) {
+      if (isPairingError(error)) showToast("Pair the companion before analyzing references"); else showToast(error.message);
+    } finally {
+      analyzeButton.disabled = false; analyzeButton.classList.remove("busy"); analyzeButton.textContent = "Analyze references";
+    }
+  }
+
+  function safeUrl(value) {
+    if (!value) return "";
+    try { const url = new URL(String(value),API); return /^https?:$/.test(url.protocol) ? url.href : ""; } catch (_) { return ""; }
+  }
+
+  function jobDownloadUrl(job) {
+    const explicit = safeUrl(job && job.downloadUrl);
+    if (explicit) return explicit;
+    const jobId = String((job && (job.jobId || job.id)) || "");
+    if (/^\d+$/.test(jobId) || /^[0-9a-f-]{36}$/i.test(jobId)) return `${API}/api/v1/jobs/${encodeURIComponent(jobId)}/download`;
+    return safeUrl(job && job.renderUrl);
+  }
+
+  function setJobProgress(job) {
+    const pct = Math.max(0,Math.min(100,Number(job.pct) || 0));
+    const label = stepLabels[job.step] || (job.status === "pending" ? "Queued" : "Working on the composition");
+    $("jobProgress").style.transform = `scaleX(${pct / 100})`;
+    $("jobStatus").textContent = `${label} · ${Math.round(pct)}%`;
+    $("previewStatus").textContent = label;
+  }
+
+  function finishJob(job) {
+    $("jobProgress").style.transform = "scaleX(1)";
+    $("jobBadge").classList.add("done"); $("jobBadge").textContent = "Template ready";
+    $("jobTitle").textContent = "Your motion is ready";
+    $("jobStatus").textContent = job.reviewSkipped ? "Rendered successfully · visual review skipped" : "Rendered and quality reviewed · source is ready to reuse";
+    const previewUrl = safeUrl(job.playerUrl || job.previewUrl);
+    if (previewUrl) {
+      const iframe = document.createElement("iframe"); iframe.className = "preview-frame"; iframe.src = previewUrl; iframe.title = "Generated Null Motion preview"; iframe.allow = "autoplay";
+      $("previewShell").appendChild(iframe); $("previewPlaceholder").style.display = "none";
+      $("previewLink").href = previewUrl;
+    }
+    const movieUrl = jobDownloadUrl(job); const sourceUrl = safeUrl(job.codeUrl);
+    $("movieLink").href = movieUrl; $("movieLink").download = job.mp4Name || "null-motion.mov"; $("movieLink").hidden = !movieUrl;
+    $("sourceLink").href = sourceUrl ? `${sourceUrl}${sourceUrl.includes("?") ? "&" : "?"}download=1` : "";
+    $("resultActions").classList.add("show");
+    showToast("Null Motion example ready");
+    refreshBridgeStatus();
+  }
+
+  async function watchJob(jobId, generation) {
+    for (;;) {
+      if (generation !== watchGeneration) return;
+      const job = await api(`/jobs/${jobId}`);
+      if (job.status === "done" || job.status === "completed") { finishJob(job); return; }
+      if (job.status === "error" || job.status === "failed" || job.status === "cancelled") throw new Error(job.error || `Generation ${job.status}.`);
+      setJobProgress(job);
+      await new Promise(resolve => setTimeout(resolve,1400));
+    }
+  }
+
+  async function generateTemplate() {
+    const prompt = $("promptEditor").value.trim();
+    if (!prompt) { $("promptEditor").focus(); showToast("The production prompt is empty"); return; }
+    if (!attachedImages.length) { showToast("Keep at least one reference attached"); return; }
+    const spec = getSpec(); const provider = $("providerSelect").value; const source = $("sourceInput").value.trim();
+    generateButton.disabled = true; generateButton.classList.add("busy"); generateButton.textContent = "Starting build";
+    $("jobPanel").classList.add("show"); $("mapBuild").classList.add("active");
+    $("jobBadge").className = "job-badge"; $("jobBadge").textContent = "In production";
+    $("jobTitle").textContent = "Creating Null Motion"; $("jobStatus").textContent = "Submitting the approved blueprint to the local render pipeline.";
+    $("jobProgress").style.transform = "scaleX(.02)"; $("jobError").classList.remove("show"); $("resultActions").classList.remove("show");
+    $("specCanvas").textContent = `${spec.width} × ${spec.height}`; $("specDuration").textContent = `${spec.duration} seconds`; $("specProvider").textContent = provider === "codex" ? "Codex" : provider === "claude" ? "Claude" : "Anthropic";
+    $("previewPlaceholder").style.display = "block"; $("previewStatus").textContent = "Preparing the composition";
+    $("previewShell").querySelectorAll("iframe").forEach(frame => frame.remove());
+    if (window.innerWidth < 1040) $("jobPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+    try {
+      const started = await api("/generate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt, promptOptimized: true, promptAnalysis: latestAnalysis?.analysis || null, qualityChecklist: latestAnalysis?.qualityChecklist || [],
+          generator: provider, preset: "Reference Studio Example", origin: "reference-studio", templateId: null,
+          duration: spec.duration, fps: spec.fps, width: spec.width, height: spec.height,
+          images: attachedImages.map(item => item.dataUrl), sourceUrls: source ? [source] : [], assetQueries: latestAnalysis?.assetQueries || [],
+          assetResolutionMode: "strict", renderMode: "production", qualityReview: "auto", maxRepairPasses: 1, cacheMode: "use", autoResearch: true
+        })
+      });
+      currentJobId = started.jobId; const generation = ++watchGeneration;
+      await watchJob(currentJobId,generation);
+    } catch (error) {
+      $("jobBadge").textContent = "Build stopped";
+      $("jobTitle").textContent = "Could not finish the example";
+      $("jobStatus").textContent = isPairingError(error) ? "Pair the local companion, then try the build again." : "The blueprint is still here. Fix the issue and retry without re-analyzing.";
+      $("jobError").textContent = error.message; $("jobError").classList.add("show"); showToast(error.message);
+    } finally {
+      generateButton.disabled = false; generateButton.classList.remove("busy"); generateButton.textContent = "Generate example template";
+    }
+  }
+
+  async function copyText(value) {
+    try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(value); return true; } } catch (_) {}
+    const area = document.createElement("textarea"); area.value = value; area.style.cssText = "position:fixed;left:-9999px;top:0"; document.body.appendChild(area); area.select();
+    const ok = document.execCommand("copy"); area.remove(); return ok;
+  }
+
+  function startOver() {
+    watchGeneration++; currentJobId = null; latestAnalysis = null; attachedImages = [];
+    $("briefInput").value = ""; $("sourceInput").value = ""; $("promptEditor").value = "";
+    $("blueprint").classList.remove("show"); $("jobPanel").classList.remove("show"); $("mapAnalyze").classList.remove("active"); $("mapBuild").classList.remove("active");
+    renderImages(); window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  dropzone.onclick = event => { if (!event.target.closest(".reference-remove,.reference-add")) fileInput.click(); };
+  dropzone.onkeydown = event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); fileInput.click(); } };
+  fileInput.onchange = () => { addFiles(fileInput.files || []); fileInput.value = ""; };
+  ["dragenter","dragover"].forEach(type => dropzone.addEventListener(type,event => { event.preventDefault(); dropzone.classList.add("dragging"); }));
+  ["dragleave","drop"].forEach(type => dropzone.addEventListener(type,event => { event.preventDefault(); dropzone.classList.remove("dragging"); }));
+  dropzone.addEventListener("drop",event => addFiles([...(event.dataTransfer?.files || [])].filter(file => file.type.startsWith("image/"))));
+  window.addEventListener("paste",event => {
+    const files = [...(event.clipboardData?.items || [])].filter(item => item.type.startsWith("image/")).map(item => item.getAsFile()).filter(Boolean);
+    if (!files.length && ["TEXTAREA","INPUT"].includes(document.activeElement?.tagName)) return;
+    if (files.length) { event.preventDefault(); addFiles(files); showToast("Reference pasted"); }
+  });
+  $("promptEditor").addEventListener("input",() => $("promptLength").textContent = `${$("promptEditor").value.length.toLocaleString()} characters`);
+  analyzeButton.onclick = analyzeReferences; generateButton.onclick = generateTemplate; $("pairButton").onclick = pairCompanion;
+  $("copyPromptButton").onclick = () => copyText($("promptEditor").value).then(ok => showToast(ok ? "Blueprint copied" : "Could not copy the blueprint"));
+  $("startOverButton").onclick = startOver;
+
+  renderImages(); refreshBridgeStatus();
+  window.setInterval(() => { if (document.visibilityState === "visible") refreshBridgeStatus(); },10000);
+</script>
+</body>
+</html>

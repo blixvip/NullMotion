@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cinematic Neural HUD</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  @font-face { font-family: "Arial"; src: local("Arial"); font-display: swap; }
+  @font-face { font-family: "Consolas"; src: local("Consolas"); font-display: swap; }
+
+  :root {
+    --core: #00e5ff;
+    --core-hot: #c6faff;
+    --core-deep: #087c9c;
+    --secondary: #ff2bd6;
+    --secondary-hot: #ffc4f3;
+    --core-glow: rgba(0, 229, 255, .68);
+    --secondary-glow: rgba(255, 43, 214, .48);
+    --void: #03050d;
+    --void-soft: #09111f;
+    --paper: #eafcff;
+    --muted: rgba(210, 241, 247, .48);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  body { font-family: "Arial", sans-serif; }
+
+  #root {
+    position: relative;
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    isolation: isolate;
+    color: var(--paper);
+    background: transparent;
+  }
+
+  /* Bounded atmosphere: nearly full frame for drama, softly feathered to real alpha. */
+  #voidField {
+    position: absolute;
+    inset: 34px 28px 30px;
+    overflow: hidden;
+    border-radius: 54px;
+    background:
+      radial-gradient(circle at 39% 40%, rgba(0,229,255,.11) 0, rgba(0,229,255,.04) 22%, transparent 48%),
+      radial-gradient(circle at 69% 61%, rgba(255,43,214,.075) 0, transparent 42%),
+      linear-gradient(154deg, rgba(10,20,35,.98), rgba(2,4,11,.975) 58%, rgba(8,5,18,.96));
+    box-shadow: inset 0 0 0 1px rgba(193,243,255,.09), inset 0 0 160px rgba(0,0,0,.82), 0 24px 80px rgba(0,0,0,.38);
+    -webkit-mask-image: radial-gradient(ellipse 78% 76% at 50% 49%, #000 58%, rgba(0,0,0,.94) 79%, transparent 100%);
+    mask-image: radial-gradient(ellipse 78% 76% at 50% 49%, #000 58%, rgba(0,0,0,.94) 79%, transparent 100%);
+  }
+  #voidField::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: .18;
+    background-image:
+      linear-gradient(rgba(180,235,255,.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(180,235,255,.045) 1px, transparent 1px);
+    background-size: 74px 74px;
+    -webkit-mask-image: radial-gradient(circle at 47% 46%, #000, transparent 72%);
+    mask-image: radial-gradient(circle at 47% 46%, #000, transparent 72%);
+  }
+  #voidField::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: .14;
+    mix-blend-mode: screen;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' seed='17' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.24'/%3E%3C/svg%3E");
+  }
+
+  .depth-orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+  #orbCyan { width: 650px; height: 650px; left: -240px; top: 188px; background: var(--core); opacity: .075; filter: blur(132px); }
+  #orbMagenta { width: 720px; height: 720px; right: -310px; bottom: 160px; background: var(--secondary); opacity: .06; filter: blur(158px); }
+  #orbViolet { width: 440px; height: 440px; left: 350px; top: 810px; background: #6c43ff; opacity: .045; filter: blur(145px); }
+
+  #dustField { position: absolute; inset: 64px 42px; pointer-events: none; overflow: hidden; border-radius: 42px; }
+  .dust {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--core-hot);
+    box-shadow: 0 0 8px var(--core-glow);
+    will-change: transform, opacity;
+  }
+
+  #backgroundSatellites, #midgroundSatellites { position: absolute; inset: 0; pointer-events: none; }
+  .satellite {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    color: var(--core);
+    border: 1px solid color-mix(in srgb, var(--core) 28%, transparent);
+    background: rgba(5,12,22,.48);
+    clip-path: polygon(18% 0, 82% 0, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0 82%, 0 18%);
+  }
+  .satellite svg { width: 55%; height: 55%; overflow: visible; }
+  .satellite path, .satellite circle, .satellite polyline, .satellite line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .satellite.back {
+    width: 82px;
+    height: 82px;
+    opacity: .23;
+    filter: blur(3.6px) drop-shadow(0 0 18px var(--core-glow));
+  }
+  .satellite.mid {
+    width: 116px;
+    height: 116px;
+    opacity: .52;
+    filter: drop-shadow(0 0 2px rgba(255,255,255,.68)) drop-shadow(0 0 17px var(--core-glow));
+  }
+  .s1 { left: 94px; top: 312px; } .s2 { right: 112px; top: 416px; }
+  .s3 { left: 124px; top: 1136px; } .s4 { right: 92px; top: 1252px; }
+  .s5 { left: 252px; top: 230px; } .s6 { right: 254px; top: 1112px; }
+  .s7 { left: 75px; top: 788px; } .s8 { right: 64px; top: 812px; }
+
+  #networkSvg { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: visible; pointer-events: none; }
+  .network-path {
+    fill: none;
+    stroke: url(#networkGradient);
+    stroke-width: 1.7;
+    stroke-dasharray: 8 12;
+    opacity: .42;
+    filter: url(#lineGlow);
+  }
+  .network-node { fill: var(--core-hot); stroke: var(--core); stroke-width: 3; filter: url(#nodeGlow); }
+  .network-node.secondary { fill: var(--secondary-hot); stroke: var(--secondary); }
+
+  #hub {
+    position: absolute;
+    left: 132px;
+    top: 424px;
+    width: 620px;
+    height: 620px;
+    perspective: 900px;
+  }
+  .hub-motion { position: absolute; inset: 0; transform-origin: 50% 50%; will-change: transform, filter, opacity; }
+  .volumetric-spill {
+    position: absolute;
+    inset: -210px;
+    opacity: .14;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--core-glow) 0, rgba(0,229,255,.22) 16%, rgba(0,229,255,.075) 37%, transparent 69%);
+    filter: blur(18px);
+    mix-blend-mode: screen;
+  }
+  .hub-optics {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    filter:
+      drop-shadow(0 0 2px rgba(255,255,255,.95))
+      drop-shadow(0 0 10px var(--core-glow))
+      drop-shadow(0 0 35px color-mix(in srgb, var(--core) 42%, transparent))
+      drop-shadow(0 0 90px color-mix(in srgb, var(--core) 16%, transparent));
+  }
+  .hub-svg { width: 100%; height: 100%; overflow: visible; }
+  .ring-faint { fill: none; stroke: rgba(206,247,255,.12); stroke-width: 2; }
+  .ring-dashed { fill: none; stroke: var(--core); stroke-width: 2.5; stroke-dasharray: 4 15; opacity: .66; }
+  .ring-solid { fill: none; stroke: url(#coreGradient); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 510 1170; }
+  .ring-secondary { fill: none; stroke: var(--secondary); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 114 38 24 72; opacity: .72; }
+  .scope-tick { stroke: rgba(224,250,255,.38); stroke-width: 2; }
+  .core-disc { fill: rgba(3,11,20,.84); stroke: rgba(202,248,255,.16); stroke-width: 2; }
+  .core-hex { fill: rgba(0,229,255,.045); stroke: var(--core); stroke-width: 3; }
+  .core-mark { fill: none; stroke: var(--core-hot); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+  .core-hotspot { fill: #fff; stroke: var(--core); stroke-width: 7; }
+  .core-label {
+    position: absolute;
+    left: 194px;
+    top: 270px;
+    width: 232px;
+    text-align: center;
+    pointer-events: none;
+  }
+  .core-label strong { display: block; font-size: 44px; line-height: .9; letter-spacing: -.055em; }
+  .core-label span { display: block; margin-top: 12px; font-family: "Consolas", monospace; font-size: 13px; letter-spacing: .28em; color: var(--core); text-transform: uppercase; }
+
+  #hudHeader {
+    position: absolute;
+    left: 86px;
+    top: 102px;
+    width: 908px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand-lockup { display: flex; align-items: center; gap: 22px; }
+  .brand-mark {
+    width: 92px;
+    height: 92px;
+    display: grid;
+    place-items: center;
+    clip-path: polygon(18% 0, 82% 0, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0 82%, 0 18%);
+    background: linear-gradient(145deg, rgba(255,255,255,.14), rgba(0,229,255,.035));
+    border: 1px solid rgba(198,250,255,.26);
+    box-shadow: inset 0 1px rgba(255,255,255,.22), 0 18px 46px rgba(0,0,0,.42);
+  }
+  .brand-mark svg { width: 48px; height: 48px; }
+  .brand-mark path { fill: none; stroke: url(#brandGradient); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+  .brand-copy small { display: block; margin-bottom: 7px; font-family: "Consolas", monospace; color: var(--core); font-size: 12px; letter-spacing: .29em; text-transform: uppercase; }
+  .brand-copy h1 { margin: 0; font-size: 35px; line-height: 1; letter-spacing: -.045em; text-transform: uppercase; }
+  .system-state { text-align: right; }
+  .system-state span { display: block; font-family: "Consolas", monospace; font-size: 11px; letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
+  .system-state strong { display: block; margin-top: 8px; color: var(--core); font-size: 18px; letter-spacing: .08em; }
+  .state-dot { display: inline-block; width: 8px; height: 8px; margin-right: 9px; border-radius: 50%; background: var(--core-hot); box-shadow: 0 0 15px var(--core); }
+
+  #terminal {
+    position: absolute;
+    right: 66px;
+    top: 296px;
+    width: 258px;
+    height: 844px;
+    overflow: hidden;
+    padding: 22px 16px 22px 26px;
+    border-left: 1px solid rgba(198,250,255,.12);
+    background: linear-gradient(90deg, rgba(2,7,13,.36), transparent 82%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 90%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 90%, transparent);
+  }
+  .terminal-heading { position: absolute; left: 26px; top: 32px; z-index: 2; font-family: "Consolas", monospace; font-size: 11px; letter-spacing: .24em; color: var(--core); text-transform: uppercase; }
+  .terminal-scroll { position: absolute; left: 26px; right: 10px; top: 86px; will-change: transform; }
+  .log-line { height: 29px; font-family: "Consolas", monospace; font-size: 12px; letter-spacing: .035em; color: rgba(205,236,243,.28); white-space: nowrap; }
+  .log-line b { color: var(--core); font-weight: 400; }
+  .log-line em { color: var(--secondary); font-style: normal; }
+
+  #statusGlass {
+    position: absolute;
+    left: 122px;
+    bottom: 190px;
+    width: 836px;
+    min-height: 316px;
+    padding: 38px 42px 34px;
+    overflow: hidden;
+    border: 1px solid rgba(210,248,255,.13);
+    border-top-color: rgba(235,253,255,.27);
+    border-radius: 34px;
+    background: linear-gradient(145deg, rgba(18,31,46,.7), rgba(4,8,17,.52));
+    box-shadow: inset 0 1px rgba(255,255,255,.08), inset 0 -60px 100px rgba(0,0,0,.24), 0 32px 90px rgba(0,0,0,.48);
+    backdrop-filter: blur(22px);
+  }
+  #statusGlass::before {
+    content: "";
+    position: absolute;
+    left: -15%; top: -110px;
+    width: 70%; height: 210px;
+    background: radial-gradient(ellipse, color-mix(in srgb, var(--core) 22%, transparent), transparent 68%);
+    filter: blur(22px);
+  }
+  .status-top { position: relative; display: flex; justify-content: space-between; align-items: flex-start; }
+  .status-title small { display: block; font-family: "Consolas", monospace; font-size: 11px; letter-spacing: .25em; color: var(--muted); text-transform: uppercase; }
+  .status-title strong { display: block; margin-top: 9px; font-size: 30px; letter-spacing: -.04em; }
+  .metric { text-align: right; }
+  .metric strong { display: block; font-size: 48px; line-height: .9; letter-spacing: -.06em; color: var(--core-hot); text-shadow: 0 0 24px var(--core-glow); }
+  .metric span { display: block; margin-top: 9px; font-family: "Consolas", monospace; font-size: 10px; letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
+  .meter { position: relative; height: 8px; margin-top: 36px; overflow: hidden; border-radius: 8px; background: rgba(255,255,255,.045); box-shadow: inset 0 1px 3px rgba(0,0,0,.8); }
+  .meter-fill { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--core-deep), var(--core), var(--secondary)); box-shadow: 0 0 20px var(--core-glow); }
+  .status-cells { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 27px; }
+  .status-cell { padding: 15px 16px; border: 1px solid rgba(218,250,255,.07); border-radius: 13px; background: rgba(255,255,255,.025); }
+  .status-cell span { display: block; font-family: "Consolas", monospace; font-size: 9px; letter-spacing: .17em; color: var(--muted); text-transform: uppercase; }
+  .status-cell strong { display: block; margin-top: 7px; font-family: "Consolas", monospace; font-size: 15px; color: var(--paper); }
+
+  #foregroundReticle { position: absolute; inset: 0; pointer-events: none; }
+  .corner { position: absolute; width: 72px; height: 72px; opacity: .35; border-top: 2px solid var(--core); border-left: 2px solid var(--core); filter: drop-shadow(0 0 10px var(--core-glow)); }
+  .corner.c1 { left: 72px; top: 72px; }
+  .corner.c2 { right: 72px; top: 72px; rotate: 90deg; }
+  .corner.c3 { right: 72px; bottom: 72px; rotate: 180deg; }
+  .corner.c4 { left: 72px; bottom: 72px; rotate: -90deg; }
+  #scanBeam { position: absolute; left: 80px; top: 190px; width: 920px; height: 150px; opacity: 0; background: linear-gradient(to bottom, transparent, rgba(0,229,255,.07), rgba(198,250,255,.16), transparent); mix-blend-mode: screen; }
+
+  #opticalOverlays { position: absolute; inset: 34px 28px 30px; overflow: hidden; border-radius: 54px; pointer-events: none; }
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    opacity: .19;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1080 1920' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23dffaff' stroke-opacity='.075' stroke-width='1'%3E%3Cpath d='M0 162h1080M0 347h1080M0 593h1080M0 824h1080M0 1072h1080M0 1328h1080M0 1576h1080M0 1784h1080'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 100% 100%;
+  }
+  .chroma { position: absolute; inset: 0; opacity: .085; mix-blend-mode: screen; background: radial-gradient(circle at 27% 34%, rgba(255,0,64,.18), transparent 35%), radial-gradient(circle at 74% 63%, rgba(0,229,255,.2), transparent 40%); }
+  .vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at 47% 48%, transparent 38%, rgba(0,0,0,.2) 65%, rgba(0,0,0,.87) 100%); }
+
+  #systemClock { position: absolute; left: 80px; bottom: 92px; font-family: "Consolas", monospace; color: rgba(210,241,247,.36); font-size: 11px; letter-spacing: .22em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="8" data-track-index="0" data-width="1080" data-height="1920">
+    <div id="voidField" class="clip" data-start="0" data-duration="8" data-track-index="1">
+      <div id="orbCyan" class="depth-orb"></div>
+      <div id="orbMagenta" class="depth-orb"></div>
+      <div id="orbViolet" class="depth-orb"></div>
+    </div>
+
+    <div id="dustField" class="clip" data-start="0" data-duration="8" data-track-index="2"></div>
+
+    <div id="backgroundSatellites" class="clip" data-start="0" data-duration="8" data-track-index="3">
+      <div class="satellite back s1"><svg viewBox="0 0 48 48"><path d="M10 29c6-11 9-16 14-16s8 5 14 16"/><circle cx="24" cy="25" r="4"/></svg></div>
+      <div class="satellite back s2"><svg viewBox="0 0 48 48"><polyline points="8,29 16,18 23,27 31,12 40,25"/><line x1="9" y1="35" x2="39" y2="35"/></svg></div>
+      <div class="satellite back s3"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="13"/><path d="M24 11v26M11 24h26"/></svg></div>
+      <div class="satellite back s4"><svg viewBox="0 0 48 48"><path d="M12 16h24v17H12zM18 10v6M30 10v6M18 33v5M30 33v5"/></svg></div>
+    </div>
+
+    <div id="midgroundSatellites" class="clip" data-start="0" data-duration="8" data-track-index="4">
+      <div class="satellite mid s5"><svg viewBox="0 0 48 48"><path d="M10 24h7l4-11 7 22 4-11h7"/></svg></div>
+      <div class="satellite mid s6"><svg viewBox="0 0 48 48"><path d="M12 13h24v22H12zM17 19h14M17 25h9M17 30h12"/></svg></div>
+      <div class="satellite mid s7"><svg viewBox="0 0 48 48"><circle cx="15" cy="24" r="5"/><circle cx="33" cy="14" r="5"/><circle cx="33" cy="34" r="5"/><path d="M19 21l10-5M19 27l10 5"/></svg></div>
+      <div class="satellite mid s8"><svg viewBox="0 0 48 48"><path d="M11 30l8-14 7 10 5-7 7 11M11 35h27"/></svg></div>
+    </div>
+
+    <svg id="networkSvg" class="clip" data-start="0" data-duration="8" data-track-index="5" viewBox="0 0 1080 1920" aria-hidden="true">
+      <defs>
+        <linearGradient id="networkGradient" x1="0" y1="0" x2="1" y2="1"><stop stop-color="var(--core)"/><stop offset="1" stop-color="var(--secondary)"/></linearGradient>
+        <filter id="lineGlow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="nodeGlow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <path class="network-path" d="M145 353 C260 430 252 572 390 638"/>
+      <path class="network-path" d="M881 456 C790 492 765 618 691 666"/>
+      <path class="network-path" d="M138 846 C232 838 278 792 356 786"/>
+      <path class="network-path" d="M920 870 C816 864 748 826 694 804"/>
+      <path class="network-path" d="M305 286 C370 371 417 402 466 452"/>
+      <path class="network-path" d="M781 1172 C702 1068 645 1028 609 987"/>
+      <path class="network-path" d="M175 1190 C250 1100 315 1054 385 1008"/>
+      <path class="network-path" d="M918 1302 C823 1208 736 1130 660 1035"/>
+      <circle class="network-node" cx="145" cy="353" r="6"/><circle class="network-node secondary" cx="881" cy="456" r="6"/>
+      <circle class="network-node" cx="138" cy="846" r="6"/><circle class="network-node secondary" cx="920" cy="870" r="6"/>
+      <circle class="network-node" cx="305" cy="286" r="6"/><circle class="network-node secondary" cx="781" cy="1172" r="6"/>
+      <circle class="network-node" cx="175" cy="1190" r="6"/><circle class="network-node secondary" cx="918" cy="1302" r="6"/>
+    </svg>
+
+    <section id="hub" class="clip" data-start="0" data-duration="8" data-track-index="6">
+      <div class="hub-motion">
+        <div class="volumetric-spill"></div>
+        <div class="hub-optics">
+          <svg class="hub-svg" viewBox="0 0 620 620" aria-hidden="true">
+            <defs><linearGradient id="coreGradient" x1="0" y1="0" x2="1" y2="1"><stop stop-color="var(--core-hot)"/><stop offset=".48" stop-color="var(--core)"/><stop offset="1" stop-color="var(--secondary)"/></linearGradient></defs>
+            <g class="orbit-rings">
+              <circle class="ring-faint" cx="310" cy="310" r="270"/><circle class="ring-dashed" cx="310" cy="310" r="244"/>
+              <circle class="ring-solid" cx="310" cy="310" r="215"/><circle class="ring-secondary" cx="310" cy="310" r="190"/>
+              <g class="ticks">
+                <path class="scope-tick" d="M310 24v22M310 574v22M24 310h22M574 310h22"/>
+                <path class="scope-tick" d="M107 107l16 16M497 497l16 16M107 513l16-16M497 123l16-16"/>
+              </g>
+            </g>
+            <circle class="core-disc" cx="310" cy="310" r="145"/>
+            <path class="core-hex" d="M310 190l104 60v120l-104 60-104-60V250z"/>
+            <path class="core-mark" d="M256 326l31-31 30 30 48-55M258 360h106"/>
+            <circle class="core-hotspot" cx="365" cy="270" r="8"/>
+          </svg>
+        </div>
+        <div class="core-label"><strong id="coreMetric">78.4%</strong><span>Neural sync</span></div>
+      </div>
+    </section>
+
+    <header id="hudHeader" class="clip" data-start="0" data-duration="8" data-track-index="7">
+      <div class="brand-lockup">
+        <div class="brand-mark"><svg viewBox="0 0 48 48"><defs><linearGradient id="brandGradient"><stop stop-color="var(--core)"/><stop offset="1" stop-color="var(--secondary)"/></linearGradient></defs><path d="M8 11l16 28 16-28M15 11l9 16 9-16"/></svg></div>
+        <div class="brand-copy"><small>Null Motion / 027</small><h1 id="systemLabel">Neural Core</h1></div>
+      </div>
+      <div class="system-state"><span>Signal integrity</span><strong><i class="state-dot"></i>ONLINE</strong></div>
+    </header>
+
+    <aside id="terminal" class="clip" data-start="0" data-duration="8" data-track-index="8">
+      <div class="terminal-heading">Live process stream</div>
+      <div class="terminal-scroll" id="terminalScroll"></div>
+    </aside>
+
+    <section id="statusGlass" class="clip" data-start="0" data-duration="8" data-track-index="9">
+      <div class="status-top">
+        <div class="status-title"><small>Distributed inference</small><strong>Spatial synthesis</strong></div>
+        <div class="metric"><strong>04.82</strong><span>ms response</span></div>
+      </div>
+      <div class="meter"><div class="meter-fill"></div></div>
+      <div class="status-cells">
+        <div class="status-cell"><span>Nodes linked</span><strong>08 / 08</strong></div>
+        <div class="status-cell"><span>Phase state</span><strong>LOCKED</strong></div>
+        <div class="status-cell"><span>Vector field</span><strong>STABLE</strong></div>
+      </div>
+    </section>
+
+    <div id="foregroundReticle" class="clip" data-start="0" data-duration="8" data-track-index="10">
+      <i class="corner c1"></i><i class="corner c2"></i><i class="corner c3"></i><i class="corner c4"></i><div id="scanBeam"></div>
+    </div>
+    <div id="opticalOverlays" class="clip" data-start="0" data-duration="8" data-track-index="11"><div class="chroma"></div><div class="scanlines"></div><div class="vignette"></div></div>
+    <div id="systemClock" class="clip" data-start="0" data-duration="8" data-track-index="12">T+ 00:08:00 // deterministic capture</div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const palettes = {
+      cyber: { core: "#00e5ff", hot: "#c6faff", deep: "#087c9c", secondary: "#ff2bd6", secondaryHot: "#ffc4f3", glow: "rgba(0,229,255,.68)", secondaryGlow: "rgba(255,43,214,.48)" },
+      emerald: { core: "#38ff87", hot: "#e2ffeb", deep: "#0b9448", secondary: "#66e8ff", secondaryHot: "#ddfbff", glow: "rgba(56,255,135,.68)", secondaryGlow: "rgba(102,232,255,.46)" },
+      ultraviolet: { core: "#a978ff", hot: "#eee4ff", deep: "#6032ba", secondary: "#ff4ecd", secondaryHot: "#ffd6f3", glow: "rgba(169,120,255,.68)", secondaryGlow: "rgba(255,78,205,.46)" },
+      solar: { core: "#ffbd38", hot: "#fff1c9", deep: "#bd6d0b", secondary: "#ff4d6d", secondaryHot: "#ffd6de", glow: "rgba(255,189,56,.66)", secondaryGlow: "rgba(255,77,109,.46)" },
+      ice: { core: "#b8f7ff", hot: "#ffffff", deep: "#4e9aac", secondary: "#6c7cff", secondaryHot: "#d8dcff", glow: "rgba(184,247,255,.64)", secondaryGlow: "rgba(108,124,255,.46)" }
+    };
+    const palette = palettes[params.get("palette")] || palettes.cyber;
+    const rootStyle = document.documentElement.style;
+    rootStyle.setProperty("--core", palette.core);
+    rootStyle.setProperty("--core-hot", palette.hot);
+    rootStyle.setProperty("--core-deep", palette.deep);
+    rootStyle.setProperty("--secondary", palette.secondary);
+    rootStyle.setProperty("--secondary-hot", palette.secondaryHot);
+    rootStyle.setProperty("--core-glow", palette.glow);
+    rootStyle.setProperty("--secondary-glow", palette.secondaryGlow);
+    const cleanCopy = (value, fallback, max) => String(value || fallback).replace(/[<>]/g, "").trim().slice(0, max) || fallback;
+    document.getElementById("systemLabel").textContent = cleanCopy(params.get("label"), "Neural Core", 22);
+
+    const dustData = [
+      [7,16,3,.24],[13,42,2,.16],[18,72,4,.27],[22,28,2,.32],[27,88,3,.17],[31,54,2,.23],[35,12,4,.2],[39,67,3,.31],
+      [44,34,2,.18],[48,82,4,.22],[52,20,2,.3],[55,59,3,.2],[59,92,2,.26],[63,43,4,.19],[67,14,2,.28],[71,76,3,.25],
+      [75,31,2,.16],[79,62,4,.23],[83,9,3,.2],[87,84,2,.3],[91,48,3,.18],[9,91,2,.24],[16,58,3,.19],[25,6,2,.29],
+      [33,78,2,.16],[42,49,3,.24],[57,5,2,.2],[69,95,3,.19],[77,52,2,.28],[94,24,4,.18]
+    ];
+    const dustField = document.getElementById("dustField");
+    dustData.forEach(([x,y,size,opacity], index) => {
+      const mote = document.createElement("i");
+      mote.className = "dust";
+      mote.style.left = `${x}%`;
+      mote.style.top = `${y}%`;
+      mote.style.width = `${size}px`;
+      mote.style.height = `${size}px`;
+      mote.style.opacity = opacity;
+      mote.dataset.index = index;
+      dustField.appendChild(mote);
+    });
+
+    const logStates = ["SYNC", "TRACE", "VECTOR", "PHASE", "CACHE", "SIGNAL", "ROUTE", "KERNEL", "OPTIC", "NODE"];
+    const terminal = document.getElementById("terminalScroll");
+    for (let index = 0; index < 54; index += 1) {
+      const line = document.createElement("div");
+      line.className = "log-line";
+      const code = String(1007 + index * 17).padStart(4, "0");
+      const state = logStates[index % logStates.length];
+      line.innerHTML = `<b>${code}</b> / ${state} <em>${String((index * 13 + 41) % 97).padStart(2, "0")}</em> :: OK`;
+      terminal.appendChild(line);
+    }
+
+    const dust = Array.from(document.querySelectorAll(".dust"));
+    const paths = Array.from(document.querySelectorAll(".network-path"));
+    const nodes = Array.from(document.querySelectorAll(".network-node"));
+    const tl = gsap.timeline({ paused: true });
+
+    tl.from("#voidField", { opacity: 0, scale: 1.025, duration: 1.05, ease: "power3.out" }, 0);
+    tl.from("#hudHeader", { opacity: 0, y: -32, duration: .72, ease: "expo.out" }, .16);
+    tl.from(".brand-mark", { opacity: 0, scale: .35, rotation: -12, duration: .68, ease: "back.out(1.65)" }, .25);
+    tl.from(".brand-copy > *", { opacity: 0, y: 18, duration: .5, stagger: .09, ease: "power4.out" }, .38);
+    tl.from(".system-state", { opacity: 0, x: 24, duration: .56, ease: "power3.out" }, .52);
+
+    tl.to("#orbCyan", { x: 42, y: -28, scale: 1.09, duration: 7.4, ease: "sine.inOut" }, .18);
+    tl.to("#orbMagenta", { x: -34, y: 38, scale: 1.08, duration: 7.35, ease: "sine.inOut" }, .2);
+    tl.to("#orbViolet", { x: 18, y: -25, duration: 7.2, ease: "power2.inOut" }, .25);
+    tl.from("#backgroundSatellites", { opacity: 0, scale: .9, duration: 1.1, ease: "power3.out" }, .12);
+    tl.to("#backgroundSatellites", { x: 10, y: -13, duration: 7.15, ease: "sine.inOut" }, .42);
+    tl.from("#midgroundSatellites", { opacity: 0, scale: .82, duration: .95, ease: "power3.out" }, .38);
+    tl.to("#midgroundSatellites", { x: -18, y: 20, duration: 6.75, ease: "sine.inOut" }, .82);
+
+    tl.from(dust, { opacity: 0, duration: .7, stagger: .022, ease: "power2.out" }, .24);
+    tl.to(dust, { y: index => -74 - (index % 6) * 18, x: index => ((index % 5) - 2) * 7, duration: 7.05, ease: "sine.inOut" }, .32);
+    tl.to(dust, { opacity: 0, duration: .48, stagger: .006, ease: "power2.in" }, 7.24);
+
+    tl.fromTo(paths, { strokeDashoffset: 170, opacity: 0 }, { strokeDashoffset: 0, opacity: .42, duration: 1.25, stagger: .08, ease: "power3.inOut" }, .52);
+    tl.from(nodes, { opacity: 0, scale: 0, transformOrigin: "50% 50%", duration: .42, stagger: .11, ease: "back.out(2)" }, 1.08);
+
+    /* Mechanical lens pull. Atmospheric exposure catches up exactly 0.12s later. */
+    tl.fromTo(".hub-motion", { opacity: .24, scale: .6, filter: "blur(6px)" }, { opacity: 1, scale: 1.15, filter: "blur(0px)", duration: .78, ease: "expo.out" }, .88);
+    tl.to(".hub-motion", { scale: 1, duration: .34, ease: "power3.inOut" }, 1.67);
+    tl.fromTo(".volumetric-spill", { opacity: 0, scale: .52 }, { opacity: .18, scale: 1.12, duration: .62, ease: "power3.out" }, 1.0);
+    tl.to(".volumetric-spill", { opacity: .11, scale: 1, duration: .52, ease: "sine.inOut" }, 1.62);
+    tl.from(".core-label", { opacity: 0, scale: .7, duration: .54, ease: "back.out(1.5)" }, 1.52);
+    tl.to(".orbit-rings", { rotation: 356, transformOrigin: "50% 50%", duration: 6.12, ease: "power1.inOut" }, 1.26);
+    tl.to(".hub-motion", { x: 8, y: -12, rotationY: 1.5, duration: 5.35, ease: "sine.inOut" }, 2.05);
+
+    tl.from("#terminal", { opacity: 0, x: 38, duration: .72, ease: "power4.out" }, 1.34);
+    tl.from(".terminal-heading", { opacity: 0, x: 18, duration: .58, ease: "power3.out" }, 1.62);
+    tl.fromTo("#terminalScroll", { y: 0 }, { y: -612, duration: 5.92, ease: "power1.inOut" }, 1.76);
+    tl.from(".log-line", { opacity: 0, x: 10, duration: .22, stagger: .018, ease: "power2.out" }, 1.7);
+
+    tl.from("#statusGlass", { opacity: 0, y: 58, scale: .96, duration: .82, ease: "expo.out" }, 2.0);
+    tl.from(".status-title > *, .metric > *", { opacity: 0, y: 16, duration: .46, stagger: .07, ease: "power3.out" }, 2.32);
+    tl.to(".meter-fill", { width: "78.4%", duration: 1.18, ease: "power4.out" }, 2.56);
+    tl.from(".status-cell", { opacity: 0, y: 18, scale: .95, duration: .48, stagger: .08, ease: "back.out(1.4)" }, 2.72);
+
+    tl.from(".corner", { opacity: 0, scale: .65, duration: .64, stagger: .06, ease: "power3.out" }, .32);
+    tl.fromTo("#scanBeam", { opacity: 0, y: -180 }, { opacity: .72, y: 1470, duration: 5.52, ease: "power2.inOut" }, 1.74);
+    tl.to("#scanBeam", { opacity: 0, duration: .42, ease: "power2.in" }, 7.26);
+    tl.from("#opticalOverlays", { opacity: 0, duration: 1.1, ease: "power2.out" }, .16);
+    tl.from("#systemClock", { opacity: 0, x: -18, duration: .55, ease: "power3.out" }, 2.24);
+    tl.to(".state-dot", { scale: 1.42, opacity: .68, duration: .28, repeat: 1, yoyo: true, ease: "sine.inOut" }, 6.82);
+    tl.to("#coreMetric", { textShadow: `0 0 42px ${palette.glow}`, scale: 1.035, duration: .3, repeat: 1, yoyo: true, ease: "sine.inOut" }, 6.96);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") tl.play();
+  </script>
+</body>
+</html>

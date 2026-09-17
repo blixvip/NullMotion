@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Phone Showcase</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1920px; height: 1080px; background: transparent;
+    overflow: hidden; font-family: "Inter", -apple-system, "SF Pro Display", system-ui, Arial, sans-serif;
+  }
+  #stage { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); perspective: 1800px; }
+  /* metallic phone body */
+  #phone {
+    position: relative; width: 420px; height: 860px; border-radius: 62px;
+    background: linear-gradient(150deg, #d6d6da 0%, #9a9a9e 45%, #c8c8cc 100%);
+    padding: 12px; transform-style: preserve-3d; will-change: transform; overflow: hidden;
+    box-shadow: 0 60px 110px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.7);
+  }
+  #screen {
+    position: relative; width: 100%; height: 100%; border-radius: 50px; overflow: hidden;
+    background: linear-gradient(180deg, #121214 0%, #0a0a0b 100%); color: #ECECEE;
+  }
+  #product-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; display: block; }
+  /* dynamic island */
+  #island { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); width: 116px; height: 34px; border-radius: 18px; background: #000; z-index: 4; }
+  .ui { padding: 70px 30px 0; }
+  .ui h4 { margin: 0; text-align: center; font-size: 26px; font-weight: 600; letter-spacing: -0.02em; color: #cfcfd4; }
+  .search { margin: 26px 0 22px; height: 46px; border-radius: 14px; background: #1b1b1f; border: 1px solid rgba(255,255,255,0.07); }
+  .rowi { height: 70px; border-radius: 16px; background: linear-gradient(180deg,#1b1b1f,#141417); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 16px; display:flex; align-items:center; gap:14px; padding:0 16px; }
+  .rowi .d { width: 44px; height:44px; border-radius: 12px; background: linear-gradient(160deg,#2a2a2f,#0d0d0f); flex:none; }
+  .rowi .l { flex:1; } .rowi .l b{ display:block; height:11px; width:55%; background:#34343a; border-radius:6px;} .rowi .l i{ display:block; height:9px; width:35%; background:#26262b; border-radius:6px; margin-top:8px;}
+  /* glint that sweeps across the metal bezel */
+  #glint { position: absolute; top: 0; left: -40%; width: 40%; height: 100%; border-radius: 62px; pointer-events: none;
+    background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%); transform: skewX(-16deg); }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1920" data-height="1080">
+    <div id="stage">
+      <div id="phone" class="clip" data-start="0" data-duration="5" data-track-index="0">
+        <div id="screen">
+          <img id="product-shot" data-null-asset-slot="screenshot" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Product interface" />
+          <div id="island"></div>
+          <div class="ui">
+            <h4>My Store</h4>
+            <div class="search"></div>
+            <div class="rowi"><div class="d"></div><div class="l"><b></b><i></i></div></div>
+            <div class="rowi"><div class="d"></div><div class="l"><b></b><i></i></div></div>
+            <div class="rowi"><div class="d"></div><div class="l"><b></b><i></i></div></div>
+            <div class="rowi"><div class="d"></div><div class="l"><b></b><i></i></div></div>
+          </div>
+        </div>
+        <div id="glint"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // phone tilts in from a 3D angle and settles upright
+    tl.from("#phone", { rotateY: -42, rotateX: 10, y: 70, opacity: 0, duration: 1.1, ease: "power4.out" }, 0.1);
+    // Keep the authored timeline finite. An infinitely repeating child tween
+    // makes deterministic frame seeking grow without bound in Chromium.
+    tl.to("#phone", { rotateY: -6, duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: 1 }, 1.2);
+    // UI rows rise in
+    tl.from(".ui > *", { y: 24, opacity: 0, duration: 0.6, stagger: 0.08, ease: "power3.out" }, 0.9);
+    // bezel glint sweep
+    tl.fromTo("#glint", { x: 0 }, { x: 1050, duration: 1.0, ease: "power2.inOut" }, 1.1);
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.play(); }
+  </script>
+</body>
+</html>

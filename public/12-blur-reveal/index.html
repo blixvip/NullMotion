@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Blur Logo Reveal</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1920px; height: 1080px; background: transparent; overflow: hidden;
+    font-family: "Inter", -apple-system, system-ui, Arial, sans-serif;
+  }
+  #plate {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    display: flex; align-items: center; gap: 36px;
+    padding: 54px 84px; border-radius: 34px;
+    background: linear-gradient(180deg, rgba(30,30,34,0.92), rgba(16,16,19,0.94));
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 50px 100px rgba(0,0,0,0.55);
+    overflow: hidden; will-change: transform, opacity;
+  }
+  /* the light sweep that wipes across as it sharpens */
+  #sweep {
+    position: absolute; top: 0; bottom: 0; left: -40%; width: 35%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,0.18) 50%, transparent);
+    transform: skewX(-16deg); pointer-events: none;
+  }
+  #mark { width: 116px; height: 116px; flex: 0 0 auto; will-change: filter, opacity; }
+  #mark img { width: 100%; height: 100%; display: block; border-radius: 22px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10), 0 6px 18px rgba(0,0,0,0.5); }
+  #word {
+    font-size: 104px; font-weight: 700; letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #FFFFFF 0%, #C9C9CD 50%, #8C8C90 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    will-change: filter, opacity;
+  }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1920" data-height="1080">
+    <div id="plate" class="clip" data-start="0" data-duration="5" data-track-index="0">
+      <div id="mark"><img data-null-asset-slot="brand" src="../assets/null-logo.png" alt="Null" /></div>
+      <div id="word">Null</div>
+      <div id="sweep"></div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // plate drops in
+    tl.from("#plate", { y: 70, opacity: 0, scale: 0.9, duration: 0.8, ease: "back.out(1.3)" }, 0.2);
+    // hold blurred...
+    gsap.set(["#word","#mark"], { filter: "blur(20px)", opacity: 0.35 });
+    // ...then sharpen as the light sweep passes
+    tl.fromTo("#sweep", { x: 0 }, { x: "560%", duration: 1.1, ease: "power2.inOut" }, 1.8);
+    tl.to(["#word","#mark"], { filter: "blur(0px)", opacity: 1, duration: 0.9, ease: "power2.out" }, 2.0);
+    // glow bloom + settle
+    tl.fromTo("#plate",
+      { boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12), 0 50px 100px rgba(0,0,0,0.55)" },
+      { boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), 0 50px 110px rgba(0,0,0,0.55), 0 0 90px rgba(120,170,255,0.35)", duration: 0.8, ease: "sine.out" }, 2.3);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(1).play(); }
+  </script>
+</body>
+</html>

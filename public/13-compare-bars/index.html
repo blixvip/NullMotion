@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Compare Bars</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1920px; height: 1080px; background: transparent;
+    overflow: hidden; font-family: "Inter", -apple-system, "SF Pro Display", system-ui, Arial, sans-serif;
+  }
+
+  /* obsidian glass stage card the bars stand on */
+  #card {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: 1180px; height: 660px; border-radius: 34px;
+    background: linear-gradient(180deg, #1b1b1f 0%, #121214 50%, #0a0a0b 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: inset 0 2px 1px rgba(255,255,255,0.16), inset 0 -3px 8px rgba(0,0,0,0.8),
+                0 40px 90px rgba(0,0,0,0.55);
+    overflow: hidden; will-change: transform, opacity;
+  }
+  /* faint baseline gridlines */
+  #card::before {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,.035), transparent 44%, rgba(255,255,255,.025));
+    pointer-events: none;
+  }
+
+  #bars { position: absolute; left: 0; right: 0; bottom: 96px; display: flex; align-items: flex-end; justify-content: center; gap: 150px; }
+  .bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .bar {
+    width: 130px; border-radius: 14px 14px 4px 4px; transform-origin: bottom;
+    will-change: transform; box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 40px rgba(0,0,0,0.5);
+  }
+  /* short, dim "before" bar */
+  #barA { height: 200px; background: linear-gradient(180deg, #3a3a40 0%, #232327 100%); }
+  /* tall silver "after" bar with a soft bloom */
+  #barB { height: 470px; background: linear-gradient(180deg, #F2F2F2 0%, #C2C2C6 48%, #8C8C90 100%);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 0 70px rgba(220,220,228,0.30), 0 18px 40px rgba(0,0,0,0.5); }
+  .bval {
+    font-size: 46px; font-weight: 700; letter-spacing: -0.02em;
+    background: linear-gradient(180deg, #ffffff 0%, #cfcfcf 50%, #9a9a9a 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent; will-change: transform, opacity;
+  }
+  #valA { color: #6c6c74; -webkit-text-fill-color: #6c6c74; }
+
+  /* glossy obsidian caption pill */
+  #cap {
+    position: absolute; left: 50%; bottom: 70px; transform: translateX(-50%);
+    padding: 20px 48px; border-radius: 999px;
+    background: linear-gradient(180deg, #2b2b2e 0%, #161618 46%, #0a0a0b 100%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: inset 0 2px 1px rgba(255,255,255,0.22), inset 0 -3px 6px rgba(0,0,0,0.85), 0 24px 50px rgba(0,0,0,0.55);
+    will-change: transform, opacity;
+  }
+  #cap span {
+    font-size: 40px; font-weight: 700; letter-spacing: -0.01em;
+    background: linear-gradient(180deg, #ffffff 0%, #cfcfcf 45%, #9a9a9a 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1920" data-height="1080">
+    <div id="card" class="clip" data-start="0" data-duration="5" data-track-index="0">
+      <div id="bars">
+        <div class="bar-wrap">
+          <div class="bval" id="valA">1x</div>
+          <div class="bar" id="barA"></div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bval" id="valB">10x</div>
+          <div class="bar" id="barB"></div>
+        </div>
+      </div>
+    </div>
+    <div id="cap" class="clip" data-start="0" data-duration="5" data-track-index="1"><span>10x faster</span></div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
+
+    tl.from("#card", { y: 60, opacity: 0, scale: 0.97, duration: 0.8 }, 0);
+    // bars grow up from the baseline, staggered
+    tl.from("#barA", { scaleY: 0, duration: 0.7 }, 0.45);
+    tl.from("#valA", { y: 14, opacity: 0, duration: 0.5 }, 0.7);
+    tl.from("#barB", { scaleY: 0, duration: 0.95, ease: "power4.out" }, 0.62);
+    tl.from("#valB", { y: 14, opacity: 0, duration: 0.5 }, 1.1);
+    // caption pill rises in
+    tl.from("#cap", { y: 30, opacity: 0, scale: 0.96, duration: 0.7, ease: "expo.out" }, 1.25);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(0.8).play(); }
+  </script>
+</body>
+</html>

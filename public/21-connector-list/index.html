@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Connector List</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1920px; height: 1080px; background: transparent;
+    overflow: hidden; font-family: "Inter", -apple-system, "SF Pro Display", system-ui, Arial, sans-serif;
+  }
+  #list { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 880px; display: flex; flex-direction: column; gap: 18px; }
+  .row {
+    position: relative; display: flex; align-items: center; gap: 24px; padding: 22px 26px; border-radius: 20px;
+    background: linear-gradient(180deg, #1a1a1e 0%, #131316 100%); border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 16px 36px rgba(0,0,0,0.4); will-change: transform, opacity;
+  }
+  .ic { width: 64px; height: 64px; flex: none; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #232327 0%, #0d0d0f 100%); border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 10px 22px rgba(0,0,0,0.5); }
+  .ic svg { width: 34px; height: 34px; }
+  .body { flex: 1; min-width: 0; }
+  .nm { font-size: 25px; font-weight: 600; letter-spacing: -0.02em; color: #ECECEE; }
+  .ds { font-size: 16px; color: #8a8a92; margin-top: 3px; }
+  .chev { color: #56565c; font-size: 24px; }
+  /* selection highlight that slides to the hovered row */
+  #hl { position: absolute; left: 0; width: 100%; height: 108px; border-radius: 20px; pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 0 50px rgba(210,210,225,0.18); opacity: 0; will-change: transform, opacity; }
+  /* cursor */
+  #cur { position: absolute; width: 42px; height: 42px; left: 0; top: 0; transform: translate(980px, 620px); z-index: 6; will-change: transform; }
+  #cur svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)); }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1920" data-height="1080">
+    <div id="list">
+      <div id="hl"></div>
+      <div class="row clip" data-start="0" data-duration="5" data-track-index="0">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="5" width="12" height="14" rx="2" stroke="#e6e6ea" stroke-width="1.6"/><path d="M9 9h6M9 12h6" stroke="#e6e6ea" stroke-width="1.4"/></svg></div>
+        <div class="body"><div class="nm">Notion</div><div class="ds">Access your pages and databases</div></div><div class="chev">›</div>
+      </div>
+      <div class="row clip" data-start="0" data-duration="5" data-track-index="1">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="6.5" stroke="#cfd6ff" stroke-width="1.6"/><path d="M12 5v14M5 12h14" stroke="#cfd6ff" stroke-width="1.2"/></svg></div>
+        <div class="body"><div class="nm">Perplexity</div><div class="ds">AI-powered search and answers</div></div><div class="chev">›</div>
+      </div>
+      <div class="row clip" data-start="0" data-duration="5" data-track-index="2">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4l2.2 5.6L20 12l-5.8 2.4L12 20l-2.2-5.6L4 12l5.8-2.4L12 4z" stroke="#dcdce2" stroke-width="1.4"/></svg></div>
+        <div class="body"><div class="nm">Lovable AI</div><div class="ds">Unlock powerful AI features</div></div><div class="chev">›</div>
+      </div>
+      <div class="row clip" data-start="0" data-duration="5" data-track-index="3">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="7" width="12" height="10" rx="2" stroke="#cfe0ff" stroke-width="1.6"/><path d="M6 11h12" stroke="#cfe0ff" stroke-width="1.4"/></svg></div>
+        <div class="body"><div class="nm">Stripe</div><div class="ds">Payments, billing and subscriptions</div></div><div class="chev">›</div>
+      </div>
+      <div class="row clip" data-start="0" data-duration="5" data-track-index="4">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M13 4 6 14h5l-1 6 7-10h-5l1-6z" fill="#bfffd9"/></svg></div>
+        <div class="body"><div class="nm">Supabase</div><div class="ds">Connect your own project</div></div><div class="chev">›</div>
+      </div>
+    </div>
+    <div id="cur" class="clip" data-start="0" data-duration="5" data-track-index="5" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M4 2 4 20 9 15 12.5 22 15 21 11.5 14 18 14 Z" fill="#fff" stroke="#0a0a0a" stroke-width="0.7" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
+    const rows = gsap.utils.toArray(".row");
+    rows.forEach((r, i) => tl.from(r, { x: -50, opacity: 0, duration: 0.6 }, 0.1 + i * 0.12));
+
+    // cursor moves to the Stripe row (index 3) and the highlight snaps onto it
+    const target = rows[3];
+    const place = () => target.offsetTop; // y within #list
+    tl.to("#cur", { x: 1080, y: 560, duration: 0.8, ease: "power3.inOut" }, 1.0);
+    tl.set("#hl", { y: () => target.offsetTop }, 0);
+    tl.to("#hl", { opacity: 1, duration: 0.35 }, 1.55);
+    tl.fromTo("#hl", { boxShadow: "0 0 50px rgba(210,210,225,0.18)" },
+                     { boxShadow: "0 0 70px rgba(225,225,240,0.4)", duration: 0.4, yoyo: true, repeat: 1 }, 1.6);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(1.0).play(); }
+  </script>
+</body>
+</html>

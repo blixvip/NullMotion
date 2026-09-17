@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Control Center · Null Motion</title>
+  <link rel="icon" href="assets/null-logo.png" />
+  <link rel="stylesheet" href="site-shell.css" />
+  <link rel="stylesheet" href="control-center.css" />
+  <script src="site-shell.js" defer></script>
+  <script src="control-center.js" defer></script>
+</head>
+<body>
+  <header class="fallback-header">
+    <a class="fallback-brand" href="./"><img src="assets/null-logo.png" alt="Null" /><b>Null</b><span>Motion</span></a>
+    <nav aria-label="Null Motion pages">
+      <a href="./">Templates</a>
+      <a href="create.html">Reference studio</a>
+      <a href="script.html">Script to motion</a>
+      <a href="system-map.html">Director pipeline</a>
+      <a href="control-center.html" aria-current="page">Control Center</a>
+      <a href="renders.html">Renders</a>
+    </nav>
+  </header>
+
+  <main class="control-page" id="controlCenter">
+    <section class="control-hero" aria-labelledby="pageTitle">
+      <div class="hero-copy">
+        <div class="eyebrow">Sequence operations</div>
+        <h1 id="pageTitle">Control every frame.</h1>
+        <p>Review authored intent beside rendered output, revise without losing the original, and hand approved motion back to Premiere with an auditable action trail.</p>
+      </div>
+      <div class="presence-grid" aria-label="Connection status">
+        <article class="presence-card is-checking" id="bridgePresence">
+          <span class="presence-icon" aria-hidden="true"></span>
+          <div><small>Local bridge</small><strong id="bridgePresenceText">Checking connection</strong><span id="bridgePresenceDetail">Waiting for health response</span></div>
+        </article>
+        <article class="presence-card is-checking" id="cepPresence">
+          <span class="presence-icon" aria-hidden="true"></span>
+          <div><small>Premiere panel</small><strong id="cepPresenceText">Checking presence</strong><span id="cepPresenceDetail">Waiting for CEP heartbeat</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="surface sequence-console" aria-labelledby="sequenceHeading">
+      <div class="surface-head sequence-head">
+        <div>
+          <span class="section-kicker">Active production</span>
+          <h2 id="sequenceHeading">Sequence control</h2>
+          <p id="sequenceSubtitle">Loading sequence history from the local companion.</p>
+        </div>
+        <div class="sequence-tools">
+          <label class="compact-field" for="sequencePicker"><span>Sequence</span><select id="sequencePicker" disabled><option>Loading sequences…</option></select></label>
+          <button class="button secondary icon-button" id="refreshButton" type="button"><span aria-hidden="true">↻</span>Refresh</button>
+        </div>
+      </div>
+
+      <div class="inline-state loading" id="pageState" role="status" aria-live="polite">
+        <span class="state-mark" aria-hidden="true"></span>
+        <div><strong>Connecting to Null Motion</strong><span>Sequence controls appear when the local bridge responds.</span></div>
+      </div>
+
+      <dl class="summary-grid" id="sequenceSummary" aria-label="Sequence summary">
+        <div><dt>Status</dt><dd id="summaryStatus">Waiting</dd></div>
+        <div><dt>Graphics</dt><dd id="summaryGraphics">—</dd></div>
+        <div><dt>Timeline</dt><dd id="summaryDuration">—</dd></div>
+        <div><dt>Last change</dt><dd id="summaryUpdated">—</dd></div>
+      </dl>
+
+      <figure class="timeline-figure" aria-labelledby="timelineHeading">
+        <figcaption>
+          <div><span class="section-kicker">Editorial map</span><h3 id="timelineHeading">Motion timeline</h3></div>
+          <span id="timelineHint">Select a beat to inspect it</span>
+        </figcaption>
+        <div class="timeline-ruler" id="timelineRuler" aria-hidden="true"></div>
+        <div class="timeline-track" id="timelineTrack" role="listbox" aria-label="Storyboard timeline"></div>
+        <div class="timeline-empty" id="timelineEmpty">No timeline has been loaded.</div>
+      </figure>
+    </section>
+
+    <div class="studio-grid">
+      <section class="surface storyboard-panel" aria-labelledby="storyboardHeading">
+        <div class="surface-head compact">
+          <div><span class="section-kicker">Storyboard</span><h2 id="storyboardHeading">Directed beats</h2></div>
+          <span class="count-badge" id="storyboardCount">0 beats</span>
+        </div>
+        <div class="storyboard-list" id="storyboardList" role="listbox" aria-label="Storyboard beats"></div>
+        <div class="panel-empty" id="storyboardEmpty">
+          <span class="empty-mark" aria-hidden="true">N→</span>
+          <strong>No storyboard loaded</strong>
+          <p>Choose a sequence with an authored storyboard to review its graphics.</p>
+        </div>
+      </section>
+
+      <section class="surface inspector-panel" aria-labelledby="inspectorHeading">
+        <div class="surface-head compact">
+          <div><span class="section-kicker">Selected beat</span><h2 id="inspectorHeading">Inspector</h2></div>
+          <span class="dirty-state" id="dirtyState">No unsaved edits</span>
+        </div>
+
+        <div class="panel-empty" id="inspectorEmpty">
+          <span class="empty-mark" aria-hidden="true">01</span>
+          <strong>Select a storyboard beat</strong>
+          <p>Prompt, timing, template, customizer, and review controls will appear here.</p>
+        </div>
+
+        <form id="inspectorForm" hidden>
+          <div class="inspector-title-row">
+            <div class="selected-identity"><span id="selectedNumber">01</span><div><strong id="selectedTitle">Motion beat</strong><small id="selectedMeta">Awaiting sequence data</small></div></div>
+            <label class="switch-field"><input id="segmentEnabled" type="checkbox" /><span aria-hidden="true"></span><b>Include graphic</b></label>
+          </div>
+
+          <label class="field full-field" for="promptEditor">
+            <span>Production prompt</span>
+            <textarea id="promptEditor" rows="8" spellcheck="true" placeholder="No prompt was authored for this beat."></textarea>
+            <small id="promptMeta">Edits are kept locally until you create a revision.</small>
+          </label>
+
+          <div class="form-grid timing-grid">
+            <label class="field" for="startTimeInput"><span>Starts at</span><div class="input-unit"><input id="startTimeInput" type="number" min="0" step="0.001" inputmode="decimal" /><i>sec</i></div></label>
+            <label class="field" for="durationInput"><span>Duration</span><div class="input-unit"><input id="durationInput" type="number" min="0.1" step="0.001" inputmode="decimal" /><i>sec</i></div></label>
+            <label class="field template-field" for="templateSelect"><span>Authored template</span><select id="templateSelect"></select></label>
+          </div>
+
+          <section class="subpanel" aria-labelledby="customizerHeading">
+            <div class="subpanel-head"><div><span class="section-kicker">Bounded variation</span><h3 id="customizerHeading">Template customizer</h3></div><span id="customizerCount">0 controls</span></div>
+            <div class="customizer-grid" id="customizerControls"></div>
+            <p class="subpanel-empty" id="customizerEmpty">This template exposes no editable customizer controls for this beat.</p>
+          </section>
+
+          <section class="subpanel" aria-labelledby="checklistHeading">
+            <div class="subpanel-head"><div><span class="section-kicker">Acceptance criteria</span><h3 id="checklistHeading">Quality checklist</h3></div><span id="checklistProgress">No checklist</span></div>
+            <div class="checklist" id="qualityChecklist"></div>
+            <p class="subpanel-empty" id="checklistEmpty">No authored quality checklist was returned for this beat.</p>
+          </section>
+
+          <div class="analysis-actions" aria-label="AI revision proposals">
+            <button class="button secondary" id="repromptButton" type="button">Re-prompt</button>
+            <button class="button secondary" id="reanalyzeButton" type="button">Re-analyze beat</button>
+          </div>
+
+          <section class="proposal-panel" id="proposalPanel" aria-labelledby="proposalHeading" hidden>
+            <div class="proposal-head"><div><span class="section-kicker">Review before apply</span><h3 id="proposalHeading">Revision proposal</h3></div><button class="text-button" id="discardProposal" type="button">Discard</button></div>
+            <div class="proposal-diff">
+              <div><small>Current</small><pre id="proposalBefore"></pre></div>
+              <div><small>Proposed</small><pre id="proposalAfter"></pre></div>
+            </div>
+            <ul class="diff-list" id="proposalChanges"></ul>
+            <button class="button primary" id="applyProposal" type="button">Apply proposal</button>
+          </section>
+
+          <details class="policy-details">
+            <summary>Original generation policy</summary>
+            <pre id="generationPolicy">No generation policy was recorded.</pre>
+          </details>
+
+          <div class="revision-bar">
+            <div><strong>Create a non-destructive revision</strong><span id="revisionNote">The original sequence stays available.</span></div>
+            <div class="revision-actions">
+              <button class="button secondary" id="saveDraftButton" type="button">Save draft</button>
+              <button class="button primary" id="renderRevisionButton" type="button">Render revision</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <aside class="output-stack" aria-label="Preview, review, and Premiere actions">
+        <section class="surface preview-panel" aria-labelledby="authoredHeading">
+          <div class="surface-head compact"><div><span class="section-kicker">Source motion</span><h2 id="authoredHeading">Authored preview</h2></div><span class="preview-badge" id="authoredBadge">Unavailable</span></div>
+          <div class="preview-stage checkerboard" id="authoredStage">
+            <iframe id="authoredFrame" title="Authored template preview" referrerpolicy="no-referrer" hidden></iframe>
+            <div class="preview-empty" id="authoredEmpty"><strong>No authored player</strong><span>This beat did not return a template player path.</span></div>
+          </div>
+          <div class="playback-controls" aria-label="Authored preview playback">
+            <button id="playPreview" type="button" disabled>Play</button>
+            <button id="pausePreview" type="button" disabled>Pause</button>
+            <button id="restartPreview" type="button" disabled>Restart</button>
+          </div>
+        </section>
+
+        <section class="surface preview-panel" aria-labelledby="renderedHeading">
+          <div class="surface-head compact"><div><span class="section-kicker">Rendered truth</span><h2 id="renderedHeading">Rendered preview</h2></div><span class="preview-badge" id="renderedBadge">Unavailable</span></div>
+          <div class="preview-stage checkerboard" id="renderedStage">
+            <iframe id="renderedFrame" title="Rendered motion player" referrerpolicy="no-referrer" hidden></iframe>
+            <img id="renderedImage" alt="Rendered motion frame" hidden />
+            <div class="preview-empty" id="renderedEmpty"><strong>No rendered output</strong><span>A real player, instant preview, or sampled frame will appear when available.</span></div>
+          </div>
+          <p class="preview-caption" id="renderedCaption">Select a beat to inspect its render status.</p>
+        </section>
+
+        <section class="surface review-panel" aria-labelledby="reviewHeading">
+          <div class="surface-head compact"><div><span class="section-kicker">Rendered QA</span><h2 id="reviewHeading">Review & repair</h2></div><span class="status-pill neutral" id="reviewBadge"><span aria-hidden="true"></span>Not reviewed</span></div>
+          <div class="review-body" id="reviewBody"><p>No rendered review has been run for this beat.</p></div>
+          <div class="review-actions">
+            <button class="button secondary" id="reviewButton" type="button" disabled>Run quality review</button>
+            <button class="button warning" id="repairButton" type="button" disabled>Repair as new revision</button>
+          </div>
+          <p class="action-note">Repair always uses strict review with a refreshed cache. It never replaces the original.</p>
+        </section>
+
+        <section class="surface premiere-panel" aria-labelledby="premiereHeading">
+          <div class="surface-head compact"><div><span class="section-kicker">Premiere handoff</span><h2 id="premiereHeading">Return to the edit</h2></div><span class="status-pill neutral" id="handoffBadge"><span aria-hidden="true"></span>Not sent</span></div>
+          <div class="placement-grid">
+            <label class="field" for="placementMode"><span>Placement</span><select id="placementMode"><option value="absoluteTime">Storyboard time</option><option value="currentPlayhead">Current playhead</option></select></label>
+            <label class="field" id="absoluteTimeField" for="absoluteTime"><span>Sequence time</span><div class="input-unit"><input id="absoluteTime" type="number" min="0" step="0.001" inputmode="decimal" /><i>sec</i></div></label>
+          </div>
+          <div class="premiere-actions">
+            <button class="button primary" id="sendCepButton" type="button" disabled>Send to CEP</button>
+            <button class="button secondary" id="saveBinButton" type="button" disabled>Save to Premiere bin</button>
+            <button class="button secondary" id="insertButton" type="button" disabled>Insert</button>
+            <button class="button danger" id="rollbackButton" type="button" disabled>Rollback</button>
+          </div>
+          <div class="action-history" id="actionHistory" aria-live="polite"><p>No Premiere actions for this beat.</p></div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Notification Stack</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+  #root {
+    position: relative; width: 1920px; height: 1080px; background: transparent;
+    overflow: hidden; font-family: "Inter", -apple-system, system-ui, Arial, sans-serif;
+  }
+  #stack {
+    position: absolute; left: 50%; top: 200px; transform: translateX(-50%);
+    display: flex; flex-direction: column; gap: 22px; width: 920px;
+  }
+  .toast {
+    display: flex; align-items: center; gap: 22px;
+    padding: 26px 30px; border-radius: 26px;
+    background: linear-gradient(180deg, rgba(38,38,42,0.92), rgba(20,20,23,0.92));
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    will-change: transform, opacity;
+  }
+  .ico { width: 64px; height: 64px; border-radius: 16px; background: #fff; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .ico svg { width: 38px; height: 38px; }
+  .body { flex: 1; }
+  .title { font-size: 28px; font-weight: 600; color: #f2f2f4; letter-spacing: -0.01em; }
+  .sub { margin-top: 6px; font-size: 22px; font-weight: 300; color: rgba(200,200,206,0.72); }
+  .time { font-size: 19px; color: rgba(170,170,178,0.6); }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="5" data-track-index="0" data-width="1920" data-height="1080">
+    <div id="stack">
+      <div class="toast clip" data-start="0" data-duration="5" data-track-index="0">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z" fill="none" stroke="#d33" stroke-width="1.6"/><path d="M3 7l9 6 9-6" fill="none" stroke="#d33" stroke-width="1.6"/></svg></div>
+        <div class="body"><div class="title">New appointment</div><div class="sub">Monday · 1:00 PM — Jack Robinson</div></div>
+        <div class="time">now</div>
+      </div>
+      <div class="toast clip" data-start="0" data-duration="5" data-track-index="1">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z" fill="none" stroke="#d33" stroke-width="1.6"/><path d="M3 7l9 6 9-6" fill="none" stroke="#d33" stroke-width="1.6"/></svg></div>
+        <div class="body"><div class="title">New appointment</div><div class="sub">Friday · 3:00 PM — Conor Turner</div></div>
+        <div class="time">1m ago</div>
+      </div>
+      <div class="toast clip" data-start="0" data-duration="5" data-track-index="2">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z" fill="none" stroke="#d33" stroke-width="1.6"/><path d="M3 7l9 6 9-6" fill="none" stroke="#d33" stroke-width="1.6"/></svg></div>
+        <div class="body"><div class="title">New appointment</div><div class="sub">Thursday · 2:00 PM — John Smith</div></div>
+        <div class="time">2m ago</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const toasts = gsap.utils.toArray(".toast");
+    toasts.forEach((t, i) => {
+      tl.from(t, { y: -90, opacity: 0, scale: 0.95, duration: 0.7, ease: "back.out(1.4)" }, 0.3 + i * 0.7);
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(0.8).play(); }
+  </script>
+</body>
+</html>

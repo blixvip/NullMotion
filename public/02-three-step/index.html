@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Three-Step Sequence</title>
+<script src="../_vendor/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+
+  #root {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    background: transparent;
+    overflow: hidden;
+    font-family: "Inter", -apple-system, system-ui, Arial, sans-serif;
+  }
+
+  #grid {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 56px;
+  }
+
+  .card {
+    position: relative;
+    width: 420px;
+    height: 540px;
+    border-radius: 28px;
+    background:
+      linear-gradient(160deg, rgba(64,64,68,0.55) 0%, rgba(28,28,30,0.55) 100%);
+    border: 1px solid rgba(180,180,190,0.16);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.10),
+      0 40px 80px rgba(0,0,0,0.45);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    padding: 44px 40px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    will-change: transform, opacity;
+  }
+
+  .num {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: rgba(180,180,188,0.65);
+  }
+  .icon {
+    margin-top: 30px;
+    width: 84px; height: 84px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #E5E5E5 0%, #A3A3A3 100%);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.7), 0 10px 24px rgba(0,0,0,0.35);
+  }
+  .title {
+    margin-top: 40px;
+    font-size: 38px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #ECECEE;
+  }
+  .desc {
+    margin-top: 18px;
+    font-size: 21px;
+    line-height: 1.5;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+    color: rgba(200,200,206,0.72);
+  }
+  .bar {
+    margin-top: auto;
+    height: 8px; width: 70%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #D4D4D8 0%, #6b6b70 100%);
+    opacity: 0.85;
+  }
+</style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-duration="7" data-track-index="0" data-width="1920" data-height="1080">
+
+    <div id="grid">
+      <div class="card clip" data-start="0" data-duration="7" data-track-index="0">
+        <div class="num">01</div>
+        <div class="icon"></div>
+        <div class="title">Record</div>
+        <div class="desc">Capture your take in one clean pass.</div>
+        <div class="bar"></div>
+      </div>
+      <div class="card clip" data-start="0" data-duration="7" data-track-index="1">
+        <div class="num">02</div>
+        <div class="icon"></div>
+        <div class="title">Refine</div>
+        <div class="desc">Cut the dead air and bad takes.</div>
+        <div class="bar"></div>
+      </div>
+      <div class="card clip" data-start="0" data-duration="7" data-track-index="2">
+        <div class="num">03</div>
+        <div class="icon"></div>
+        <div class="title">Release</div>
+        <div class="desc">Export and ship it everywhere.</div>
+        <div class="bar"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const cards = gsap.utils.toArray(".card");
+
+    cards.forEach((card, i) => {
+      const start = 0.4 + i * 0.45;
+      tl.from(card, {
+        scaleY: 0.9, opacity: 0, y: 36,
+        transformOrigin: "bottom center",
+        duration: 1.0, ease: "power4.out"
+      }, start);
+      tl.from(card.querySelector(".bar"), {
+        scaleX: 0, transformOrigin: "left center",
+        duration: 0.9, ease: "expo.out"
+      }, start + 0.35);
+    });
+
+    // slow parallax drift on the whole grid during the hold
+    tl.to("#grid", { y: -14, duration: 4, ease: "sine.inOut" }, 2);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+
+    if (location.hash === "#play") { tl.repeat(-1).repeatDelay(0.7).play(); }
+  </script>
+</body>
+</html>

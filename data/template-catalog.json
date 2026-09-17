@@ -1,0 +1,600 @@
+{
+  "schemaVersion": 1,
+  "templates": [
+    {
+      "id": "05-app-icons",
+      "version": 3,
+      "name": "App Icon Float",
+      "description": "Approved logos rise and settle as a clean vertical lineup",
+      "category": "short",
+      "prompt": "A vertical transparent logo lineup. Three approved app marks rise from below on shallow arcs, settle as equal visual weights, and hold with restrained depth and clean silhouettes. Keep the marks undistorted and locally frozen. No generic tiles, looping bob, or decorative glow spam.",
+      "output": {
+        "width": 1080,
+        "height": 1920,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "05-app-icons/index.html",
+        "thumbnail": null
+      },
+      "customizer": {
+        "id": "app-icon-motion",
+        "defaults": {
+          "visibleCount": 3,
+          "entrance": "up",
+          "viewAngle": "front",
+          "splitFromHero": "off"
+        },
+        "fields": [
+          {
+            "key": "visibleCount",
+            "type": "integer",
+            "label": "Visible icons",
+            "minimum": 1,
+            "maximum": 4
+          },
+          {
+            "key": "entrance",
+            "type": "select",
+            "label": "Entrance",
+            "options": [
+              "up",
+              "down",
+              "left",
+              "right"
+            ]
+          },
+          {
+            "key": "viewAngle",
+            "type": "select",
+            "label": "View angle",
+            "options": [
+              "front",
+              "three-quarter-left",
+              "three-quarter-right",
+              "half-turn",
+              "full-turn"
+            ]
+          },
+          {
+            "key": "splitFromHero",
+            "type": "select",
+            "label": "Split from hero",
+            "options": [
+              "off",
+              "on"
+            ]
+          }
+        ]
+      },
+      "assetIntent": [
+        {
+          "type": "logo",
+          "count": 4,
+          "purpose": "Replace the four authored app-icon slots with approved brand logos; four are required for the optional hero split."
+        }
+      ],
+      "qualityStatus": "approved"
+    },
+    {
+      "id": "27-icon-stack-rise",
+      "version": 2,
+      "name": "Icon Stack Rise",
+      "description": "A master mark unfolds into a balanced product family",
+      "category": "short",
+      "prompt": "A vertical transparent brand-family reveal. One approved master mark rises with three approved product marks stacked behind it; the master flips into the lead product as the rear marks fan into an optically balanced row. Hold the resolved lineup, then exit upward. Preserve every mark exactly and keep depth restrained.",
+      "output": {
+        "width": 1080,
+        "height": 1920,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "27-icon-stack-rise/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [
+        {
+          "type": "logo",
+          "count": 4,
+          "required": true,
+          "purpose": "Use one approved master-brand logo and three approved product icons for the flip-and-fan reveal."
+        }
+      ],
+      "qualityStatus": "approved"
+    },
+    {
+      "id": "07-chat-sim",
+      "version": 1,
+      "name": "AI Chat Sim",
+      "description": "Typing conversation",
+      "category": "short",
+      "prompt": "A vertical 1080x1920 transparent overlay simulating an AI chat: a grey user bubble pops in, a typing indicator pulses, then the AI answer types out character-by-character with a blinking cursor, then action icons fade in. Clean, ChatGPT-style.",
+      "output": {
+        "width": 1080,
+        "height": 1920,
+        "duration": 7,
+        "fps": 30
+      },
+      "preview": {
+        "html": "07-chat-sim/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "08-prompt-bar",
+      "version": 1,
+      "name": "Prompt Bar",
+      "description": "Text typed into input",
+      "category": "short",
+      "prompt": "A vertical 1080x1920 transparent overlay: a sleek pill-shaped chat input bar slides up, a phrase types itself in with a blinking cursor, then the white circular send button presses. Glassy dark bar, premium easing.",
+      "output": {
+        "width": 1080,
+        "height": 1920,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "08-prompt-bar/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "02-three-step",
+      "version": 1,
+      "name": "Triple Sequence",
+      "description": "3-step explainer",
+      "category": "long",
+      "prompt": "A 1920x1080 transparent overlay: three metallic glass cards (01/02/03) stagger in bottom-up with scale+fade, each with an icon, title, description and a metallic progress bar that wipes in. Mannequin grey aesthetic, power4.out.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 7,
+        "fps": 30
+      },
+      "preview": {
+        "html": "02-three-step/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "03-slide-showcase",
+      "version": 1,
+      "name": "Slide-In Showcase",
+      "description": "Headline reveal",
+      "category": "long",
+      "prompt": "A 1920x1080 transparent overlay: a 1px metallic divider draws down, then an eyebrow, large silver gradient headline, and subtitle slide in horizontally from a mask, staggered. Left-aligned, expo/power4 easing.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "03-slide-showcase/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "04-morph-panel",
+      "version": 1,
+      "name": "Morph Panel",
+      "description": "Button to modal",
+      "category": "long",
+      "prompt": "A 1920x1080 transparent overlay: a small glossy obsidian button rises in, then morphs (width/height/radius) into a large panel, its label fading out as a header and content rows fade in. power4.inOut, premium.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 6,
+        "fps": 30
+      },
+      "preview": {
+        "html": "04-morph-panel/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "13-compare-bars",
+      "version": 1,
+      "name": "Compare Bars",
+      "description": "Before / after metric",
+      "category": "data",
+      "prompt": "A 1920x1080 transparent overlay on an obsidian glass card with faint gridlines: two bars grow up from a baseline — a short dim grey '1x' bar, then a tall silver-gradient '10x' bar with a soft bloom — then a glossy obsidian caption pill reading '10x faster' rises in. power4.out, premium metallic.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "13-compare-bars/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "14-leaderboard",
+      "version": 1,
+      "name": "Model Leaderboard",
+      "description": "Ranked tool list",
+      "category": "data",
+      "prompt": "A 1920x1080 transparent overlay: a vertical ranked list of four rows slides in from the left, staggered — each row has a rank number, a rounded obsidian app-icon tile with a soft glow, a name (Veo 3.1, Kling, Grok Imagine, Sora), and a silver score that fades in. Dark glass rows, power4.out. Swap in my brands.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "14-leaderboard/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [
+        {
+          "type": "logo",
+          "count": 4,
+          "purpose": "Use approved logos for the ranked products or brands."
+        }
+      ],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "15-bar-3d",
+      "version": 1,
+      "name": "3D Bar Hero",
+      "description": "Hero stat with icon",
+      "category": "data",
+      "prompt": "A 1920x1080 transparent overlay: three pseudo-3D bars with floor reflections grow up from a baseline, the tall center silver bar blooms, and a rounded obsidian icon tile plus a large silver-gradient headline ('Worth your time and money') ride in on top. back.out tile pop, power4.out bars, premium.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "15-bar-3d/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [
+        {
+          "type": "logo",
+          "count": 1,
+          "purpose": "Replace the hero icon tile when a real product or brand is featured."
+        }
+      ],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "16-line-growth",
+      "version": 1,
+      "name": "Line Growth",
+      "description": "Rising trend curve",
+      "category": "data",
+      "prompt": "A 1920x1080 transparent overlay: silver chart axes draw in, faint gridlines fade, then a glowing silver-gradient curve draws itself left-to-right rising toward the top-right with a soft fill underneath, and three obsidian marker tiles pop onto the line in sequence. power2.inOut draw, back.out markers.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "16-line-growth/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "17-integrations-grid",
+      "version": 1,
+      "name": "Integrations Grid",
+      "description": "Connect-apps cards",
+      "category": "ui",
+      "prompt": "A 1920x1080 transparent overlay: a 3x2 grid of obsidian glass integration cards pop in one after another with scale+fade — each card has a rounded glowing icon tile, an app name (Atlassian, Linear, Miro, Shopify, Notion, Canva), a one-line description and a '+' add button. Metallic dark, power4.out. Swap in my apps.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "17-integrations-grid/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [
+        {
+          "type": "logo",
+          "count": 6,
+          "purpose": "Use approved app logos for the integration cards."
+        }
+      ],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "19-phone-showcase",
+      "version": 1,
+      "name": "Phone Showcase",
+      "description": "3D app mockup",
+      "category": "ui",
+      "prompt": "A 1920x1080 transparent overlay: a metallic silver phone with a dynamic island tilts in from a 3D angle and settles upright, a light glint sweeps across the bezel, and the dark app UI (a 'My Store' screen with a search bar and list rows) rises in. Then a gentle idle rotation. power4.out, premium.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "19-phone-showcase/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [
+        {
+          "type": "screenshot",
+          "count": 1,
+          "purpose": "Replace the placeholder phone UI with an approved product screen when available."
+        }
+      ],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "20-search-typing",
+      "version": 1,
+      "name": "Search Typing",
+      "description": "Query types itself",
+      "category": "ui",
+      "prompt": "A 1920x1080 transparent overlay: a large silver-gradient wordmark, then a glossy obsidian search pill with a magnifier slides up and a phrase types itself in with a blinking caret, then two dark action buttons fade in below. Clean, premium, power3.out. Swap in my brand + query.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "20-search-typing/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [
+        {
+          "type": "logo",
+          "count": 1,
+          "purpose": "Use an approved brand wordmark when the search experience represents a real product."
+        }
+      ],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "21-connector-list",
+      "version": 1,
+      "name": "Connector List",
+      "description": "Pick a tool row",
+      "category": "ui",
+      "prompt": "A 1920x1080 transparent overlay: a vertical list of obsidian rows slides in from the left, staggered — each with a glowing icon tile, a name (Notion, Perplexity, Lovable AI, Stripe, Supabase), a description and a chevron. Then a cursor glides in and a glassy highlight snaps onto one row with a soft glow pulse. power4.out.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "21-connector-list/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [
+        {
+          "type": "logo",
+          "count": 5,
+          "purpose": "Use approved product logos for connector rows."
+        }
+      ],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "23-prompt-composer",
+      "version": 1,
+      "name": "Prompt Composer",
+      "description": "Prompt + attach + send",
+      "category": "ui",
+      "prompt": "A 1920x1080 transparent overlay: a glassy obsidian chat composer card rises in, a prompt types itself out with some words bolded and a couple silver-highlighted, an attachment chip pops in at the bottom, then a cursor glides to the white circular send button and presses it. Blinking caret, premium easing.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "23-prompt-composer/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "18-cta-click",
+      "version": 1,
+      "name": "Button Click",
+      "description": "CTA gets pressed",
+      "category": "overlay",
+      "prompt": "A 1920x1080 transparent overlay: a glossy obsidian CTA pill with a silver 'Publish' label and a faint focus ring settles in, then a cursor glides over and presses it — the button dips and springs back, a ripple expands and the ring pulses with a soft glow. expo.out in, back.out press, premium.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 4,
+        "fps": 30
+      },
+      "preview": {
+        "html": "18-cta-click/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "22-kinetic-headline",
+      "version": 3,
+      "name": "Kinetic Headline",
+      "description": "One-word emphasis with authored editorial motion",
+      "category": "overlay",
+      "prompt": "A transparent editorial headline emphasizing one word in a dimensional pill. Establish a fine guide and bounded atmosphere, bring the side words in on opposing shallow arcs, compress the emphasized word in anticipation, then settle it with one restrained overshoot and a single sheen. Hold the resolved line clearly. No fake UI or decorative clutter.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 4,
+        "fps": 30
+      },
+      "preview": {
+        "html": "22-kinetic-headline/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "approved"
+    },
+    {
+      "id": "26-null-manifesto",
+      "version": 2,
+      "name": "Null Manifesto",
+      "description": "Null Motion brand statement with a clear focal hierarchy",
+      "category": "overlay",
+      "prompt": "A five-second transparent Null Motion brand statement. Reveal the supplied Null mark and the exact headline 'THE KING OF MOTION GRAPHICS' as one balanced composition with a masked type entrance, a restrained orbit response, one chrome glint, and a readable hold before a clean alpha-safe exit. Keep the authentic mark undistorted; remove decorative telemetry that competes with the message.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "26-null-manifesto/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [
+        {
+          "type": "logo",
+          "count": 1,
+          "required": true,
+          "purpose": "Use the supplied Null Motion logo asset."
+        }
+      ],
+      "qualityStatus": "approved"
+    },
+    {
+      "id": "24-showreel-notify",
+      "version": 1,
+      "name": "Showreel Notify",
+      "description": "Title + phone alert",
+      "category": "short",
+      "prompt": "A vertical 1080x1920 transparent overlay: a big glowing silver headline drops in up top, a dark obsidian phone rises into the center, a glassy notification toast ('+49 123 456 7890 — I need a creator!') drops onto the screen with a back.out bounce and a red badge pops, a huge silver '2025' rises from the bottom, and the phone idles with a gentle float.",
+      "output": {
+        "width": 1080,
+        "height": 1920,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "24-showreel-notify/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "01-cta-pill",
+      "version": 1,
+      "name": "Chrome CTA",
+      "description": "Subscribe / CTA",
+      "category": "overlay",
+      "prompt": "A 1920x1080 lower-third transparent overlay: a glossy obsidian pill rises in with a silver-gradient label and subcopy, a metallic glint sweeps across the pill face near the end. Premium, expo.out.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 4,
+        "fps": 30
+      },
+      "preview": {
+        "html": "01-cta-pill/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "06-notification",
+      "version": 1,
+      "name": "Notification Stack",
+      "description": "Toasts dropping in",
+      "category": "overlay",
+      "prompt": "A 1920x1080 transparent overlay: glassy notification toasts (icon + title + subtitle + timestamp) drop in one after another and stack, each with a back.out bounce. iOS/Gmail style on dark glass.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "06-notification/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [],
+      "qualityStatus": "legacy"
+    },
+    {
+      "id": "12-blur-reveal",
+      "version": 1,
+      "name": "Blur Reveal",
+      "description": "Logo unblurs",
+      "category": "overlay",
+      "prompt": "A 1920x1080 transparent overlay: a dark glass plate with a logo + wordmark drops in heavily blurred, then a light sweep wipes across and the mark + wordmark sharpen from blur to crisp with a soft glow bloom.",
+      "output": {
+        "width": 1920,
+        "height": 1080,
+        "duration": 5,
+        "fps": 30
+      },
+      "preview": {
+        "html": "12-blur-reveal/index.html",
+        "thumbnail": null
+      },
+      "customizer": null,
+      "assetIntent": [
+        {
+          "type": "logo",
+          "count": 1,
+          "required": true,
+          "purpose": "Use an approved logo and wordmark as the reveal subject."
+        }
+      ],
+      "qualityStatus": "legacy"
+    }
+  ]
+}
