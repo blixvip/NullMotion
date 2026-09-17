@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101112"><title>Null — Launch Studio</title>
+  <link rel="icon" href="assets/null-logo.png"><link rel="stylesheet" href="editor.css">
+  <script type="module" src="editor.mjs"></script>
+</head>
+<body>
+<svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.8 6.2L21 12l-6.2 2.8L12 21l-2.8-6.2L3 12l6.2-2.8z"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 4 6 8H3v8h3l5 4zM16 8a6 6 0 0 1 0 8M19 5a10 10 0 0 1 0 14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+  <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></symbol>
+  <symbol id="i-full" viewBox="0 0 24 24"><path d="M9 3H3v6M15 3h6v6M3 15v6h6M21 15v6h-6"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v6h16v-6"/></symbol>
+</defs></svg>
+<a class="skip-link" href="#main">Skip to editor</a>
+<header class="topbar">
+  <a class="logo" href="/" aria-label="Null home"><span class="logo-mark">N</span>null<span class="logo-dot">.</span></a>
+  <span class="top-divider"></span><a class="project-link" href="index.html">Workspace</a><span class="crumb">/</span>
+  <span class="project-name">Your next big thing <span class="project-caret">⌄</span></span>
+  <span class="save-state" id="save-state"><span></span> Saved locally</span>
+  <div class="top-actions"><span class="demo-label">PROMOTION DEMO</span><button class="button subtle" id="present"><svg><use href="#i-full"/></svg>Present</button><button class="button primary" id="play-top"><svg><use href="#i-play"/></svg>Play concept</button><span class="avatar" aria-label="Your workspace">N</span></div>
+</header>
+<div class="workspace">
+<nav class="rail" aria-label="Tools"><button class="rail-item active" id="rail-references" aria-label="Reference library" title="Reference library"><svg><use href="#i-film"/></svg><span>Library</span></button><button class="rail-item" id="rail-brand" aria-label="Brand settings" title="Brand settings"><svg><use href="#i-spark"/></svg><span>Brand</span></button><a class="rail-item" href="index.html" title="Motion templates"><svg><use href="#i-grid"/></svg><span>Templates</span></a><span class="rail-bottom">N / 01</span></nav>
+<main id="main">
+<div class="studio-heading"><div class="studio-title"><span class="live-dot"></span><h1>Launch studio</h1><span class="subtle-label">A little inspiration. Entirely your direction.</span></div><div class="view-toggle" aria-label="Preview mode"><button id="mode-concept" class="active" aria-pressed="true">Your film</button><button id="mode-reference" aria-pressed="false">Reference</button></div></div>
+<section class="upper-workspace" aria-label="Film preview and brand settings">
+  <div class="preview-area">
+    <div class="canvas-top"><span id="canvas-label">CONCEPT PREVIEW</span><span><i class="tiny-dot"></i> <span id="format-label">1920 × 1080</span> <span class="canvas-sep">/</span> 30 FPS</span></div>
+    <div class="canvas-wrap" id="canvas-wrap">
+      <div class="film-stage" id="film-stage" data-scene="0">
+        <div class="stage-grain"></div><div class="stage-orbit orbit-one"></div><div class="stage-orbit orbit-two"></div>
+        <div class="film-brand"><span class="film-monogram">N</span><span id="film-brand-name">null</span><span class="film-brand-plus">®</span></div>
+        <div class="film-copy"><span class="film-kicker" id="film-kicker">MAKE SOMETHING THAT MOVES.</span><h2 id="film-headline">Good ideas.<br><em>Great motion.</em></h2><p id="film-subline">Your vision. Every frame.</p><span class="film-cta" id="film-cta">Meet your next big thing <span>↗</span></span></div>
+        <div class="motion-window" id="motion-window"><div class="window-chrome"><span class="window-dots">● ● ●</span><span id="window-label">a new perspective</span><span>↗</span></div><video id="preview-video" muted playsinline preload="metadata"></video><div class="video-loading" id="video-loading">Loading your reference…</div></div>
+        <div class="film-footer"><span>BUILT FROM INSPIRATION. MADE YOURS.</span><span id="film-progress">01 / 04</span></div><div class="film-timecode" aria-hidden="true">NULL® — A NEW POINT OF VIEW</div>
+      </div>
+      <div class="canvas-badge" id="canvas-badge"><span></span>Live brand preview</div>
+    </div>
+    <div class="transport"><div class="transport-start"><button class="icon-button" id="restart" aria-label="Restart sequence">↤</button><button class="transport-play" id="play" aria-label="Play sequence"><svg><use href="#i-play"/></svg></button><span class="time-readout"><strong id="time-current">00:00.00</strong><span>/</span><span id="time-total">00:00.00</span></span></div><span class="preview-description" id="preview-description">A concept assembled from your selected moments</span><div class="transport-end"><button class="icon-button" id="mute" aria-label="Unmute reference audio" aria-pressed="true"><svg><use href="#i-volume"/></svg><span class="mute-slash"></span></button><button class="icon-button" id="fullscreen" aria-label="Fullscreen preview"><svg><use href="#i-full"/></svg></button></div></div>
+  </div>
+  <aside class="brand-panel" id="brand-panel" aria-label="Brand settings"><div class="panel-title"><h2>Make it yours</h2><svg><use href="#i-spark"/></svg></div><p class="panel-description">Same inspiration.<br>A whole new identity.</p>
+    <label class="field-label" for="brand-name">Brand name</label><input id="brand-name" value="null" maxlength="30" autocomplete="off">
+    <label class="field-label" for="brand-message">Your message</label><textarea id="brand-message" rows="2" maxlength="80">Good ideas. Great motion.</textarea>
+    <span class="field-label">Brand palette</span><div class="palette"><button class="swatch active" data-accent="#daef79" data-paper="#eeefdf" style="--swatch:#daef79" aria-label="Citron palette" aria-pressed="true"></button><button class="swatch" data-accent="#b9b0fb" data-paper="#ece8f8" style="--swatch:#b9b0fb" aria-label="Lavender palette" aria-pressed="false"></button><button class="swatch" data-accent="#f4a98d" data-paper="#f7e9df" style="--swatch:#f4a98d" aria-label="Apricot palette" aria-pressed="false"></button><button class="swatch" data-accent="#9ed1e7" data-paper="#e4eef2" style="--swatch:#9ed1e7" aria-label="Glacier palette" aria-pressed="false"></button><label class="custom-color" title="Custom brand color"><input type="color" id="custom-color" value="#daef79" aria-label="Custom brand color"><span>+</span></label></div>
+    <label class="field-label" for="aspect">Canvas</label><select id="aspect"><option value="landscape">Landscape &nbsp; 16:9</option><option value="portrait">Portrait &nbsp; 9:16</option><option value="square">Square &nbsp; 1:1</option></select>
+    <div class="brand-divider"></div><div class="direction-label"><span class="field-label">Creative direction</span><span>↗</span></div><p class="direction-copy">Bold typography. Clean transitions. A launch worth watching.</p><div class="concept-note"><span class="tiny-dot"></span> Concept preview · AI rendering comes next</div>
+  </aside>
+</section>
+<section class="timeline-panel" aria-labelledby="timeline-title">
+  <div class="timeline-toolbar"><div class="timeline-heading"><svg><use href="#i-film"/></svg><h2 id="timeline-title">Your film</h2><span class="clip-count" id="clip-count">0 clips</span></div><div class="timeline-tools"><span class="timeline-hint">Drag to reorder · select to edit</span><button class="icon-button" id="undo" title="Undo" aria-label="Undo last timeline change">↶</button><button class="icon-button" id="redo" title="Redo" aria-label="Redo timeline change">↷</button><span class="tool-divider"></span><button class="button small subtle" id="reset-demo">Load demo</button></div></div>
+  <div class="timeline-scroll"><div class="timeline-body" id="timeline-body"><div class="ruler" id="ruler" aria-hidden="true"></div><div class="timeline-lane"><div class="lane-label"><svg><use href="#i-film"/></svg><span>Video</span></div><div class="clips-track" id="clips-track" aria-label="Film clips"></div></div><div class="brand-lane"><span class="lane-label">Aa <span>Brand</span></span><div class="brand-track"><span class="brand-track-name">null</span><span class="brand-track-line"></span><span>Your identity, throughout</span></div></div><div class="playhead" id="playhead"><span></span></div><input id="scrubber" class="timeline-scrubber" type="range" min="0" max="1" step="0.01" value="0" aria-label="Sequence playhead"></div></div>
+  <div class="clip-inspector" id="clip-inspector"><span id="selected-clip-name">Choose a clip to fine-tune</span><div><label>In <input id="clip-in" type="number" min="0" step="0.1" aria-label="Clip in point"></label><label>Out <input id="clip-out" type="number" min="0" step="0.1" aria-label="Clip out point"></label><button class="text-button" id="move-left" aria-label="Move selected clip earlier">←</button><button class="text-button" id="move-right" aria-label="Move selected clip later">→</button><button class="text-button remove-clip" id="remove-clip">Remove</button></div></div>
+</section>
+<section class="library-panel" id="library-panel" aria-labelledby="library-title"><div class="library-heading"><div><div class="library-title-row"><h2 id="library-title">Find your next moment.</h2><span class="library-count" id="library-count">Loading library…</span></div><p>Take the opening from one. The reveal from another. Make the whole thing yours.</p></div><div class="library-actions"><label class="search-box"><svg><use href="#i-search"/></svg><input id="search" type="search" placeholder="Find a reference…" aria-label="Search reference videos"></label><label class="button subtle upload-button"><svg><use href="#i-plus"/></svg>Add video<input id="upload" type="file" accept="video/*" hidden></label></div></div>
+  <div class="reference-tabs" id="reference-tabs" role="tablist" aria-label="Reference videos"></div>
+  <div class="source-heading"><span id="source-title">Your reference library</span><span id="source-detail">Every video, split into moments.</span></div>
+  <div class="segment-grid" id="segment-grid"><div class="library-loading">Preparing your references…</div></div>
+</section>
+<footer class="studio-footer"><span><span class="footer-mark">N</span> Start with a spark. Finish with something yours.</span><span>NULL / LAUNCH STUDIO <span class="footer-dot">·</span> CONCEPT 001</span></footer>
+</main></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<dialog id="reference-dialog"><div class="dialog-top"><div><span class="eyebrow">REFERENCE MOMENT</span><h2 id="dialog-title">Preview segment</h2></div><button class="icon-button" id="close-dialog" aria-label="Close reference preview">×</button></div><video id="dialog-video" controls playsinline preload="metadata"></video><div class="dialog-bottom"><span id="dialog-range"></span><button class="button primary" id="dialog-add"><svg><use href="#i-plus"/></svg>Add to film</button></div></dialog>
+</body></html>

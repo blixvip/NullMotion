@@ -2,6 +2,7 @@ import http from 'node:http';
 import { readFile, realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { streamVideo } from './media.js';
 
 const root = fileURLToPath(new URL('./public/', import.meta.url));
 const catalog = JSON.parse(await readFile(new URL('./data/template-catalog.json', import.meta.url), 'utf8'));
@@ -31,7 +32,7 @@ const readOnly = new Map([
   ['/api/v1/premiere-inbox', { items: [] }],
   ['/api/v1/premiere-actions', { actions: [] }]
 ]);
-const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json; charset=utf-8' };
+const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.json': 'application/json; charset=utf-8' };
 
 function json(response, status, body) {
   response.writeHead(status, { 'Content-Type': mime['.json'], 'Cache-Control': 'no-store' });
@@ -49,6 +50,13 @@ export function createApp() {
     if (pathname.includes('\\') || pathname.includes('\0') || pathname.split('/').some(part => part.startsWith('.'))) {
       return json(response, 403, { error: 'Forbidden.' });
     }
+    if (pathname === '/api/references') {
+      try { return json(response, 200, JSON.parse(await readFile(new URL('./public/references/catalog.json', import.meta.url), 'utf8'))); }
+      catch { return json(response, 200, { references: [] }); }
+    }
+    const mediaMatch = pathname.match(/^\/media\/references\/([a-z0-9-]+)\.mp4$/);
+    if (mediaMatch) return streamVideo(request, response, fileURLToPath(new URL(`./.local-media/${mediaMatch[1]}.mp4`, import.meta.url)));
+    if (pathname === '/' || pathname === '/editor') pathname = '/editor.html';
     if (readOnly.has(pathname)) return json(response, 200, readOnly.get(pathname));
     const sourceMatch = pathname.match(/^\/api\/v1\/templates\/([^/]+)\/source$/);
     if (sourceMatch) {

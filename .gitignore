@@ -7,3 +7,6 @@ coverage/
 .artifacts/
 .DS_Store
 Thumbs.db
+.local-media/
+public/references/
+promo/

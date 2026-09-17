@@ -2,7 +2,8 @@
   "use strict";
 
   const pages = [
-    { key: "templates", href: "./", label: "Templates", icon: '<rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M4 9h16M9 9v11"></path>' },
+    { key: "editor", href: "/editor", label: "Editor", icon: '<rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M3 20h18M10 8l4 2-4 2z"></path>' },
+    { key: "templates", href: "index.html", label: "Templates", icon: '<rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M4 9h16M9 9v11"></path>' },
     { key: "reference", href: "create.html", label: "Reference", icon: '<rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="8.5" cy="9" r="1.5"></circle><path d="m21 15-4.2-4.2L8 19"></path>' },
     { key: "script", href: "script.html", label: "Script", icon: '<path d="M6 3h8l4 4v14H6z"></path><path d="M14 3v5h5M9 12h6M9 16h4"></path>' },
     { key: "pipeline", href: "system-map.html", label: "Pipeline", icon: '<circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="5" r="2"></circle><circle cx="19" cy="12" r="2"></circle><circle cx="12" cy="19" r="2"></circle><path d="m6.5 10.5 4-4m3 0 4 4m0 3-4 4m-3 0-4-4"></path>' },
