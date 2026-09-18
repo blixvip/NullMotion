@@ -246,7 +246,7 @@ function save(url, name) {
   const link = Object.assign(document.createElement('a'), { href: url, download: name });
   document.body.append(link); link.click(); link.remove();
 }
-const fileName = reference => reference.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48) || reference.id;
+const fileName = reference => reference.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 90) || reference.id;
 async function exportPreview() {
   if (exporting || !current) return;
   if (!('VideoEncoder' in window) || !('requestVideoFrameCallback' in HTMLVideoElement.prototype)) {
