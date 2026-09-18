@@ -8,7 +8,9 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "test": "node --test",
-    "check": "node scripts/check.js"
+    "check": "node scripts/check.js",
+    "waveforms": "node scripts/build-waveforms.mjs",
+    "showcase": "node scripts/build-showcase.mjs"
   },
   "engines": { "node": ">=22" }
 }

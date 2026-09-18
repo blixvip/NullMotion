@@ -5,7 +5,7 @@ const video = $('preview-video');
 const STORAGE = 'null-launch-studio-v1';
 const state = { references: [], clips: [], selected: 0, activeReference: 'all', current: 0, playing: false, mode: 'concept', past: [], future: [], dragged: null, dialogSegment: null, initialized: false };
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let frame = 0, toastTimer = 0, hoveredVideo = null, dialogTrigger = null, savedTimer = 0;
+let frame = 0, toastTimer = 0, hoveredVideo = null, hoveredSection = null, dialogTrigger = null, savedTimer = 0;
 const refFor = id => state.references.find(reference => reference.id === id);
 const total = () => sequenceDuration(state.clips);
 const startOf = index => sequenceDuration(state.clips.slice(0, index));
@@ -19,6 +19,101 @@ function element(tag, className, text) {
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
+}
+// Each section box is its own muted video that loops just that clip's part of the reference.
+// While the film plays they all run together; the box for the current cut follows the big preview.
+const LIVE_SECTIONS = 8, SECTION_GAP = 8;
+const waves = new Map();
+function sectionVideo(clip, reference) {
+  const player = element('video', 'section-video');
+  player.muted = true; player.playsInline = true; player.preload = 'metadata'; player.disablePictureInPicture = true;
+  player.poster = clip.poster || reference?.poster || '';
+  if (reference) player.src = reference.src;
+  player.addEventListener('loadedmetadata', () => { player.currentTime = clip.in; });
+  player.addEventListener('timeupdate', () => { if (player.currentTime >= clip.out - .03 && !player.dataset.follow) player.currentTime = clip.in; });
+  return player;
+}
+function syncSections() {
+  const position = locateClip(state.clips, state.current);
+  document.querySelectorAll('.timeline-clip').forEach((button, index) => {
+    const player = button.querySelector('.section-video'), clip = state.clips[index];
+    if (!player || !clip || player.readyState < 1) return;
+    const active = Boolean(position) && index === position.index;
+    const live = state.playing && !reducedMotion && (!position || state.clips.length <= LIVE_SECTIONS || Math.abs(index - position.index) <= LIVE_SECTIONS / 2);
+    if (active) {
+      player.dataset.follow = '1';
+      if (Math.abs(player.currentTime - position.local) > .25) player.currentTime = position.local;
+    } else if (player.dataset.follow) { delete player.dataset.follow; player.currentTime = clip.in; }
+    if (live && player.paused) player.play().catch(() => {});
+    else if (!live && !player.paused && button !== hoveredSection) player.pause();
+  });
+}
+function spans() {
+  return [...document.querySelectorAll('.timeline-clip')].map(button => ({ left: button.offsetLeft, width: button.offsetWidth }));
+}
+function timeToX(time, layout = spans()) {
+  const position = locateClip(state.clips, time);
+  if (!position || !layout[position.index]) return 0;
+  const clip = state.clips[position.index], box = layout[position.index];
+  return box.left + box.width * Math.min(1, Math.max(0, (position.local - clip.in) / (clip.out - clip.in || 1)));
+}
+function xToTime(x) {
+  const layout = spans(); if (!layout.length) return 0;
+  let index = layout.findIndex(box => x < box.left + box.width + SECTION_GAP / 2);
+  if (index < 0) index = layout.length - 1;
+  const clip = state.clips[index], box = layout[index];
+  return startOf(index) + (clip.out - clip.in) * Math.min(1, Math.max(0, (x - box.left) / box.width));
+}
+async function loadWaves() {
+  const ids = [...new Set(state.clips.map(clip => clip.ref))].filter(id => !waves.has(id) && !refFor(id)?.uploaded);
+  await Promise.all(ids.map(async id => {
+    waves.set(id, null);
+    try { const response = await fetch(`/references/${id}.wave.json`); if (response.ok) waves.set(id, await response.json()); } catch {}
+  }));
+  drawWave();
+}
+function drawWave() {
+  const canvas = $('wave-canvas'), ratio = devicePixelRatio || 1;
+  const width = canvas.clientWidth, height = canvas.clientHeight;
+  if (!width || !height) return;
+  if (canvas.width !== Math.round(width * ratio) || canvas.height !== Math.round(height * ratio)) { canvas.width = Math.round(width * ratio); canvas.height = Math.round(height * ratio); }
+  const context = canvas.getContext('2d');
+  context.setTransform(ratio, 0, 0, ratio, 0, 0); context.clearRect(0, 0, width, height);
+  const layout = spans(), played = timeToX(state.current, layout), middle = height / 2;
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#daef79';
+  const BAR = 2, STEP = 3;
+  state.clips.forEach((clip, index) => {
+    const box = layout[index]; if (!box) return;
+    const wave = waves.get(clip.ref), length = clip.out - clip.in;
+    for (let x = 0; x < box.width - 1; x += STEP) {
+      let level = .04;
+      if (wave?.peaks?.length) {
+        const from = Math.floor((clip.in + length * x / box.width) * wave.rate);
+        const to = Math.max(from + 1, Math.floor((clip.in + length * (x + STEP) / box.width) * wave.rate));
+        let peak = 0; for (let i = from; i < to && i < wave.peaks.length; i++) peak = Math.max(peak, wave.peaks[i]);
+        level = Math.max(.04, peak / 100);
+      }
+      const bar = Math.max(1, level * (height - 12));
+      context.fillStyle = box.left + x < played ? accent : '#3a3a3f';
+      context.fillRect(box.left + x, middle - bar / 2, BAR, bar);
+    }
+  });
+}
+function paintProgress() {
+  const position = locateClip(state.clips, state.current);
+  const markers = $('wave-spans').children;
+  document.querySelectorAll('.timeline-clip').forEach((button, index) => {
+    const clip = state.clips[index], bar = button.querySelector('.clip-progress');
+    if (!clip || !bar) return;
+    const length = clip.out - clip.in;
+    const share = !position || index > position.index ? 0
+      : index < position.index || !length ? 1
+      : Math.min(1, Math.max(0, (position.local - clip.in) / length));
+    bar.style.transform = `scaleX(${share})`;
+    const playing = Boolean(position) && index === position.index;
+    button.classList.toggle('playing', playing); markers[index]?.classList.toggle('playing', playing);
+  });
+  drawWave();
 }
 function toast(message) {
   $('toast').textContent = message; $('toast').classList.add('show');
@@ -61,7 +156,6 @@ function loadDemo() {
 function brand() {
   const name = $('brand-name').value.trim() || 'Your brand';
   $('film-brand-name').textContent = name;
-  document.querySelector('.brand-track-name').textContent = name;
   document.querySelector('.film-monogram').textContent = name[0].toUpperCase();
   const message = $('brand-message').value.trim() || 'Good ideas. Great motion.';
   $('film-headline').textContent = message;
@@ -75,7 +169,7 @@ function palette(accent, paper) {
     button.classList.toggle('active', active); button.setAttribute('aria-pressed', active);
   });
   $('custom-color').value = accent;
-  persist();
+  drawWave(); persist();
 }
 function setAspect() {
   $('canvas-wrap').classList.toggle('portrait', $('aspect').value === 'portrait');
@@ -93,21 +187,31 @@ function renderTimeline() {
     button.style.flexBasis = '0'; button.type = 'button'; button.draggable = true; button.dataset.index = index;
     button.setAttribute('aria-label', `Clip ${index + 1}: ${reference?.name || 'Reference'}, ${seconds(clip.out - clip.in)}`);
     button.setAttribute('aria-pressed', index === state.selected);
-    const image = element('img'); image.src = clip.poster || reference?.poster || ''; image.alt = ''; image.draggable = false;
     const caption = element('span', '', clip.label || reference?.name || 'Reference');
     caption.prepend(element('small', '', `${String(index + 1).padStart(2, '0')}  ·  ${seconds(clip.out - clip.in)}`));
-    button.append(image, caption);
+    button.append(sectionVideo(clip, reference), caption, element('i', 'clip-progress'));
     button.addEventListener('click', () => { state.selected = index; pause(); seek(startOf(index)); renderSelection(); });
+    button.addEventListener('mouseenter', () => previewSection(button));
+    button.addEventListener('mouseleave', () => stopSection(button));
     button.addEventListener('dragstart', event => { state.dragged = { type: 'clip', index }; event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', String(index)); button.classList.add('dragging'); });
     button.addEventListener('dragend', () => { state.dragged = null; button.classList.remove('dragging'); });
     track.append(button);
   });
   $('clip-count').textContent = `${state.clips.length} clips`;
   $('time-total').textContent = timecode(total()); $('scrubber').max = Math.max(total(), .01);
-  $('ruler').replaceChildren(...Array.from({ length: 9 }, (_, i) => element('span', '', `${Math.round(total() * i / 8)}s`)));
+  $('wave-spans').replaceChildren(...state.clips.map(clip => { const marker = element('i'); marker.style.flex = `${clip.out - clip.in} 1 0`; return marker; }));
+  $('timeline-body').style.minWidth = `${state.clips.length * 80}px`;
   $('undo').disabled = !state.past.length; $('redo').disabled = !state.future.length;
   $('play').disabled = $('play-top').disabled = !state.clips.length;
-  renderSelection(); updatePlayhead();
+  renderSelection(); updatePlayhead(); requestAnimationFrame(renderRuler); loadWaves();
+}
+function renderRuler() {
+  const layout = spans(), count = Math.max(2, Math.min(9, Math.floor($('timeline-body').clientWidth / 110) + 1));
+  $('ruler').replaceChildren(...Array.from({ length: state.clips.length ? count : 0 }, (_, i) => {
+    const time = total() * i / (count - 1), label = element('span', '', `${time.toFixed(time < 10 && i ? 1 : 0)}s`);
+    label.style.left = `${timeToX(time, layout)}px`; return label;
+  }));
+  updatePlayhead();
 }
 function renderSelection() {
   document.querySelectorAll('.timeline-clip').forEach((button, index) => {
@@ -123,9 +227,9 @@ function renderSelection() {
   }
 }
 function updatePlayhead() {
-  const percent = total() ? state.current / total() : 0;
-  $('playhead').style.left = `calc(77px + (100% - 77px) * ${Math.min(1, percent)})`;
+  $('playhead').style.left = `${timeToX(state.current)}px`;
   $('scrubber').value = state.current; $('time-current').textContent = timecode(state.current);
+  paintProgress();
 }
 function updateScene(index) {
   const clip = state.clips[index]; if (!clip) return;
@@ -170,9 +274,10 @@ function tick() {
       seek(startOf(next) + .001);
     } else { state.current = Math.min(total(), startOf(position.index) + Math.max(0, video.currentTime - clip.in)); updatePlayhead(); }
   }
+  syncSections();
   frame = requestAnimationFrame(tick);
 }
-function pause() { state.playing = false; video.pause(); cancelAnimationFrame(frame); playButtons(); }
+function pause() { state.playing = false; video.pause(); cancelAnimationFrame(frame); playButtons(); syncSections(); }
 function togglePlay() {
   if (state.playing) return pause();
   if (!state.clips.length) return;
@@ -181,6 +286,8 @@ function togglePlay() {
   playButtons(); cancelAnimationFrame(frame); frame = requestAnimationFrame(tick);
 }
 video.addEventListener('loadeddata', () => { $('video-loading').hidden = true; });
+video.addEventListener('seeked', syncSections);
+new ResizeObserver(renderRuler).observe($('timeline-body'));
 video.addEventListener('error', () => { $('video-loading').hidden = false; $('video-loading').textContent = 'Reference unavailable. Choose another moment.'; pause(); });
 function addSegment(segment, index = state.clips.length) {
   if (state.clips.length >= 24) return toast('This concept can hold up to 24 moments.');
@@ -218,6 +325,18 @@ function hoverPreview(card, segment) {
   player.addEventListener('loadedmetadata', () => { if (hoveredVideo === player) { player.currentTime = segment.in; player.play().catch(() => {}); } });
   player.addEventListener('timeupdate', () => { if (player.currentTime >= segment.out) player.currentTime = segment.in; });
   card.querySelector('.segment-visual').append(player);
+}
+function previewSection(button) {
+  if (reducedMotion || state.playing || !matchMedia('(hover:hover)').matches) return;
+  const player = button.querySelector('.section-video'); if (!player) return;
+  stopHover(); hoveredSection = button; player.play().catch(() => {});
+}
+function stopSection(button) {
+  if (hoveredSection !== button) return;
+  hoveredSection = null;
+  const player = button.querySelector('.section-video'), clip = state.clips[Number(button.dataset.index)];
+  if (player && clip && !state.playing) { player.pause(); if (!player.dataset.follow) player.currentTime = clip.in; }
+  syncSections();
 }
 function openReference(segment, trigger) {
   stopHover(); pause(); state.dialogSegment = segment; dialogTrigger = trigger;
@@ -310,6 +429,13 @@ $('brand-visible').addEventListener('change', () => {
 });
 $('restart').addEventListener('click', () => { pause(); seek(0); });
 $('scrubber').addEventListener('input', () => { pause(); seek(Number($('scrubber').value)); });
+$('wave-lane').addEventListener('pointerdown', event => {
+  if (!state.clips.length) return;
+  event.preventDefault(); pause();
+  const lane = $('wave-lane'), scrub = move => seek(xToTime(move.clientX - lane.getBoundingClientRect().left));
+  lane.setPointerCapture(event.pointerId); scrub(event);
+  lane.onpointermove = scrub; lane.onpointerup = lane.onpointercancel = () => { lane.onpointermove = lane.onpointerup = lane.onpointercancel = null; };
+});
 $('mute').addEventListener('click', () => { video.muted = !video.muted; $('mute').setAttribute('aria-pressed', video.muted); $('mute').setAttribute('aria-label', video.muted ? 'Unmute reference audio' : 'Mute reference audio'); document.querySelector('.mute-slash').hidden = !video.muted; });
 $('fullscreen').addEventListener('click', () => { if (document.fullscreenElement) document.exitFullscreen(); else $('canvas-wrap').requestFullscreen?.().catch(() => toast('Fullscreen is unavailable in this browser.')); });
 $('present').addEventListener('click', () => { document.body.classList.add('present-mode'); toast('Presentation view · press Esc to exit'); });

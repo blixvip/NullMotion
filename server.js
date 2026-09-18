@@ -1,8 +1,8 @@
 import http from 'node:http';
-import { readFile, realpath, stat } from 'node:fs/promises';
+import { mkdir, readFile, realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { streamVideo } from './media.js';
+import { streamVideo, extractAudio } from './media.js';
 import { curateReferences } from './public/reference-policy.mjs';
 
 const root = fileURLToPath(new URL('./public/', import.meta.url));
@@ -41,6 +41,30 @@ function json(response, status, body) {
   response.end(JSON.stringify(body));
 }
 
+// Reference media comes from the ignored local library (.local-media/, public/references/)
+// when it has been imported, and otherwise from the small committed showcase in showcase/.
+const showcase = new URL('./showcase/', import.meta.url);
+const exists = async url => { try { await stat(url); return true; } catch { return false; } };
+const firstExisting = async (...urls) => { for (const url of urls) if (await exists(url)) return url; return null; };
+const localMedia = file => new URL(`./.local-media/${file}`, import.meta.url);
+
+async function serveFile(response, request, directory, pathname) {
+  let filename = path.resolve(directory, '.' + pathname);
+  try {
+    if ((await stat(filename)).isDirectory()) filename = path.join(filename, 'index.html');
+    const [canonicalRoot, canonicalFile] = await Promise.all([realpath(directory), realpath(filename)]);
+    const relative = path.relative(canonicalRoot, canonicalFile);
+    if (relative.startsWith('..') || path.isAbsolute(relative) || !mime[path.extname(filename)]) {
+      return json(response, 403, { error: 'Forbidden.' });
+    }
+    const data = await readFile(canonicalFile);
+    response.writeHead(200, { 'Content-Type': mime[path.extname(filename)], 'Content-Length': data.length });
+    response.end(request.method === 'HEAD' ? undefined : data);
+  } catch (error) {
+    json(response, error.code === 'ENOENT' || error.code === 'ENOTDIR' ? 404 : 500, { error: 'File unavailable.' });
+  }
+}
+
 export function createApp() {
   return http.createServer(async (request, response) => {
     response.setHeader('X-Content-Type-Options', 'nosniff');
@@ -54,17 +78,33 @@ export function createApp() {
     }
     if (pathname === '/api/references') {
       try {
-        const library = JSON.parse(await readFile(new URL('./public/references/catalog.json', import.meta.url), 'utf8'));
+        const catalog = await firstExisting(new URL('./public/references/catalog.json', import.meta.url), new URL('references/catalog.json', showcase));
+        const library = JSON.parse(await readFile(catalog, 'utf8'));
         return json(response, 200, { references: curateReferences(library.references || [], referencePolicy) });
       }
       catch { return json(response, 200, { references: [] }); }
     }
+    const audioMatch = pathname.match(/^\/media\/references\/([a-z0-9-]+)\.aac$/);
+    if (audioMatch) {
+      if (Object.hasOwn(referencePolicy.excluded, audioMatch[1])) return json(response, 404, { error: 'Reference removed from this library.' });
+      const id = audioMatch[1];
+      const ready = await firstExisting(localMedia(`${id}.aac`), new URL(`media/${id}.aac`, showcase));
+      if (ready) return streamVideo(request, response, fileURLToPath(ready), 'audio/aac');
+      const video = await firstExisting(localMedia(`${id}.mp4`), new URL(`media/${id}.mp4`, showcase));
+      if (!video) return json(response, 404, { error: 'Audio unavailable.' });
+      await mkdir(localMedia(''), { recursive: true });
+      const audio = fileURLToPath(localMedia(`${id}.aac`));
+      if (!(await extractAudio(fileURLToPath(video), audio))) return json(response, 404, { error: 'Audio unavailable.' });
+      return streamVideo(request, response, audio, 'audio/aac');
+    }
     const mediaMatch = pathname.match(/^\/media\/references\/([a-z0-9-]+)\.mp4$/);
     if (mediaMatch) {
       if (Object.hasOwn(referencePolicy.excluded, mediaMatch[1])) return json(response, 404, { error: 'Reference removed from this library.' });
-      return streamVideo(request, response, fileURLToPath(new URL(`./.local-media/${mediaMatch[1]}.mp4`, import.meta.url)));
+      const video = await firstExisting(localMedia(`${mediaMatch[1]}.mp4`), new URL(`media/${mediaMatch[1]}.mp4`, showcase));
+      return streamVideo(request, response, fileURLToPath(video || localMedia(`${mediaMatch[1]}.mp4`)));
     }
-    if (pathname === '/' || pathname === '/editor') pathname = '/editor.html';
+    if (pathname === '/') pathname = '/demo.html';
+    else if (pathname === '/editor') pathname = '/editor.html';
     if (readOnly.has(pathname)) return json(response, 200, readOnly.get(pathname));
     const sourceMatch = pathname.match(/^\/api\/v1\/templates\/([^/]+)\/source$/);
     if (sourceMatch) {
@@ -77,20 +117,10 @@ export function createApp() {
     // Keep the inherited /null/ links working without involving another server.
     if (pathname === '/null') pathname = '/';
     else if (pathname.startsWith('/null/')) pathname = pathname.slice(5);
-    let filename = path.resolve(root, '.' + pathname);
-    try {
-      if ((await stat(filename)).isDirectory()) filename = path.join(filename, 'index.html');
-      const [canonicalRoot, canonicalFile] = await Promise.all([realpath(root), realpath(filename)]);
-      const relative = path.relative(canonicalRoot, canonicalFile);
-      if (relative.startsWith('..') || path.isAbsolute(relative) || !mime[path.extname(filename)]) {
-        return json(response, 403, { error: 'Forbidden.' });
-      }
-      const data = await readFile(canonicalFile);
-      response.writeHead(200, { 'Content-Type': mime[path.extname(filename)], 'Content-Length': data.length });
-      response.end(request.method === 'HEAD' ? undefined : data);
-    } catch (error) {
-      json(response, error.code === 'ENOENT' || error.code === 'ENOTDIR' ? 404 : 500, { error: 'File unavailable.' });
+    if (pathname.startsWith('/references/') && !(await exists(path.resolve(root, '.' + pathname)))) {
+      return serveFile(response, request, fileURLToPath(showcase), pathname);
     }
+    return serveFile(response, request, root, pathname);
   });
 }
 

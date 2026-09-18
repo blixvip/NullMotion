@@ -1,0 +1,198 @@
+{
+  "references": [
+    {
+      "id": "69614b10fa87",
+      "name": "Infinite · Global payments",
+      "duration": 30.058,
+      "width": 1920,
+      "height": 1080,
+      "src": "/media/references/69614b10fa87.mp4",
+      "poster": "/references/69614b10fa87-0.jpg",
+      "segments": [
+        {
+          "ref": "69614b10fa87",
+          "in": 0,
+          "out": 4.294,
+          "part": 1,
+          "poster": "/references/69614b10fa87-0.jpg"
+        },
+        {
+          "ref": "69614b10fa87",
+          "in": 4.294,
+          "out": 8.588,
+          "part": 2,
+          "poster": "/references/69614b10fa87-1.jpg"
+        },
+        {
+          "ref": "69614b10fa87",
+          "in": 8.588,
+          "out": 12.882,
+          "part": 3,
+          "poster": "/references/69614b10fa87-2.jpg"
+        },
+        {
+          "ref": "69614b10fa87",
+          "in": 12.882,
+          "out": 17.176,
+          "part": 4,
+          "poster": "/references/69614b10fa87-3.jpg"
+        },
+        {
+          "ref": "69614b10fa87",
+          "in": 17.176,
+          "out": 21.47,
+          "part": 5,
+          "poster": "/references/69614b10fa87-4.jpg"
+        },
+        {
+          "ref": "69614b10fa87",
+          "in": 21.47,
+          "out": 25.764,
+          "part": 6,
+          "poster": "/references/69614b10fa87-5.jpg"
+        },
+        {
+          "ref": "69614b10fa87",
+          "in": 25.764,
+          "out": 30.058,
+          "part": 7,
+          "poster": "/references/69614b10fa87-6.jpg"
+        }
+      ]
+    },
+    {
+      "id": "227b019e7968",
+      "name": "SaaS · Launch sequence",
+      "duration": 62.997,
+      "width": 1920,
+      "height": 1080,
+      "src": "/media/references/227b019e7968.mp4",
+      "poster": "/references/227b019e7968-0.jpg",
+      "segments": [
+        {
+          "ref": "227b019e7968",
+          "in": 0,
+          "out": 4.2,
+          "part": 1,
+          "poster": "/references/227b019e7968-0.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 4.2,
+          "out": 8.4,
+          "part": 2,
+          "poster": "/references/227b019e7968-1.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 8.4,
+          "out": 12.599,
+          "part": 3,
+          "poster": "/references/227b019e7968-2.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 12.599,
+          "out": 16.799,
+          "part": 4,
+          "poster": "/references/227b019e7968-3.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 16.799,
+          "out": 20.999,
+          "part": 5,
+          "poster": "/references/227b019e7968-4.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 20.999,
+          "out": 25.199,
+          "part": 6,
+          "poster": "/references/227b019e7968-5.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 25.199,
+          "out": 29.399,
+          "part": 7,
+          "poster": "/references/227b019e7968-6.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 29.399,
+          "out": 33.598,
+          "part": 8,
+          "poster": "/references/227b019e7968-7.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 33.598,
+          "out": 37.798,
+          "part": 9,
+          "poster": "/references/227b019e7968-8.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 37.798,
+          "out": 41.998,
+          "part": 10,
+          "poster": "/references/227b019e7968-9.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 41.998,
+          "out": 46.198,
+          "part": 11,
+          "poster": "/references/227b019e7968-10.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 46.198,
+          "out": 50.398,
+          "part": 12,
+          "poster": "/references/227b019e7968-11.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 50.398,
+          "out": 54.597,
+          "part": 13,
+          "poster": "/references/227b019e7968-12.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 54.597,
+          "out": 58.797,
+          "part": 14,
+          "poster": "/references/227b019e7968-13.jpg"
+        },
+        {
+          "ref": "227b019e7968",
+          "in": 58.797,
+          "out": 62.997,
+          "part": 15,
+          "poster": "/references/227b019e7968-14.jpg"
+        }
+      ]
+    },
+    {
+      "id": "5db95a3a7c73",
+      "name": "Motion study 08",
+      "duration": 2.837,
+      "width": 1920,
+      "height": 1080,
+      "src": "/media/references/5db95a3a7c73.mp4",
+      "poster": "/references/5db95a3a7c73-0.jpg",
+      "segments": [
+        {
+          "ref": "5db95a3a7c73",
+          "in": 0,
+          "out": 2.837,
+          "part": 1,
+          "poster": "/references/5db95a3a7c73-0.jpg"
+        }
+      ]
+    }
+  ]
+}

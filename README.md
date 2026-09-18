@@ -1,10 +1,12 @@
 # Null
 
-A launch-film concept editor built on Null Motion's visual foundation and MotionClone's reference-segment workflow. A large branded preview sits above a clip timeline and a library of reference moments.
+A launch-film preview: a finished motion-graphics ad plays on top, and underneath it the super-simple black-and-white HyperFrames drafts it grew from — one per section, each an HTML scene driven by a GSAP timeline. A playhead runs across the drafts; the draft for the section on screen follows the film exactly and is outlined in orange. **Download → Whole preview** renders the film and its drafts frame by frame into a high-bitrate MP4 with the film's audio (Chrome or Edge).
 
-This is a **promotion demo**, with working reference playback, in/out trimming, clip insertion, drag reordering, undo/redo, search, browser-local saving, and live brand controls. The film preview combines source clips with a browser-rendered brand composition. It is not an AI-reconstructed or exported video; generation and rendering are not connected.
+The earlier launch editor (reference timeline, trimming, brand controls) is at `/editor`, and the original Null Motion gallery at `/index.html`.
 
-The original Null Motion gallery remains at `/index.html`.
+## Showcase
+
+The repository ships three references in `showcase/`: **Infinite · Global payments**, **SaaS · Launch sequence** and **Motion study 08**, with their drafts. They are reference clips from other creators, shown as examples; they are not claims of commissioned work. A fresh checkout plays these three. A locally imported library (below) takes precedence and is never committed.
 
 ## Run locally
 
@@ -26,9 +28,11 @@ python scripts/import-motionclone.py --source /path/to/MotionClone
 
 The importer includes saved source videos and the standalone Nexa/Troovy reference folders. It creates non-destructive segments of roughly four seconds, extracts a thumbnail for each segment, and links the videos into `.local-media/`. The source and this project must be on the same filesystem for hard links. Original files are read only; no encoding or source cutting occurs. Full source videos remain playable and segment in/out points are editable.
 
-Media, reference titles, and extracted thumbnails stay local and are excluded from Git. The server supports byte ranges so seeking does not read entire videos into memory. A fresh checkout opens with an empty library until references are imported or uploaded. Browser uploads last for the current session.
+Media, reference titles, and extracted thumbnails stay local and are excluded from Git. The server supports byte ranges so seeking does not read entire videos into memory. A fresh checkout shows only the showcase until references are imported. Browser uploads last for the current session.
 
 The curated local library contains 20 motion-graphics references and 142 segments. The live-action Astra promo is excluded by `data/reference-policy.json`; reimporting does not restore it. These are reference clips, not claims of commissioned work. Public hosting needs separately supplied media you can distribute.
+
+`npm run showcase` rebuilds `showcase/` from the local library (re-encoded 1080p video, audio, posters, sections and drafts for the three showcase references). `scripts/plan-sections.mjs` splits references into sections at scene changes; the drafts themselves are authored in `public/references/drafts.json`.
 
 The preview displays source footage full-frame at its original proportions, with optional brand overlays, safe-area guides, and presentation mode. Brand layers do not rewrite text already in the footage. Saved custom sequences are retained; excluded references are removed from saved timelines when loaded.
 

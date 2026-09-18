@@ -13,6 +13,7 @@ test('public workspace is standalone, read-only, and serves its own previews', a
   const home = await get('/');
   assert.equal(home.status, 200);
   assert.match(await home.text(), /Null.*Launch Studio/);
+  assert.match(await (await get('/editor')).text(), /id="clips-track"/);
   assert.match(await (await get('/index.html')).text(), /Template Gallery/);
   const catalog = await (await get('/api/v1/templates')).json();
   assert.ok(catalog.templates.length > 0);
