@@ -5,6 +5,15 @@
 <h1 align="center">Null Motion</h1>
 
 <p align="center">
+  <b>Null Studio</b> cuts pauses, captions the words, and turns long videos into vertical clips. You review the edit on a timeline.<br>
+  <a href="https://www.nullmotion.com/">nullmotion.com</a>
+  · <a href="https://www.nullmotion.com/mcp">Edit with Claude, Codex, or Cursor</a>
+  · <a href="https://www.nullmotion.com/youtube-clip-maker">YouTube</a>
+  · <a href="https://www.nullmotion.com/twitch-clip-maker">Twitch</a>
+  · <a href="https://www.nullmotion.com/kick-clip-maker">Kick</a>
+</p>
+
+<p align="center">
   <b>From rough drafts to a finished ad.</b><br>
   A finished motion-graphics ad plays on top. Underneath: the simple black-and-white<br>
   HyperFrames drafts it grew from, one per section, in sync with the film.
