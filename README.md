@@ -32,6 +32,10 @@
 
 ---
 
+## Why
+
+Motion-graphics ads look effortless, but every one starts as a rough plan: which idea goes in which section, and when each move lands. Null Motion puts that plan and the finished film side by side, frame-synced, so you can study how a great ad is built, pitch a concept, or export the whole breakdown as one video.
+
 ## What it does
 
 Every great ad starts as a rough draft. Null shows both at once:
@@ -71,6 +75,17 @@ npm start
 
 Open **<http://127.0.0.1:4343>**. You need only Node.js 22 or newer: there's nothing to install and no keys to configure. Export needs Chrome or Edge (WebCodecs).
 
+### Requirements
+
+| | Needed for |
+|---|---|
+| **Node.js 22+** | Running the local server (`npm start`). No `npm install` step: there are no dependencies. |
+| **Chrome or Edge** | MP4 export (WebCodecs + `requestVideoFrameCallback`). |
+| **FFmpeg / ffprobe** (optional) | Importing your own references, planning sections, and rebuilding the showcase. |
+| **Python 3** (optional) | `scripts/import-motionclone.py`. |
+
+Set `PORT` or `HOST` to change the bind address (default `127.0.0.1:4343`).
+
 ## How it works
 
 1. **Sections.** `scripts/plan-sections.mjs` splits each reference into 3–8 sections at real scene changes (FFmpeg scene detection) and keeps every cut. Two-beat drafts switch at the exact moment the film cuts.
@@ -87,9 +102,9 @@ python scripts/import-motionclone.py --source /path/to/MotionClone
 node scripts/plan-sections.mjs      # sections + scene cuts + contact sheets
 ```
 
-Imported media stays local in `.local-media/` and `public/references/` (both ignored by Git) and takes precedence over the showcase. Describe each section's beats in `public/references/drafts.json`. Undescribed sections get placeholder drafts. `npm run showcase` rebuilds `showcase/` from the local library.
+Imported media stays local in `.local-media/` and `public/references/` (both ignored by Git) and takes precedence over the showcase. Videos are hard-linked, so the MotionClone folder must be on the same drive as this repo. Describe each section's beats in `public/references/drafts.json`. Undescribed sections get placeholder drafts. `npm run showcase` rebuilds `showcase/` from the local library.
 
-The importer creates non-destructive segments, extracts thumbnails, and links the source videos. Original files are read only. The server streams byte ranges, so seeking never reads a whole video into memory. The optional `PORT` and `HOST` environment variables change the bind address.
+The importer creates non-destructive segments, extracts thumbnails, and links the source videos. Original files are read only. The server streams byte ranges, so seeking never reads a whole video into memory.
 
 ## Project layout
 
