@@ -1,4 +1,8 @@
-"""Import source references only. Videos stay local; no jobs, auth, or outputs are copied."""
+"""Import source references only. Videos stay local; no jobs, auth, or outputs are copied.
+
+Source videos are hard-linked into .local-media/, so the MotionClone folder must be on the
+same volume as this repository. Requires ffmpeg and ffprobe on PATH.
+"""
 import argparse
 import json
 import math

@@ -2,6 +2,10 @@ import { createReadStream } from 'node:fs';
 import { stat, rename, unlink } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 
+/**
+ * Parse a single-range HTTP `Range` header (`bytes=start-end`, `bytes=start-` or `bytes=-suffix`).
+ * Returns `{ start, end }` (inclusive, clamped to the file) or `null` when the range is invalid or unsatisfiable.
+ */
 export function byteRange(value, size) {
   const match = /^bytes=(\d*)-(\d*)$/.exec(value || '');
   if (!match || (!match[1] && !match[2]) || size < 1) return null;
@@ -9,6 +13,11 @@ export function byteRange(value, size) {
   const end = match[1] && match[2] ? Math.min(size - 1, Number(match[2])) : size - 1;
   return Number.isSafeInteger(start) && Number.isSafeInteger(end) && start >= 0 && start <= end && start < size ? { start, end } : null;
 }
+
+/**
+ * Stream a local media file to the response, honouring `Range` requests (206) so the browser can seek
+ * without reading the whole file. Responds 404 when the file is missing and 416 for a bad range.
+ */
 export async function streamVideo(request, response, filename, type = 'video/mp4') {
   let size;
   try { size = (await stat(filename)).size; } catch {
@@ -26,8 +35,9 @@ export async function streamVideo(request, response, filename, type = 'video/mp4
   stream.pipe(response);
 }
 
-// The preview export needs the reference's audio on its own. Copy the AAC track out of the
-// source once (no re-encode) and keep it beside the video; later requests reuse it.
+// The preview export needs the reference's audio on its own. Extract it once as an ADTS AAC file
+// (re-encoded at 192 kbps) and keep it beside the video; later requests reuse it. Concurrent
+// requests for the same file share one FFmpeg run. Resolves to false if FFmpeg is missing or fails.
 const extracting = new Map();
 export function extractAudio(video, audio) {
   if (!extracting.has(audio)) {
