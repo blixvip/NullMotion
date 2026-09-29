@@ -10,3 +10,6 @@ Thumbs.db
 .local-media/
 public/references/
 promo/
+__pycache__/
+*.pyc
+*.part

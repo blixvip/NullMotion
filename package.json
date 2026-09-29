@@ -2,7 +2,7 @@
   "name": "null",
   "version": "0.1.0",
   "private": true,
-  "description": "A launch-film concept editor combining reference moments with live branding.",
+  "description": "Launch-film preview: a finished motion-graphics ad over its black-and-white HyperFrames drafts, with frame-accurate MP4 export.",
   "type": "module",
   "scripts": {
     "start": "node server.js",
