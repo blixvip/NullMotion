@@ -24,6 +24,7 @@
   <img src="https://img.shields.io/badge/dependencies-none-111?style=flat-square" alt="No runtime dependencies">
   <img src="https://img.shields.io/badge/drafts-HTML%20%2B%20GSAP-111?style=flat-square" alt="Drafts in HTML and GSAP">
   <img src="https://img.shields.io/badge/export-MP4%20%C2%B7%20WebCodecs-ff5a1f?style=flat-square" alt="MP4 export with WebCodecs">
+  <a href="https://discord.gg/zEB4VjmfSb"><img src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
 </p>
 
 <p align="center">
@@ -130,3 +131,7 @@ npm test        # node --test
 - The browser only calls this project's own origin. Generation, rendering services and Premiere are not connected. The drafts are authored, not AI-generated.
 - The earlier launch editor (reference timeline, trimming, brand overlay) is at `/editor`, and the original Null Motion template gallery is at `/index.html`.
 - Bundled GSAP and mp4-muxer keep their licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Brand artwork and reference footage belong to their respective owners. No project-wide open-source license has been selected.
+
+## Community
+
+💬 [Join the Discord](https://discord.gg/zEB4VjmfSb) for questions, help, feedback, and updates.
