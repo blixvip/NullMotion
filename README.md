@@ -5,21 +5,11 @@
 <h1 align="center">Null Motion</h1>
 
 <p align="center">
-  <b>Null Studio</b> cuts pauses, captions the words, and turns long videos into vertical clips. You review the edit on a timeline.<br>
-  <a href="https://www.nullmotion.com/">nullmotion.com</a>
-  · <a href="https://www.nullmotion.com/mcp">Edit with Claude, Codex, or Cursor</a>
-  · <a href="https://www.nullmotion.com/youtube-clip-maker">YouTube</a>
-  · <a href="https://www.nullmotion.com/twitch-clip-maker">Twitch</a>
-  · <a href="https://www.nullmotion.com/kick-clip-maker">Kick</a>
+  <b>From rough drafts to a finished ad.</b>
 </p>
 
 <p align="center">
-  <b>From rough drafts to a finished ad.</b><br>
-  A finished motion-graphics ad plays on top. Underneath: the simple black-and-white<br>
-  HyperFrames drafts it grew from, one per section, in sync with the film.
-</p>
-
-<p align="center">
+  <a href="https://github.com/blixvip/NullMotion/stargazers"><img src="https://img.shields.io/github/stars/blixvip/NullMotion?style=flat-square&color=ff5a1f" alt="GitHub stars"></a>
   <img src="https://img.shields.io/badge/node-22%2B-111?style=flat-square" alt="Node 22+">
   <img src="https://img.shields.io/badge/dependencies-none-111?style=flat-square" alt="No runtime dependencies">
   <img src="https://img.shields.io/badge/drafts-HTML%20%2B%20GSAP-111?style=flat-square" alt="Drafts in HTML and GSAP">
@@ -28,7 +18,32 @@
 </p>
 
 <p align="center">
+  <a href="https://www.nullmotion.com/"><strong>nullmotion.com</strong></a>
+  &nbsp;·&nbsp; <a href="https://www.nullmotion.com/mcp">Edit with Claude, Codex, or Cursor</a>
+  &nbsp;·&nbsp; <a href="https://www.nullmotion.com/youtube-clip-maker">YouTube</a>
+  &nbsp;·&nbsp; <a href="https://www.nullmotion.com/twitch-clip-maker">Twitch</a>
+  &nbsp;·&nbsp; <a href="https://www.nullmotion.com/kick-clip-maker">Kick</a>
+</p>
+
+<p align="center">
   <img src="docs/demo-infinite.gif" width="820" alt="Infinite ad playing above its drafts">
+</p>
+
+<p align="center">
+  <sub>A finished motion-graphics ad plays on top. Underneath: the simple black-and-white HyperFrames drafts it grew from, one per section, in sync with the film.<br>
+  <b>Null Studio</b> cuts pauses, captions the words, and turns long videos into vertical clips. You review the edit on a timeline.</sub>
+</p>
+
+<p align="center">
+  <a href="#why">Why</a> ·
+  <a href="#what-it-does">What it does</a> ·
+  <a href="#showcase">Showcase</a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#how-it-works">How it works</a> ·
+  <a href="#bring-your-own-references">Bring your own references</a> ·
+  <a href="#project-layout">Project layout</a> ·
+  <a href="#notes">Notes</a> ·
+  <a href="#community">Community</a>
 </p>
 
 ---
