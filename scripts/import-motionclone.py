@@ -1,18 +1,44 @@
 """Import source references only. Videos stay local; no jobs, auth, or outputs are copied.
 
-Source videos are hard-linked into .local-media/, so the MotionClone folder must be on the
-same volume as this repository. Requires ffmpeg and ffprobe on PATH.
+Source videos are hard-linked into .local-media/ when the MotionClone folder is on the same
+volume as this repository. Across drives (or on file systems without hard links) they are
+copied instead, which uses extra disk space. Requires ffmpeg and ffprobe on PATH.
 """
 import argparse
 import json
 import math
 import os
 from pathlib import Path
+import shutil
 import subprocess
+import sys
+
+
+def link_or_copy(source, destination):
+    """Hard-link source to destination; copy it when a link is impossible (another drive, FAT/exFAT).
+
+    The copy goes to a temporary name first, so an interrupted import never leaves a truncated
+    video that later runs would mistake for a finished one.
+    """
+    try:
+        os.link(source, destination)
+        return 'linked'
+    except OSError:
+        partial = destination.with_name(destination.name + '.part')
+        try:
+            shutil.copyfile(source, partial)
+            os.replace(partial, destination)
+        except BaseException:
+            partial.unlink(missing_ok=True)
+            raise
+        return 'copied'
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--source', required=True, type=Path, help='MotionClone project directory')
 args = parser.parse_args()
+if not (args.source / 'data').is_dir():
+    sys.exit(f'No data/ folder in {args.source}. Point --source at the MotionClone project directory.')
 target = Path(__file__).resolve().parent.parent
 policy = json.loads((target / 'data' / 'reference-policy.json').read_text(encoding='utf-8'))
 media_root = target / '.local-media'
@@ -24,7 +50,8 @@ for directory in sorted((args.source / 'data').iterdir()):
     if not directory.is_dir() or directory.name.startswith('.'):
         continue
     if (directory / 'source.mp4').exists():
-        job = json.loads((directory / 'job.json').read_text(encoding='utf-8'))
+        job_file = directory / 'job.json'
+        job = json.loads(job_file.read_text(encoding='utf-8')) if job_file.exists() else {}
         sources.append((directory.name, directory / 'source.mp4', job.get('name', 'Motion reference')))
     elif directory.name in ('nexa-references', 'troovy-reference'):
         for video in sorted(directory.glob('*.mp4')):
@@ -41,8 +68,10 @@ for identifier, video, title in sources:
     duration = float(details['format']['duration'])
     destination = media_root / (identifier + '.mp4')
     if not destination.exists():
-        # Same-volume hard links preserve the source without duplicating large videos.
-        os.link(video, destination)
+        # Same-volume hard links preserve the source without duplicating large videos;
+        # other drives fall back to a copy. The source file is only ever read.
+        if link_or_copy(video, destination) == 'copied':
+            print(f'Copied {identifier}: source is on another drive, so it could not be hard-linked.', flush=True)
     count = max(1, math.floor(duration / 4))
     segments = []
     for index in range(count):
