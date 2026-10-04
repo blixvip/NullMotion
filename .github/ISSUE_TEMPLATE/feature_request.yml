@@ -1,0 +1,34 @@
+name: ✨ Feature request
+description: Suggest an idea or improvement for Null Motion.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ideas are welcome! Note that pause cuts, captions, and YouTube/Twitch/Kick clips belong to
+        [Null Studio](https://www.nullmotion.com/), a separate hosted product, not this repo.
+        Want to talk an idea through first? Drop it in the [Discord](https://discord.gg/zEB4VjmfSb).
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      placeholder: When I export a breakdown, I want to…
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: What should Null Motion do? Sketches, screenshots, or example ads help a lot.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or workarounds you've tried
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd be willing to open a pull request for this.

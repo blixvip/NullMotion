@@ -1,0 +1,62 @@
+name: 🐞 Bug report
+description: Something in Null Motion is broken or behaves unexpectedly.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Quick checks first:
+        - Export needs **Chrome or Edge** (WebCodecs).
+        - The server needs **Node.js 22+**.
+        - See the [FAQ and troubleshooting](https://github.com/blixvip/NullMotion#faq-and-troubleshooting) section.
+        For questions rather than bugs, the [Discord](https://discord.gg/zEB4VjmfSb) is faster.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Preview playback / drafts
+        - MP4 export (Download → Whole preview)
+        - Import script (import-motionclone.py)
+        - Section planning / showcase scripts
+        - Launch editor (/editor)
+        - Server / npm start
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+      placeholder: "1. npm start\n2. Opened Infinite and clicked Download → Whole preview\n3. The button said 'Export failed'"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or console output
+      description: Terminal output and/or the browser console (F12). Pasted text is rendered as code.
+      render: shell
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Windows 11, macOS 15, Ubuntu 24.04…
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 141
+  - type: input
+    id: node
+    attributes:
+      label: Node.js version (`node -v`)
+      placeholder: v22.12.0
+  - type: input
+    id: commit
+    attributes:
+      label: Commit or release
+      description: "`git rev-parse --short HEAD`, or the release tag you downloaded."

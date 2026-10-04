@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 Questions and help (Discord)
+    url: https://discord.gg/zEB4VjmfSb
+    about: Setup questions, "how do I…", and general help are fastest in the Insider AI Discord.
+  - name: 🎬 Show what you made (Discord)
+    url: https://discord.gg/zEB4VjmfSb
+    about: Share your exported breakdowns and drafts with the community.
+  - name: Null Studio (hosted product)
+    url: https://www.nullmotion.com/
+    about: Pause cuts, captions, and YouTube/Twitch/Kick clips are Null Studio, a separate product. This repo is the local launch-film preview.
