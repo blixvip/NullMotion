@@ -1,8 +1,8 @@
 {
   "name": "null",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
-  "description": "Launch-film preview: a finished motion-graphics ad over its black-and-white HyperFrames drafts, with frame-accurate MP4 export.",
+  "description": "Finished motion-graphics ads over their HyperFrames drafts, frame-synced. Export the breakdown as an MP4. Local, zero dependencies.",
   "type": "module",
   "scripts": {
     "start": "node server.js",
@@ -12,5 +12,7 @@
     "waveforms": "node scripts/build-waveforms.mjs",
     "showcase": "node scripts/build-showcase.mjs"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  }
 }

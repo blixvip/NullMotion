@@ -5,7 +5,8 @@
 <h1 align="center">Null Motion</h1>
 
 <p align="center">
-  <b>Watch a finished motion-graphics ad play over the rough drafts it grew from, frame-synced.<br>Then export the whole breakdown as one MP4.</b>
+  <b>See how a finished motion-graphics ad was built — draft by draft, frame by frame.<br>
+  Final film on top. Rough HyperFrames drafts underneath. Export the breakdown as one MP4.</b>
 </p>
 
 <p align="center">
@@ -21,7 +22,11 @@
 </p>
 
 <p align="center">
-  <img src="docs/demo-infinite.gif" width="820" alt="The Infinite ad playing on top, its black-and-white drafts underneath, in sync">
+  <sub>If this helps you study or pitch motion work, a <a href="https://github.com/blixvip/NullMotion">⭐</a> makes it easier for others to find.</sub>
+</p>
+
+<p align="center">
+  <img src="docs/demo-infinite.webp" width="820" alt="The Infinite ad playing on top, its black-and-white drafts underneath, in sync">
 </p>
 
 <p align="center">
@@ -31,11 +36,11 @@
 ## Quick start
 
 ```sh
-git clone https://github.com/blixvip/NullMotion.git && cd NullMotion   # 1. get it
-npm start                                                              # 2. run it (Node 22+, nothing to install)
+git clone https://github.com/blixvip/NullMotion.git && cd NullMotion
+npm start                # Node 22+, nothing to install
 ```
 
-3. Open **<http://127.0.0.1:4343>**, pick a reference, and press **Download → Whole preview** (Chrome or Edge) to get the MP4.
+Then open **<http://127.0.0.1:4343>**, pick a reference, and press **Download → Whole preview** (Chrome or Edge) to get the MP4.
 
 No `npm install`, no API keys, no account. Three references ship with the repo, so it works on the first run.
 
@@ -78,7 +83,7 @@ The repo ships three references with their drafts, ready to play:
 | <img src="showcase/references/5db95a3a7c73-0.jpg" width="150"> | **Motion study 08** | 0:03 | 3 |
 
 <p align="center">
-  <img src="docs/demo-motion-study-08.gif" width="620" alt="Motion study 08 above its drafts">
+  <img src="docs/demo-motion-study-08.webp" width="620" alt="Motion study 08 above its drafts">
 </p>
 
 These clips come from other creators and are used as examples. They are not claims of commissioned work.
@@ -176,7 +181,7 @@ Bug reports, draft ideas, and pull requests are welcome. See [CONTRIBUTING.md](C
 ## Community
 
 <p align="center">
-  <a href="https://discord.gg/zEB4VjmfSb"><img src="https://img.shields.io/badge/Discord-Join%20Insider%20AI-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join the Insider AI Discord"></a>
+  <a href="https://discord.gg/zEB4VjmfSb"><img src="https://img.shields.io/badge/Join%20the%20Discord-questions%2C%20help%2C%20show%20your%20renders-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join the Discord: questions, help, show your renders"></a>
 </p>
 
-💬 Questions, help, feedback, release news, and your renders all go in **[Insider AI on Discord](https://discord.gg/zEB4VjmfSb)**. If Null Motion helped you, a ⭐ helps other people find it.
+💬 Questions, help, feedback, release news, and your renders all go in the **[Discord](https://discord.gg/zEB4VjmfSb)**. If Null Motion helped you, a ⭐ helps other people find it.

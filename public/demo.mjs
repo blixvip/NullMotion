@@ -159,7 +159,16 @@ $('sound').addEventListener('click', () => {
   $('sound').setAttribute('aria-label', video.muted ? 'Unmute' : 'Mute');
 });
 document.addEventListener('keydown', event => {
-  if (event.code === 'Space' && !event.target.closest('button, input')) { event.preventDefault(); $('final-toggle').click(); }
+  if (event.target.closest('button, input, a')) return;
+  if (event.code === 'Space') { event.preventDefault(); $('final-toggle').click(); return; }
+  if (exporting || !sections.length) return;
+  if (event.code === 'ArrowLeft' || event.code === 'ArrowRight') {
+    event.preventDefault();
+    const active = sectionAt(video.currentTime || 0);
+    const next = event.code === 'ArrowRight' ? Math.min(sections.length - 1, active + 1) : Math.max(0, active - 1);
+    video.currentTime = sections[next].start;
+    render();
+  }
 });
 new ResizeObserver(layout).observe($('stage'));
 
@@ -338,7 +347,7 @@ async function start() {
   references = catalog?.references || []; drafts = spec || drafts; bounds = planned || {}; cuts = changes || {};
   if (!references.length) {
     const notice = document.createElement('div'); notice.className = 'notice';
-    notice.textContent = 'Import the MotionClone references to play this preview.';
+    notice.textContent = 'No references found. The showcase should ship with this repo — if you are building from a sparse checkout, run npm run showcase, or import your own with scripts/import-motionclone.py.';
     document.querySelector('.final').append(notice);
     return;
   }

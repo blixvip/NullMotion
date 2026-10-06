@@ -20,7 +20,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .logo { color: var(--text); text-decoration: none; font-size: 16px; font-weight: 600; letter-spacing: -.02em; }
 .logo span { color: var(--accent); }
 .bar-meta { color: var(--muted); font-size: 12px; }
-.bar-link { margin-left: auto; color: var(--muted); font-size: 12px; text-decoration: none; }
+.bar-links { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.bar-link { color: var(--muted); font-size: 12px; text-decoration: none; }
 .bar-link:hover { color: var(--text); }
 
 .stage { width: var(--w); margin: 4px auto 32px; display: flex; flex-direction: column; }
@@ -54,8 +55,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .playhead span { position: absolute; top: 0; left: -5px; width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .35); }
 .seek { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .stage:has(.seek:focus-visible) .strip { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: 8px; }
-.times { display: flex; justify-content: space-between; margin-top: 10px; font: 500 11px Inter, system-ui, sans-serif; color: var(--muted); font-variant-numeric: tabular-nums; }
+.times { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 10px; font: 500 11px Inter, system-ui, sans-serif; color: var(--muted); font-variant-numeric: tabular-nums; }
 .times strong { color: var(--text); font-weight: 500; }
+.times #hint { flex: 1; text-align: center; color: var(--faint); font-weight: 400; }
 
 /* Download */
 .download { position: relative; }
