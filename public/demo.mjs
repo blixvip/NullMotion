@@ -8,6 +8,7 @@ import { buildDraft } from './drafts.mjs';
 const HAND_BUILT = { id: '5924a2f28506', cuts: [0, 3, 5.75, 9.5, 13, 16.5] };
 const $ = id => document.getElementById(id);
 const video = $('final-video');
+try { video.muted = localStorage.getItem('sound') !== 'on'; } catch {}
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let references = [], drafts = { aliases: {}, drafts: {} }, bounds = {}, cuts = {}, current = null, duration = 1;
 let sections = [], clock = performance.now(), dragging = false, exporting = null;
@@ -131,7 +132,7 @@ function load(reference) {
   document.querySelectorAll('.video-card').forEach(card => card.classList.toggle('current', card.dataset.id === reference.id));
   history.replaceState(null, '', reference.id === HAND_BUILT.id ? '/' : `/?v=${encodeURIComponent(reference.id)}`);
   buildSections();
-  if (!reducedMotion) video.play().catch(() => {});
+  if (!reducedMotion) video.play().catch(() => { video.muted = true; updateSoundButton(); });
 }
 
 // ---------- Controls ----------
@@ -152,11 +153,17 @@ $('final-toggle').addEventListener('click', () => {
   if (video.paused) video.play().catch(() => {}); else video.pause();
   $('final-toggle').setAttribute('aria-label', video.paused ? 'Play' : 'Pause');
 });
-$('sound').addEventListener('click', () => {
-  video.muted = !video.muted;
+function updateSoundButton() {
   $('sound').textContent = video.muted ? 'Sound off' : 'Sound on';
   $('sound').setAttribute('aria-pressed', !video.muted);
   $('sound').setAttribute('aria-label', video.muted ? 'Unmute' : 'Mute');
+}
+updateSoundButton();
+$('sound').addEventListener('click', () => {
+  video.muted = !video.muted;
+  try { localStorage.setItem('sound', video.muted ? 'off' : 'on'); } catch {}
+  updateSoundButton();
+  if (!video.muted) video.play().catch(() => { video.muted = true; updateSoundButton(); });
 });
 document.addEventListener('keydown', event => {
   if (event.target.closest('button, input, a')) return;
