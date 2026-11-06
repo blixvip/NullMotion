@@ -1,0 +1,28 @@
+name: CI
+
+# Runs the same two commands CONTRIBUTING.md asks contributors to run, so a
+# pull request from a fork reports for itself and review starts from a green
+# check rather than from "did you run the tests?".
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # There are no dependencies, so there is nothing to install.
+      - run: npm test
+
+      - run: npm run check
