@@ -31,7 +31,7 @@
     <button class="sound" id="sound" aria-label="Unmute" aria-pressed="false">Sound off</button>
   </section>
   <section class="strip" id="strip" aria-label="Sections">
-    <div class="scraps" id="scraps"></div>
+    <div class="scraps" id="scraps" role="list" aria-label="Draft sections"></div>
     <div class="playhead" id="playhead"><span></span></div>
   </section>
   <div class="times"><strong id="time-now">0:00.0</strong><span id="hint">Drag drafts to scrub · Space to pause</span><span id="time-total">0:00</span></div>
@@ -39,7 +39,7 @@
 </main>
 <section class="library" aria-labelledby="library-title">
   <div class="library-head"><h2 id="library-title">Pick a reference</h2><span id="library-count"></span></div>
-  <div class="library-grid" id="library"></div>
+  <div class="library-grid" id="library" role="list" aria-label="Available references"></div>
 </section>
 </body>
 </html>

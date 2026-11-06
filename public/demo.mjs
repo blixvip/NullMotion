@@ -26,6 +26,7 @@ function buildSections() {
     section.length = section.end - section.start;
     const segment = document.createElement('div');
     segment.className = 'seg';
+    segment.setAttribute('role', 'listitem');
     const card = document.createElement('div'); card.className = 'scrap';
     const canvas = document.createElement('div'); canvas.className = 'scrap-canvas';
     const name = document.createElement('div'); name.className = 'seg-name'; name.textContent = section.name;
@@ -76,6 +77,8 @@ function frame() { render(); requestAnimationFrame(frame); }
 // ---------- Library ----------
 function renderLibrary() {
   $('library').replaceChildren(...references.map(reference => {
+    const item = document.createElement('div');
+    item.setAttribute('role', 'listitem');
     const card = document.createElement('button');
     card.type = 'button'; card.className = 'video-card'; card.dataset.id = reference.id;
     card.innerHTML = '<span class="video-thumb"><img alt="" loading="lazy"><span class="video-length"></span></span><span class="video-name"></span>';
@@ -85,7 +88,8 @@ function renderLibrary() {
     card.addEventListener('click', () => { load(reference); scrollTo({ top: 0, behavior: reducedMotion ? 'instant' : 'smooth' }); });
     card.addEventListener('mouseenter', () => hoverPreview(card, reference));
     card.addEventListener('mouseleave', () => card.querySelector('video')?.remove());
-    return card;
+    item.append(card);
+    return item;
   }));
   $('library-count').textContent = `${references.length} references`;
 }
@@ -362,14 +366,16 @@ async function exportPreview() {
   }
 }
 function toggleMenu(open = $('download-menu').hidden) {
-  $('download-menu').hidden = !open; $('download').setAttribute('aria-expanded', open);
+  const menu = $('download-menu');
+  menu.hidden = !open; $('download').setAttribute('aria-expanded', open);
   if (open) $('download-all').focus();
+  else if (menu.contains(document.activeElement)) $('download').focus();
 }
 $('download').addEventListener('click', () => toggleMenu());
 $('download-all').addEventListener('click', () => { toggleMenu(false); exportPreview(); });
 $('download-final').addEventListener('click', () => { toggleMenu(false); if (current) save(current.src, `${fileName(current)}.mp4`); });
 document.addEventListener('click', event => { if (!event.target.closest('.download')) toggleMenu(false); });
-document.addEventListener('keydown', event => { if (event.key === 'Escape' && !$('download-menu').hidden) { toggleMenu(false); $('download').focus(); } });
+document.addEventListener('keydown', event => { if (event.key === 'Escape' && !$('download-menu').hidden) toggleMenu(false); });
 
 async function start() {
   const json = async url => { try { const response = await fetch(url); return response.ok ? await response.json() : null; } catch { return null; } };

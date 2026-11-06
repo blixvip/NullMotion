@@ -68,7 +68,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .download-menu { position: absolute; right: 0; top: 40px; z-index: 10; width: 260px; padding: 6px; border-radius: 12px; background: #161618; box-shadow: 0 0 0 1px var(--line), 0 20px 50px -20px #000; }
 .download-menu[hidden] { display: none; }
 .download-menu button { display: block; width: 100%; padding: 9px 10px; border-radius: 8px; text-align: left; }
-.download-menu button:hover, .download-menu button:focus-visible { background: #202023; outline: none; }
+.download-menu button:hover { background: #202023; }
+.download-menu button:focus-visible { background: #202023; outline: 2px solid var(--accent); outline-offset: 2px; }
 .download-menu strong { display: block; font-size: 12px; font-weight: 500; }
 .download-menu span { display: block; margin-top: 2px; font-size: 11px; color: var(--muted); }
 
