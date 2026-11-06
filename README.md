@@ -191,6 +191,12 @@ npm test        # node --test
 
 Comment on an issue to claim it, and we'll review pull requests within a couple of days. Setup and checks are in [CONTRIBUTING.md](CONTRIBUTING.md). Every contributor is credited in the release notes.
 
+## Contributors
+
+Thank you to the outside contributors who have already sent fixes and features to Null Motion: [@Aaqibhafeezkhan](https://github.com/Aaqibhafeezkhan), [@Goldloli](https://github.com/Goldloli), [@hippi345](https://github.com/hippi345), [@jay23606](https://github.com/jay23606) and [@Rheosta561](https://github.com/Rheosta561). Want to be next? See [CONTRIBUTING.md](CONTRIBUTING.md) and the [good first issues](https://github.com/blixvip/NullMotion/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+
+<a href="https://github.com/blixvip/NullMotion/graphs/contributors"><img src="https://contrib.rocks/image?repo=blixvip/NullMotion" alt="Contributors" /></a>
+
 <!-- more-from-blixvip:start -->
 ## More from blixvip
 
