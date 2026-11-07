@@ -59,7 +59,7 @@
     dock.className = "null-ai-dock";
     dock.id = "nullAiDock";
     dock.setAttribute("aria-label", "AI tools");
-    dock.innerHTML = `<div class="null-ai-dock-head"><div class="null-ai-tabs" role="tablist" aria-label="AI workspace">${Object.entries(tools).map(([key, tool]) => `<button class="null-ai-tab" type="button" role="tab" data-tool="${key}" aria-selected="false">${tool.name}</button>`).join("")}</div><div class="null-ai-actions"><button class="null-ai-action" id="nullAiReload" type="button" title="Reload this AI tab" aria-label="Reload this AI tab">↻</button><button class="null-ai-action" id="nullAiOpen" type="button">Open ↗</button><button class="null-ai-action" id="nullAiClose" type="button">Hide</button></div></div><div class="null-ai-dock-body"><div class="null-ai-loading" id="nullAiLoading" role="status"><span></span><b>Loading ${tools[activeTool].name}</b><small>Preparing your signed-in session…</small></div>${Object.entries(tools).map(([key, tool]) => `<iframe class="null-ai-frame" data-tool-frame="${key}" title="${tool.name}" allow="clipboard-read; clipboard-write; microphone; camera; fullscreen" referrerpolicy="no-referrer"></iframe>`).join("")}</div>`;
+    dock.innerHTML = `<div class="null-ai-dock-head"><div class="null-ai-tabs" role="tablist" aria-label="AI workspace">${Object.entries(tools).map(([key, tool]) => `<button class="null-ai-tab" id="nullAiTab-${key}" type="button" role="tab" data-tool="${key}" aria-selected="false" aria-controls="nullAiFrame-${key}" tabindex="-1">${tool.name}</button>`).join("")}</div><div class="null-ai-actions"><button class="null-ai-action" id="nullAiReload" type="button" title="Reload this AI tab" aria-label="Reload this AI tab">↻</button><button class="null-ai-action" id="nullAiOpen" type="button">Open ↗</button><button class="null-ai-action" id="nullAiClose" type="button">Hide</button></div></div><div class="null-ai-dock-body"><div class="null-ai-loading" id="nullAiLoading" role="status"><span></span><b>Loading ${tools[activeTool].name}</b><small>Preparing your signed-in session…</small></div>${Object.entries(tools).map(([key, tool]) => `<iframe class="null-ai-frame" id="nullAiFrame-${key}" role="tabpanel" aria-labelledby="nullAiTab-${key}" data-tool-frame="${key}" title="${tool.name}" allow="clipboard-read; clipboard-write; microphone; camera; fullscreen" referrerpolicy="no-referrer"></iframe>`).join("")}</div>`;
 
     const splitter = document.createElement("div");
     splitter.className = "null-ai-splitter";
@@ -93,6 +93,16 @@
     dock.querySelector("#nullAiOpen").addEventListener("click", openTool);
     dock.querySelector("#nullAiReload").addEventListener("click", reloadActiveTool);
     dock.querySelectorAll(".null-ai-tab").forEach(tab => tab.addEventListener("click", () => selectTool(tab.dataset.tool)));
+    dock.querySelector(".null-ai-tabs").addEventListener("keydown", event => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      const tabs = [...dock.querySelectorAll(".null-ai-tab")];
+      const index = tabs.indexOf(event.target);
+      if (index < 0) return;
+      event.preventDefault();
+      const next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+      selectTool(tabs[next].dataset.tool);
+      tabs[next].focus();
+    });
     dock.querySelectorAll(".null-ai-frame").forEach(frame => frame.addEventListener("load", () => {
       if (frame.dataset.toolFrame === activeTool) setLoading(false);
     }));
@@ -125,7 +135,12 @@
       document.body.style.userSelect = "";
       write(WIDTH_KEY, getComputedStyle(document.documentElement).getPropertyValue("--null-shell-dock").trim());
     });
-    addEventListener("keydown", event => { if (event.key === "Escape" && dockOpen) setDockOpen(false); });
+    addEventListener("keydown", event => {
+      if (event.key !== "Escape" || !dockOpen || event.defaultPrevented) return;
+      if (!dock.contains(document.activeElement)) return;
+      event.preventDefault();
+      setDockOpen(false);
+    });
     addEventListener("message", event => {
       if (event.source !== window || event.data?.source !== "null-quick") return;
       if (event.data?.type === "embedReady" && dockOpen) loadActiveTool(true);
@@ -138,6 +153,7 @@
     const dock = document.getElementById("nullAiDock");
     const toggle = document.getElementById("nullAiToggle");
     const state = toggle.querySelector(".null-shell-ai-state");
+    if (!dockOpen && dock.contains(document.activeElement)) toggle.focus({ preventScroll: true });
     dock.classList.toggle("open", dockOpen);
     dock.setAttribute("aria-hidden", dockOpen ? "false" : "true");
     dock.inert = !dockOpen;
@@ -165,6 +181,7 @@
       const selected = tab.dataset.tool === key;
       tab.classList.toggle("active", selected);
       tab.setAttribute("aria-selected", selected ? "true" : "false");
+      tab.tabIndex = selected ? 0 : -1;
     });
     document.querySelectorAll(".null-ai-frame").forEach(frame => frame.classList.toggle("active", frame.dataset.toolFrame === key));
     if (dockOpen) loadActiveTool();
