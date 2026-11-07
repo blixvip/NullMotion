@@ -228,7 +228,7 @@ function renderSelection() {
 }
 function updatePlayhead() {
   $('playhead').style.left = `${timeToX(state.current)}px`;
-  $('scrubber').value = state.current; $('time-current').textContent = timecode(state.current);
+  $('scrubber').value = state.current; $('scrubber').setAttribute('aria-valuetext', timecode(state.current)); $('time-current').textContent = timecode(state.current);
   paintProgress();
 }
 function updateScene(index) {
