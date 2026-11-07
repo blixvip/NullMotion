@@ -28,7 +28,7 @@ export async function streamVideo(request, response, filename, type = 'video/mp4
   const headers = { 'Content-Type': type, 'Accept-Ranges': 'bytes', 'Content-Length': range.end - range.start + 1, 'Cache-Control': 'private, max-age=3600' };
   if (request.headers.range) headers['Content-Range'] = `bytes ${range.start}-${range.end}/${size}`;
   response.writeHead(request.headers.range ? 206 : 200, headers);
-  if (request.method === 'HEAD') { response.end(); return; }
+  if (request.method === 'HEAD' || size === 0) { response.end(); return; }
   const stream = createReadStream(filename, range);
   stream.on('error', () => response.destroy());
   response.on('close', () => stream.destroy());
