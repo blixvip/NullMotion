@@ -14,7 +14,7 @@ const templates = catalog.templates.map(template => ({
   dir: template.id,
   use: template.description,
   tag: template.category,
-  qualityStatus: 'needs-review',
+  qualityStatus: ['approved', 'legacy', 'needs-review'].includes(template.qualityStatus) ? template.qualityStatus : 'needs-review',
   preview: { ...template.preview, path: template.preview.html, playerPath: `${template.preview.html}#play` },
   customizer: template.customizer ? {
     ...template.customizer,

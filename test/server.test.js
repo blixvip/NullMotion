@@ -212,3 +212,17 @@ exit 1
   assert.equal((await spawnError.json()).error, 'Audio unavailable.');
   await assert.rejects(stat(path.join(mediaDirectory, `${spawnErrorId}.aac.part`)), { code: 'ENOENT' });
 });
+
+test('served qualityStatus matches the catalog for approved and legacy templates', async t => {
+  const server = createApp().listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  t.after(() => { server.closeAllConnections(); server.close(); });
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const catalog = JSON.parse(await readFile(new URL('../data/template-catalog.json', import.meta.url), 'utf8'));
+  const served = await (await fetch(base + '/api/v1/templates')).json();
+  const byId = new Map(served.templates.map(template => [template.id, template]));
+  const approved = catalog.templates.find(template => template.qualityStatus === 'approved');
+  const legacy = catalog.templates.find(template => template.qualityStatus === 'legacy');
+  assert.equal(byId.get(approved.id).qualityStatus, 'approved', `qualityStatus for ${approved.id}`);
+  assert.equal(byId.get(legacy.id).qualityStatus, 'legacy', `qualityStatus for ${legacy.id}`);
+});
