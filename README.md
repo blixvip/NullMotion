@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://discord.gg/zEB4VjmfSb"><img src="https://img.shields.io/badge/Join%20the%20Discord-questions%2C%20help%2C%20show%20your%20renders-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join the Discord: questions, help, show your renders"></a>
+  <a href="https://discord.gg/wJfHQXfEMM"><img src="https://img.shields.io/badge/Join%20the%20Discord-questions%2C%20help%2C%20show%20your%20renders-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join the Discord: questions, help, show your renders"></a>
 </p>
 
 <p align="center">
@@ -92,7 +92,7 @@ These clips come from other creators and are used as examples. They are not clai
 
 ### 🎬 Show what you made
 
-Exported a breakdown or built drafts for your own ad? Post it in the **[Discord](https://discord.gg/zEB4VjmfSb)**. We'd love to see it.
+Exported a breakdown or built drafts for your own ad? Post it in the **[Discord](https://discord.gg/wJfHQXfEMM)**. We'd love to see it.
 
 ## How it works
 
@@ -154,7 +154,7 @@ That's intentional. Generation, rendering services, and Premiere are not connect
 **Can I make vertical clips, cut pauses, or add captions with this?**
 No. Those are features of Null Studio at [nullmotion.com](https://www.nullmotion.com/), a separate hosted product.
 
-Stuck on something else? Ask in the **[Discord](https://discord.gg/zEB4VjmfSb)** or [open an issue](https://github.com/blixvip/NullMotion/issues/new/choose).
+Stuck on something else? Ask in the **[Discord](https://discord.gg/wJfHQXfEMM)** or [open an issue](https://github.com/blixvip/NullMotion/issues/new/choose).
 
 ## Project layout
 
@@ -187,7 +187,7 @@ npm test        # node --test
 
 - 🟢 **Start here:** [good first issues](https://github.com/blixvip/NullMotion/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22): small, scoped, with the files to look at.
 - 🙋 **Bigger pieces:** [help wanted](https://github.com/blixvip/NullMotion/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22): new draft beat kinds, export options, cross-platform testing.
-- 💡 **Ideas and questions:** [Discussions](https://github.com/blixvip/NullMotion/discussions) or the [Discord](https://discord.gg/zEB4VjmfSb).
+- 💡 **Ideas and questions:** [Discussions](https://github.com/blixvip/NullMotion/discussions) or the [Discord](https://discord.gg/wJfHQXfEMM).
 
 Comment on an issue to claim it, and we'll review pull requests within a couple of days. Setup and checks are in [CONTRIBUTING.md](CONTRIBUTING.md). Every contributor is credited in the release notes.
 
@@ -219,8 +219,10 @@ Thank you to the outside contributors who have already sent fixes and features t
 
 ## Community
 
+**Want to send a PR? Join the [blix open source Discord](https://discord.gg/wJfHQXfEMM) first.** It's the one server for everyone contributing to any blixvip repo: questions, ideas, PR discussion, help, and release news.
+
 <p align="center">
-  <a href="https://discord.gg/zEB4VjmfSb"><img src="https://img.shields.io/badge/Join%20the%20Discord-questions%2C%20help%2C%20show%20your%20renders-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join the Discord: questions, help, show your renders"></a>
+  <a href="https://discord.gg/wJfHQXfEMM"><img src="https://img.shields.io/badge/Join%20the%20Discord-questions%2C%20help%2C%20show%20your%20renders-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join the Discord: questions, help, show your renders"></a>
 </p>
 
-💬 Questions, help, feedback, release news, and your renders all go in the **[Discord](https://discord.gg/zEB4VjmfSb)**. If Null Motion helped you, a ⭐ helps other people find it.
+💬 Questions, help, feedback, release news, and your renders all go in the **[Discord](https://discord.gg/wJfHQXfEMM)**. If Null Motion helped you, a ⭐ helps other people find it.

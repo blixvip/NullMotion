@@ -9,7 +9,7 @@ body:
         - Export needs **Chrome or Edge** (WebCodecs).
         - The server needs **Node.js 22+**.
         - See the [FAQ and troubleshooting](https://github.com/blixvip/NullMotion#faq-and-troubleshooting) section.
-        For questions rather than bugs, the [Discord](https://discord.gg/zEB4VjmfSb) is faster.
+        For questions rather than bugs, the [Discord](https://discord.gg/wJfHQXfEMM) is faster.
   - type: dropdown
     id: area
     attributes:

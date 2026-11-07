@@ -1,3 +1,4 @@
+<!-- Not in the contributor Discord yet? Join before your PR: https://discord.gg/wJfHQXfEMM -->
 ## What does this change?
 
 <!-- A short description. Link the issue it fixes, e.g. "Fixes #12". -->
@@ -15,4 +16,4 @@
 - [ ] No new reference footage added to `showcase/` or Git
 - [ ] README updated if behavior or setup changed
 
-<!-- Questions? Ask in the Discord: https://discord.gg/zEB4VjmfSb -->
+<!-- Questions? Ask in the Discord: https://discord.gg/wJfHQXfEMM -->

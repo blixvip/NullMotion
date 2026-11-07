@@ -1,6 +1,8 @@
 # Contributing to Null Motion
 
-Thanks for helping! Questions and ideas are welcome in the **[Discord](https://discord.gg/zEB4VjmfSb)**, and bugs go in [GitHub issues](https://github.com/blixvip/NullMotion/issues/new/choose).
+> 💬 **Before you open a PR, join the [blix open source Discord](https://discord.gg/wJfHQXfEMM).** It's the home for contributors across every blixvip repo: ask questions, run ideas by us, and talk through your PR.
+
+Thanks for helping! Questions and ideas are welcome in the **[Discord](https://discord.gg/wJfHQXfEMM)**, and bugs go in [GitHub issues](https://github.com/blixvip/NullMotion/issues/new/choose).
 
 ## Finding something to work on
 
@@ -45,4 +47,4 @@ npm run check      # syntax-checks every UI file and blocks hardcoded local comp
 - `scripts/`: import, section planning, showcase, waveforms, checks
 - `test/`: Node test runner tests
 
-Made something with it? Show it off in the [Discord](https://discord.gg/zEB4VjmfSb).
+Made something with it? Show it off in the [Discord](https://discord.gg/wJfHQXfEMM).
