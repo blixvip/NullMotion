@@ -7,7 +7,7 @@ body:
       value: |
         Ideas are welcome! Note that pause cuts, captions, and YouTube/Twitch/Kick clips belong to
         [Null Studio](https://www.nullmotion.com/), a separate hosted product, not this repo.
-        Want to talk an idea through first? Drop it in the [Discord](https://discord.gg/wJfHQXfEMM).
+        Want to talk an idea through first? Drop it in the [Discord](https://discord.gg/grokbot).
   - type: textarea
     id: problem
     attributes:
