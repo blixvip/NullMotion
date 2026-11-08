@@ -1,0 +1,14 @@
+{
+  // Node 22 runs the app and tests (no npm dependencies). FFmpeg/ffprobe and
+  // Python 3 are only needed for the import, section and showcase scripts.
+  "name": "Null Motion",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": { "version": "3.12" }
+  },
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg && npm test && npm run check",
+  "forwardPorts": [4343],
+  "portsAttributes": {
+    "4343": { "label": "Null Motion preview", "onAutoForward": "openBrowser" }
+  }
+}
