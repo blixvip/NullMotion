@@ -68,7 +68,7 @@ function render() {
     section.segment.classList.toggle('active', isActive);
   });
   $('playhead').style.left = `${timeToX(time, layout)}px`;
-  $('seek').value = time; $('seek').max = duration;
+  $('seek').value = time; $('seek').max = duration; $('seek').setAttribute('aria-valuetext', preciseText(time));
   $('time-now').textContent = preciseText(time);
   document.querySelector('.final').classList.toggle('paused', video.paused);
 }
