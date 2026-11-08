@@ -35,6 +35,13 @@
   <sub>Top: the finished ad. Bottom: one plain black-and-white HyperFrames draft per section. The playhead and the orange outline follow the film frame for frame.</sub>
 </p>
 
+<p align="center">
+  🛠 <b>Built in the open</b> —
+  <a href="https://github.com/blixvip/NullMotion/graphs/contributors"><img src="https://img.shields.io/github/contributors/blixvip/NullMotion?style=flat-square&color=111&label=contributors" alt="Contributors" align="absmiddle"></a>
+  <a href="https://github.com/blixvip/NullMotion/contribute"><img src="https://img.shields.io/github/issues/blixvip/NullMotion/good%20first%20issue?style=flat-square&color=ff5a1f&label=good%20first%20issues" alt="Good first issues" align="absmiddle"></a>
+  · we review PRs within 24h → <a href="https://github.com/blixvip/NullMotion/issues/13"><b>start here</b></a>
+</p>
+
 ## Quick start
 
 ```sh
@@ -189,7 +196,11 @@ npm test        # node --test
 - 🙋 **Bigger pieces:** [help wanted](https://github.com/blixvip/NullMotion/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22): new draft beat kinds, export options, cross-platform testing.
 - 💡 **Ideas and questions:** [Discussions](https://github.com/blixvip/NullMotion/discussions) or the [Discord](https://discord.gg/grokbot).
 
-Comment on an issue to claim it, and we'll review pull requests within a couple of days. Setup and checks are in [CONTRIBUTING.md](CONTRIBUTING.md). Every contributor is credited in the release notes.
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/blixvip/NullMotion?quickstart=1)
+
+One click gives you a ready environment (Node 22, FFmpeg, Python 3) with the tests already run. Then `npm run dev` and open the forwarded port 4343.
+
+Comment on an issue to claim it, and we review pull requests within 24 hours. Setup and checks are in [CONTRIBUTING.md](CONTRIBUTING.md). Every contributor is credited in the release notes.
 
 <!-- discord-incentive:start -->
 ### 💬 Why join the Discord first
