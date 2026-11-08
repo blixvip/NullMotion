@@ -261,16 +261,17 @@ async function referenceAudio(reference) {
     return await new OfflineAudioContext(2, 1, 48000).decodeAudioData(await response.arrayBuffer());
   } catch { return null; }
 }
-async function encodeAudio(buffer, muxer, seconds) {
+async function encodeAudio(buffer, muxer, start, end) {
   let failure = null;
   const encoder = new AudioEncoder({ output: (chunk, meta) => muxer.addAudioChunk(chunk, meta), error: error => { failure = error; } });
   const channels = buffer.numberOfChannels, rate = buffer.sampleRate;
   encoder.configure({ codec: 'mp4a.40.2', sampleRate: rate, numberOfChannels: channels, bitrate: 192000 });
-  const total = Math.min(buffer.length, Math.round(seconds * rate)), step = rate;
-  for (let offset = 0; offset < total && !failure; offset += step) {
+  // Trim to [start, end) of the reference, but timestamp from 0 so the MP4 starts at its first frame.
+  const first = Math.round(start * rate), total = Math.min(buffer.length, Math.round(end * rate)), step = rate;
+  for (let offset = first; offset < total && !failure; offset += step) {
     const frames = Math.min(step, total - offset), data = new Float32Array(frames * channels);
     for (let c = 0; c < channels; c++) data.set(buffer.getChannelData(c).subarray(offset, offset + frames), c * frames);
-    const chunk = new AudioData({ format: 'f32-planar', sampleRate: rate, numberOfFrames: frames, numberOfChannels: channels, timestamp: Math.round(offset / rate * 1e6), data });
+    const chunk = new AudioData({ format: 'f32-planar', sampleRate: rate, numberOfFrames: frames, numberOfChannels: channels, timestamp: Math.round((offset - first) / rate * 1e6), data });
     encoder.encode(chunk); chunk.close();
   }
   await encoder.flush(); encoder.close();
@@ -281,12 +282,15 @@ function save(url, name) {
   document.body.append(link); link.click(); link.remove();
 }
 const fileName = reference => reference.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 90) || reference.id;
-async function exportPreview() {
+// Exports the reference's [start, end) range in seconds; the MP4 always starts at 0.
+async function exportPreview(start = 0, end = Infinity, suffix = 'null-preview') {
   if (exporting || !current) return;
   if (!('VideoEncoder' in window) || !('requestVideoFrameCallback' in HTMLVideoElement.prototype)) {
     $('download-label').textContent = 'Needs Chrome or Edge'; setTimeout(() => { $('download-label').textContent = 'Download'; }, 2500); return;
   }
   const reference = current, geometry = exportGeometry(), wasPlaying = !video.paused;
+  start = Math.max(0, start); end = Math.min(reference.duration, end);
+  if (!(end > start)) return;
   exporting = true; video.pause(); $('download').disabled = true; $('download-label').textContent = 'Preparing…';
   const canvas = Object.assign(document.createElement('canvas'), { width: geometry.width, height: geometry.height });
   const context = canvas.getContext('2d');
@@ -296,6 +300,7 @@ async function exportPreview() {
   let encoder;
   try {
     const [audio] = await Promise.all([referenceAudio(reference), new Promise((resolve, reject) => { film.onloadeddata = resolve; film.onerror = reject; })]);
+    if (start > 0) await new Promise(resolve => { film.onseeked = resolve; film.currentTime = start; });
     const muxer = new Mp4Muxer.Muxer({
       target: new Mp4Muxer.ArrayBufferTarget(), fastStart: 'in-memory', firstTimestampBehavior: 'offset',
       video: { codec: 'avc', width: geometry.width, height: geometry.height },
@@ -309,6 +314,7 @@ async function exportPreview() {
     // catches up, so no frame is ever skipped.
     const queue = []; let ended = false, lastKey = -Infinity, lastTime = -1, working = false, wake = null;
     const capture = (now, meta) => {
+      if (meta.mediaTime >= end - 1e-3) { ended = true; film.pause(); wake?.(); return; }
       if (meta.mediaTime > lastTime) { lastTime = meta.mediaTime; queue.push({ time: meta.mediaTime, frame: new VideoFrame(film, { timestamp: Math.round(meta.mediaTime * 1e6) }) }); }
       if (queue.length >= 2) film.pause();
       if (!ended) film.requestVideoFrameCallback(capture);
@@ -329,13 +335,14 @@ async function exportPreview() {
       working = true;
       const { time, frame } = queue.shift();
       await drawExportFrame(context, geometry, frame, time); frame.close();
-      const output = new VideoFrame(canvas, { timestamp: Math.round(time * 1e6) });
-      const keyFrame = time - lastKey >= 2; if (keyFrame) lastKey = time;
+      const offset = time - start;
+      const output = new VideoFrame(canvas, { timestamp: Math.round(offset * 1e6) });
+      const keyFrame = offset - lastKey >= 2; if (keyFrame) lastKey = offset;
       encoder.encode(output, { keyFrame }); output.close();
       while (encoder.encodeQueueSize > 4) await new Promise(resolve => setTimeout(resolve, 5));
       working = false;
       if (film.paused && !ended && queue.length < 2) film.play().catch(() => {});
-      const progress = Math.min(1, Math.max(0, time / reference.duration));
+      const progress = Math.min(1, Math.max(0, offset / (end - start)));
       const percent = Math.min(99, Math.floor(progress * 100));
       const elapsed = (performance.now() - renderStartedAt) / 1000;
       let label = `Rendering ${percent}%`;
@@ -348,10 +355,10 @@ async function exportPreview() {
     queue.forEach(item => item.frame.close());
     if (failure) throw failure;
     await encoder.flush();
-    if (audio) { $('download-label').textContent = 'Adding sound…'; await encodeAudio(audio, muxer, lastTime + 1 / 30); }
+    if (audio) { $('download-label').textContent = 'Adding sound…'; await encodeAudio(audio, muxer, start, Math.min(end, lastTime + 1 / 30)); }
     muxer.finalize();
     const url = URL.createObjectURL(new Blob([muxer.target.buffer], { type: 'video/mp4' }));
-    save(url, `${fileName(reference)}-null-preview.mp4`);
+    save(url, `${fileName(reference)}-${suffix}.mp4`);
     setTimeout(() => URL.revokeObjectURL(url), 60000);
     $('download-label').textContent = 'Download';
   } catch (error) {
@@ -373,6 +380,11 @@ function toggleMenu(open = $('download-menu').hidden) {
 }
 $('download').addEventListener('click', () => toggleMenu());
 $('download-all').addEventListener('click', () => { toggleMenu(false); exportPreview(); });
+$('download-section').addEventListener('click', () => {
+  toggleMenu(false);
+  const section = sections[sectionAt(video.currentTime || 0)];
+  if (section) exportPreview(section.start, section.end, 'section');
+});
 $('download-final').addEventListener('click', () => { toggleMenu(false); if (current) save(current.src, `${fileName(current)}.mp4`); });
 document.addEventListener('click', event => { if (!event.target.closest('.download')) toggleMenu(false); });
 document.addEventListener('keydown', event => { if (event.key === 'Escape' && !$('download-menu').hidden) toggleMenu(false); });
