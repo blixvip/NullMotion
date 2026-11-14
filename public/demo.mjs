@@ -166,9 +166,47 @@ $('sound').addEventListener('click', () => {
   }
 });
 
+// Skip only text entry. The guard used to bail on any focused button or link,
+// and the play/pause control (and every library card) is a <button>; clicking
+// one left it focused, so event.target was that button on the next keypress and
+// the shortcuts below never ran. That is the flow the README documents: pause
+// with the on-screen button, then press "," or "." to step a frame.
+//
+// Exported so test/demo-shortcuts.test.js can exercise the decision without a
+// browser: a DOM shim of `closest`/`isContentEditable` is enough, and a regex
+// over the source would not catch a guard that is present but wrong.
+export function isTextEntry(target) {
+  if (!target || !target.closest) return false;
+  const field = target.closest('textarea, select, input, [contenteditable]');
+  if (!field) return false;
+  if (field.tagName === 'INPUT') {
+    // Checkboxes, radios, buttons-as-input, ranges and files do not accept
+    // typed text, so they must not swallow the shortcuts.
+    const type = (field.getAttribute('type') || 'text').toLowerCase();
+    return !['button', 'checkbox', 'color', 'file', 'hidden', 'image', 'radio', 'range', 'reset', 'submit'].includes(type);
+  }
+  if (field.tagName === 'TEXTAREA' || field.tagName === 'SELECT') return true;
+  // A contenteditable host is text entry; a plain div is not. Check the
+  // attribute as well as the property, because the property is inherited and
+  // isContentEditable is the only one that reflects the nearest editable root.
+  return field.isContentEditable === true || field.hasAttribute?.('contenteditable');
+}
+
+// Space must not toggle twice: a focused button or link already activates
+// natively, so the handler lets the browser do it.
+export function spaceHandledNatively(target) {
+  return !!(target && target.closest && target.closest('button, a'));
+}
+
 document.addEventListener('keydown', event => {
-  if (event.target.closest('button, input, a')) return;
-  if (event.code === 'Space') { event.preventDefault(); $('final-toggle').click(); return; }
+  if (isTextEntry(event.target)) return;
+  if (event.code === 'Space') {
+    // A focused <button> or <a> activates natively on Space. Delegating to
+    // final-toggle.click() as well would toggle playback twice, so let the
+    // browser handle that case.
+    if (spaceHandledNatively(event.target)) return;
+    event.preventDefault(); $('final-toggle').click(); return;
+  }
   if (exporting || !sections.length) return;
   if (event.code === 'ArrowLeft' || event.code === 'ArrowRight') {
     event.preventDefault();
